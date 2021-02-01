@@ -3,27 +3,42 @@ import javax.swing.JPanel;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.LineBorder;
 import java.awt.Color;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class FlightInfoPanel extends JPanel {
+	
+	private MainFrame mainFrame; //Main panel
+	private MainController mainController; //Main controller
 
-	private int xGridPosition = 0;
-	private int yGridPosition = 0;
+	//Position in the grid
 	private int panelNumber = 0;
+	int gridPositionX = 0;
+	int gridPositionY = 0;
+	
+	//Flight instance to show its info
+	private Volo volo;
+	
+	//Dimensions of panel
 	private int width = 255;
 	private int height = 255;
 
-	public FlightInfoPanel(int panelNumber, int xGridPosition, int yGridPosition) {
+	public FlightInfoPanel(MainFrame mf, MainController c, Volo v, int panelNumber, int gridPositionX, int gridPositionY) {
 		
-		this.xGridPosition = xGridPosition;
-		this.yGridPosition = yGridPosition;
-		this.panelNumber = panelNumber;
+		mainFrame = mf; //Link main frame
+		mainController = c; //Link main controller
+		volo = v; //Flight instance to show its info
+		this.panelNumber = panelNumber; //Number of this panel in the grid
+		//Grid coordinates
+		this.gridPositionX = gridPositionX;
+		this.gridPositionY = gridPositionY;
 		
-		setSize(width, height);
-		setBackground(new Color(200, 200, 255, 255));
-		setBorder(new LineBorder(new Color(0, 0, 0), 2));
+		setSize(width, height); //Set panel size
+		setBackground(new Color(200, 200, 255, 255)); //Set background color
+		setBorder(new LineBorder(new Color(0, 0, 0), 2)); //Set border
 		
-		JLabel l = new JLabel(String.valueOf(panelNumber));
-		add(l);
+		JLabel idLabel = new JLabel("ID: " + volo.getID()); //Create label with Flight ID
+		add(idLabel); //Add label to the panel
 
 	}
 

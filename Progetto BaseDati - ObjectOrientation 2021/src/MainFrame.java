@@ -42,6 +42,8 @@ public class MainFrame extends JFrame {
 	private JPanel contentPanel; //Panel that changes
 	private JLayeredPane centerPanel; //Panel containing content panel and dashboard
 	
+	private JPanel currentPanel = null; //Current panel being displayed in the content panel
+	
 	final private int screenWidth = (int)screenSize.getWidth(); //Screen width
 	final private int screenHeight = (int)screenSize.getHeight(); //Screen height
 	final private int frameWidth = 1200; //Frame width
@@ -150,6 +152,12 @@ public class MainFrame extends JFrame {
 
 	public boolean setContentPanelToCheckFlightsPanel() {
 		
+		//Check if the current panel is already in place in the content panel (They have the same class name)
+		if(currentPanel != null && currentPanel.getClass().getName().equals("CheckFlightsPanel")) {
+			System.out.println("Already on this panel!");
+			return false; //Dont replace the content panel
+		}
+		
 		Rectangle bounds = new Rectangle(contentPanel.getBounds()); //Get bounds of the content panel
 		centerPanel.remove(contentPanel); //Remove content panel from the center panel
 		
@@ -161,9 +169,36 @@ public class MainFrame extends JFrame {
 		contentPanel.repaint(); //Repaint content panel
 		contentPanel.revalidate(); //Revalidate content panel
 		centerPanel.repaint(); //Repaint center panel
+		
+		currentPanel = contentPanel; //Update current panel
 		return true;
 		
 	}
-	
+
+	public boolean setContentPanelToCreateFlightsPanel() {
+		
+		//Check if the current panel is already in place in the content panel (They have the same class name)
+		if(currentPanel != null && currentPanel.getClass().getName().equals("CreateFlightPanel")) {
+			System.out.println("Already on this panel!");
+			return false; //Dont replace the content panel
+		}
+		
+		Rectangle bounds = new Rectangle(contentPanel.getBounds()); //Get bounds of the content panel
+		centerPanel.remove(contentPanel); //Remove content panel from the center panel
+		
+		contentPanel = new CreateFlightPanel(bounds, this, controller); //Create new panel and store it in the contentPanel
+		
+		contentPanel.setBounds(bounds); //Position the content panel based on the bounds gathered beforehand
+		centerPanel.add(contentPanel); //Add new content panel to the center panel
+		
+		contentPanel.repaint(); //Repaint content panel
+		contentPanel.revalidate(); //Revalidate content panel
+		centerPanel.repaint(); //Repaint center panel
+		
+		currentPanel = contentPanel; //Update current panel
+		return true;
+		
+	}
+
 }
 

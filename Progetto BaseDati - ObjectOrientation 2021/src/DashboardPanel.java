@@ -29,10 +29,10 @@ public class DashboardPanel extends JPanel {
 	private int currentPositionX = startingPositionX; //Current x of the dashboard panel (starts fully retracted (starting position))
 	
 	final private float animationMultiplierSpeedMax = 6.0f; //Max value of the multiplier of the animation speed
-	final private float animationMultiplierSpeedAmount = .28f; //Amount to increase for each TimerTask the mutiplier value
+	final private float animationMultiplierSpeedAmount = .28f; //Amount to increase for each TimerTask the multiplier value
 	private float animationMultiplierSpeedCurrent = 1.0f; //Current value of the multiplier of the animation speed
 	
-	private animationStatus status = animationStatus.retracted; //Status of the animation (starts fully retracted)
+	private dashboardAnimationStatus status = dashboardAnimationStatus.retracted; //Status of the animation (starts fully retracted)
 	
 	public DashboardPanel(int h, MainFrame mf, MainController mc) {
 		
@@ -65,7 +65,6 @@ public class DashboardPanel extends JPanel {
 		JButton buttonCheckFlights = new JButton("Check flights"); //Create check flights button
 		buttonCheckFlights.setName("buttonCheckFlights"); //Set component name
 		buttonCheckFlights.addMouseListener(new MouseAdapter() {
-			@Override
 			public void mouseClicked(MouseEvent e) {
 				
 				//Set panel on main frame to the correct panel
@@ -82,6 +81,14 @@ public class DashboardPanel extends JPanel {
 		dashboardControlPanel.add(buttonFlightsArchive); //Add to dashboardControlPanel
 		
 		JButton buttonCreateNewFlight = new JButton("Create new flight"); //Create create new flight button
+		buttonCreateNewFlight.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(MouseEvent e) {
+			
+				//Set panel on main frame to the correct panel
+				mf.setContentPanelToCreateFlightsPanel();
+			
+			}
+		});
 		buttonCreateNewFlight.setName("buttonCreateNewFlight"); //Set component name
 		buttonCreateNewFlight.setBounds(10, 160, 276, 50); //Set position and bounds
 		dashboardControlPanel.add(buttonCreateNewFlight); //Add to dashboardControlPanel
@@ -98,10 +105,10 @@ public class DashboardPanel extends JPanel {
 			public void mouseEntered(MouseEvent e) {
 				
 				//If the dashboard is not already extended
-				if(status != animationStatus.extended) {
+				if(status != dashboardAnimationStatus.extended) {
 					
 					//Extend animation
-					status = animationStatus.extending; //Set status to extending status (animating)
+					status = dashboardAnimationStatus.extending; //Set status to extending status (animating)
 					class AnimationExtending extends TimerTask { //Create animation class
 						
 						//Override run method
@@ -118,7 +125,7 @@ public class DashboardPanel extends JPanel {
 							}
 							
 							//If animation is interrupted (it's status is no longer extending)
-							if(status != animationStatus.extending) {
+							if(status != dashboardAnimationStatus.extending) {
 								
 								animationMultiplierSpeedCurrent = 1.0f; //Reset the multiplier
 								this.cancel(); //Stop animation
@@ -128,7 +135,7 @@ public class DashboardPanel extends JPanel {
 								animationMultiplierSpeedCurrent = 1.0f; //Reset the multiplier
 								currentPositionX = endingPositionX; //Set the current position to the ending position
 								moveDashboard(currentPositionX); //Move dashboard
-								status = animationStatus.extended; //Set status to extended status (animation complete)
+								status = dashboardAnimationStatus.extended; //Set status to extended status (animation complete)
 								this.cancel(); //Stop animation
 								
 							}
@@ -155,10 +162,10 @@ public class DashboardPanel extends JPanel {
 		        }
 		        
 		        //If the dashboard is not already retracted
-				if(status != animationStatus.retracted) {
+				if(status != dashboardAnimationStatus.retracted) {
 					
 					//Retract animation
-					status = animationStatus.retracting;  //Set status to retracting status (animating)
+					status = dashboardAnimationStatus.retracting;  //Set status to retracting status (animating)
 					class AnimationRetracting extends TimerTask { //Create animation class
 						
 						//Override run method
@@ -175,7 +182,7 @@ public class DashboardPanel extends JPanel {
 							}
 							
 							//If animation is interrupted (it's status is no longer retracting)
-							if(status != animationStatus.retracting) {
+							if(status != dashboardAnimationStatus.retracting) {
 								
 								animationMultiplierSpeedCurrent = 1.0f; //Reset the multiplier
 								this.cancel(); //Stop animation
@@ -185,7 +192,7 @@ public class DashboardPanel extends JPanel {
 								animationMultiplierSpeedCurrent = 1.0f; //Reset the multiplier
 								currentPositionX = startingPositionX; //Set the current position to the starting position
 								moveDashboard(currentPositionX); //Move dashboard
-								status = animationStatus.retracted; //Set status to retracted status (animation complete)
+								status = dashboardAnimationStatus.retracted; //Set status to retracted status (animation complete)
 								this.cancel(); //Stop animation
 								
 							}
@@ -212,10 +219,11 @@ public class DashboardPanel extends JPanel {
 	public void moveDashboard(int positionX) {
 		setLocation(positionX, getLocation().y); //Set the location
 	}
+
 }
 
 //Enumeration of the animation status
-enum animationStatus{
+enum dashboardAnimationStatus{
 	retracted, //Fully retracted, not animating
 	retracting, //Retracting, animating
 	extended, //Fully extended, not animating
