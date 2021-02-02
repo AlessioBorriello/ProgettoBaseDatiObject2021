@@ -15,12 +15,21 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.JButton;
 import javax.swing.UIManager;
 import javax.swing.border.BevelBorder;
+import javax.swing.BoxLayout;
+import java.awt.Component;
+import java.awt.GridLayout;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class CreateFlightPanel extends JPanel {
 
 	private MainFrame mainFrame; //Main panel
 	private MainController mainController; //Main controller
-	ArrayList<CompagniaAerea> listaCompagnie = new ArrayList<CompagniaAerea>();
+	private ArrayList<CompagniaAerea> listaCompagnie = new ArrayList<CompagniaAerea>(); //Array containing the companies
+	private int queueNumber = 0; //How many queues have been added
+	private ArrayList<String> listaCode = new ArrayList<String>();
+	
+	private JPanel panelQueues;
 	
 	public CreateFlightPanel(Rectangle bounds, MainFrame mf, MainController c) {
 		
@@ -51,10 +60,8 @@ public class CreateFlightPanel extends JPanel {
 		add(cBoxCompany); //Add to panel
 		//Populate combo box
 		for(CompagniaAerea comp : listaCompagnie) {
-			
 			//Add each member of the array listaCompagnie to the combobox
 			cBoxCompany.addItem(comp.getNome());
-			
 		}
 		
 		JLabel lblInsertTakeOffTime = new JLabel("Inserisci data e orario partenza:"); //Create label insert take off time
@@ -90,14 +97,19 @@ public class CreateFlightPanel extends JPanel {
 		buttonCreateFlight.setBounds(243, 522, 294, 58); //Set bounds
 		add(buttonCreateFlight); //Add to panel
 		
-		JLabel lblQueues = new JLabel("Code inserite:"); //Create label queues
+		JLabel lblQueues = new JLabel("Code inserite: (Clicca su una per rimuovere)"); //Create label queues
 		lblQueues.setName("lblQueues"); //Name component
 		lblQueues.setHorizontalAlignment(SwingConstants.CENTER); //Set text h alignment to center
-		lblQueues.setFont(new Font("Tahoma", Font.BOLD, 18)); //Set text font
+		lblQueues.setFont(new Font("Tahoma", Font.BOLD, 14)); //Set text font
 		lblQueues.setBounds(642, 71, 315, 34); //Set bounds
 		add(lblQueues); //Add to panel
 		
 		JLabel lblAddQueue = new JLabel("+ Aggiungi coda"); //Create label insert queue
+		lblAddQueue.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(MouseEvent e) {
+				createAddQueuePanel();
+			}
+		});
 		lblAddQueue.setName("lblAddQueue"); //Name component
 		lblAddQueue.setForeground(new Color(90, 90, 200, 255)); //Set color of the text
 		lblAddQueue.setHorizontalAlignment(SwingConstants.TRAILING); //Set text h alignment to trailing
@@ -105,10 +117,98 @@ public class CreateFlightPanel extends JPanel {
 		lblAddQueue.setBounds(389, 250, 148, 34); //Set bounds
 		add(lblAddQueue); //Add to panel
 		
-		JPanel panelQueues = new JPanel(); //Create new panel
+		panelQueues = new JPanel(); //Create new panel
 		panelQueues.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null)); //Set border
 		panelQueues.setBounds(642, 107, 315, 473); //Set bounds
 		add(panelQueues); //Add to panel
+		panelQueues.setLayout(new GridLayout(20, 0, 0, 0)); //Set panel's layout
+		
+		
+		buttonCreateFlight.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(MouseEvent e) {
+			
+				//Gather data
+				String nomeCompagnia = (String)cBoxCompany.getSelectedItem();
+				Date data = (Date)spinnerTakeOffTime.getValue();
+				int gate = (int)spinnerGate.getValue();
+				createFlight(nomeCompagnia, data, gate);
+			
+			}
+		});
 		
 	}
+	
+	public void createAddQueuePanel() {
+		
+		AddQueuePanel frame = new AddQueuePanel(mainFrame); //Create a popup panel
+		frame.setVisible(true); //Make it visible
+		String choice = frame.getChoice(); //Get the choice taken from the frame
+		if(!choice.equals("undo")) { //If the user has not pressed the undo button
+			//Check if that type of queue has been added already
+			boolean queueAlreadyAdded = false;
+			for(String s : listaCode) {
+				if(s.equals(choice)) {
+					//If the queue has been added already (has been found in the ArrayList listaCode)
+					queueAlreadyAdded = true;
+					break;
+				}
+			}
+			//If the queue has not been added already
+			if(!queueAlreadyAdded) {
+				addQueue(choice); //Add a queue
+			}else { //If the queue has been added already
+				mainFrame.createNotificationFrame("Questa coda è già stata aggiunta!"); //Notify user
+			}
+		}
+		
+	}
+	
+	public void addQueue(String type) {
+		
+		listaCode.add(type); //Add the queue to the ArrayList listaCode
+		
+		JLabel lblAddedQueue = new JLabel(type); //Create label with the queue type chosen
+		lblAddedQueue.setHorizontalAlignment(SwingConstants.CENTER); //Set text h alignment to center
+		lblAddedQueue.setFont(new Font("Tahoma", Font.BOLD, 18)); //Set text font
+		lblAddedQueue.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(MouseEvent e) {
+				removeQueue(lblAddedQueue);
+			}
+		});
+		panelQueues.add(lblAddedQueue); //Add label to the panelQueues panel
+		panelQueues.repaint(); //Repaint panelQueues
+		panelQueues.revalidate(); //Revalidate panelQueues
+		
+	}
+	
+	public void removeQueue(JLabel queueLabel) {
+		
+		ConfirmationFrame frame = new ConfirmationFrame("Sei sicuro di voler eliminare questa coda?", mainFrame); //Create confirmation frame
+		frame.setVisible(true); //Set confirmation frame visible
+		if(frame.getAnswer()) { //If the user has confirmed the action
+			
+			listaCode.remove(listaCode.indexOf(queueLabel.getText())); //Remove the queue from the ArrayList listaCode
+			panelQueues.remove(queueLabel); //Remove label from the panelQueues
+			panelQueues.repaint(); //Repaint panelQueues
+			panelQueues.revalidate(); //Revalidate panelQueues
+		
+		}
+		
+	}
+	
+	public void createFlight(String nomeCompagnia, Date data, int gate) {
+		
+		//Get company class from it's name
+		CompagniaAerea compagnia = null;
+		for(CompagniaAerea c : listaCompagnie) {
+			if(c.getNome().equals(nomeCompagnia)) {
+				compagnia = c;
+				break;
+			}
+		}
+		
+		System.out.println("Compagnia: " + compagnia.getNome() + " Data: " + data + " gate: " + gate + " Code: " + listaCode);
+		
+	}
+
 }

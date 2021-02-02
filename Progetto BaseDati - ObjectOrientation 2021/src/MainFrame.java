@@ -200,5 +200,21 @@ public class MainFrame extends JFrame {
 		
 	}
 
+	public void createNotificationFrame(String notification) {
+		
+		NotificationFrame frame = new NotificationFrame(notification, this);
+		frame.setVisible(true);
+		
+	}
+
+	public boolean createConfirmationFrame(String notification) {
+		
+		ConfirmationFrame frame = new ConfirmationFrame(notification, this);
+		frame.setVisible(true);
+		boolean answer = frame.getAnswer();
+		return answer;
+		
+	}
+
 }
 
