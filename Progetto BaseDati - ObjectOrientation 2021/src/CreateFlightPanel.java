@@ -15,11 +15,15 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.JButton;
 import javax.swing.UIManager;
 import javax.swing.border.BevelBorder;
+import javax.swing.text.DateFormatter;
 import javax.swing.BoxLayout;
 import java.awt.Component;
 import java.awt.GridLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import javax.swing.JTable;
 
 public class CreateFlightPanel extends JPanel {
 
@@ -27,7 +31,7 @@ public class CreateFlightPanel extends JPanel {
 	private MainController mainController; //Main controller
 	private ArrayList<CompagniaAerea> listaCompagnie = new ArrayList<CompagniaAerea>(); //Array containing the companies
 	private int queueNumber = 0; //How many queues have been added
-	private ArrayList<String> listaCode = new ArrayList<String>();
+	private ArrayList<String> listaCode = new ArrayList<String>(); //List of the queues
 	
 	private JPanel panelQueues;
 	
@@ -47,12 +51,9 @@ public class CreateFlightPanel extends JPanel {
 		lblInsertCompany.setBounds(64, 71, 315, 34); //Set bounds
 		add(lblInsertCompany); //Add to panel
 		
-		//Debug population (Replace with a DAO)
-		for(int i = 1; i < 6; i++) {
-			CompagniaAerea compagnia = new CompagniaAerea();
-			compagnia.setNome("Compagnia numero " + i);
-			listaCompagnie.add(compagnia);
-		}
+		//Get all the companies from the database
+		CompagniaAereaDAO dao = new CompagniaAereaDAO();
+		listaCompagnie = dao.getAllCompagniaAerea();
 		
 		JComboBox cBoxCompany = new JComboBox(); //Combo box of the companies
 		cBoxCompany.setName("cBoxCompany"); //Name component
@@ -64,31 +65,31 @@ public class CreateFlightPanel extends JPanel {
 			cBoxCompany.addItem(comp.getNome());
 		}
 		
-		JLabel lblInsertTakeOffTime = new JLabel("Inserisci data e orario partenza:"); //Create label insert take off time
-		lblInsertTakeOffTime.setName("lblInsertTakeOffTime"); //Name component
-		lblInsertTakeOffTime.setHorizontalAlignment(SwingConstants.TRAILING); //Set text h alignment to trailing
-		lblInsertTakeOffTime.setFont(new Font("Tahoma", Font.BOLD, 18)); //Set text font
-		lblInsertTakeOffTime.setBounds(64, 130, 315, 34); //Set bounds
-		add(lblInsertTakeOffTime); //Add to panel
+		JLabel lblInsertTakeOffDate = new JLabel("Inserisci data partenza:"); //Create label insert take off date
+		lblInsertTakeOffDate.setName("lblInsertTakeOffDate"); //Name component
+		lblInsertTakeOffDate.setHorizontalAlignment(SwingConstants.TRAILING); //Set text h alignment to trailing
+		lblInsertTakeOffDate.setFont(new Font("Tahoma", Font.BOLD, 18)); //Set text font
+		lblInsertTakeOffDate.setBounds(64, 130, 315, 34); //Set bounds
+		add(lblInsertTakeOffDate); //Add to panel
 		
-		JSpinner spinnerTakeOffTime = new JSpinner(); //Create spinner to declare the take off time
-		spinnerTakeOffTime.setName("spinnerTakeOffTime"); //Name component
-		spinnerTakeOffTime.setModel(new SpinnerDateModel(new Date(1612134000000L), null, null, Calendar.DAY_OF_YEAR)); //Set the type of spinner
-		spinnerTakeOffTime.setFont(new Font("Tahoma", Font.BOLD, 11)); //Set text font
-		spinnerTakeOffTime.setBounds(389, 140, 148, 20); //Set bounds
-		add(spinnerTakeOffTime); //Add to panel
+		JSpinner spinnerTakeOffDate = new JSpinner(); //Create spinner to declare the take off date
+		spinnerTakeOffDate.setModel(new SpinnerDateModel(new Date(1612134000000L), null, null, Calendar.DAY_OF_YEAR)); //Set spinner model
+		spinnerTakeOffDate.setName("spinnerTakeOffDate"); //Name component
+		spinnerTakeOffDate.setFont(new Font("Tahoma", Font.BOLD, 11)); //Set text font
+		spinnerTakeOffDate.setBounds(389, 140, 148, 20); //Set bounds
+		add(spinnerTakeOffDate); //Add to panel
 		
 		JLabel lblInsertGate = new JLabel("Inserisci gate:"); //Create label insert gate
 		lblInsertGate.setName("lblInsertGate"); //Name component
 		lblInsertGate.setHorizontalAlignment(SwingConstants.TRAILING); //Set text h alignment to trailing
 		lblInsertGate.setFont(new Font("Tahoma", Font.BOLD, 18)); //Set text font
-		lblInsertGate.setBounds(64, 190, 315, 34); //Set bounds
+		lblInsertGate.setBounds(64, 185, 315, 34); //Set bounds
 		add(lblInsertGate); //Add to panel
 		
 		JSpinner spinnerGate = new JSpinner(); //Create spinner to declare the gate
 		spinnerGate.setName("spinnerGate"); //Name component
 		spinnerGate.setModel(new SpinnerNumberModel(new Integer(1), new Integer(1), null, new Integer(1))); //Set the type of spinner
-		spinnerGate.setBounds(389, 200, 148, 20); //Set bounds
+		spinnerGate.setBounds(389, 195, 148, 20); //Set bounds
 		add(spinnerGate); //Add to panel
 		
 		JButton buttonCreateFlight = new JButton("Crea nuovo volo"); //Create button create flight
@@ -114,14 +115,14 @@ public class CreateFlightPanel extends JPanel {
 		lblAddQueue.setForeground(new Color(90, 90, 200, 255)); //Set color of the text
 		lblAddQueue.setHorizontalAlignment(SwingConstants.TRAILING); //Set text h alignment to trailing
 		lblAddQueue.setFont(new Font("Tahoma", Font.BOLD, 18)); //Set text font
-		lblAddQueue.setBounds(389, 250, 148, 34); //Set bounds
+		lblAddQueue.setBounds(389, 246, 148, 34); //Set bounds
 		add(lblAddQueue); //Add to panel
 		
 		panelQueues = new JPanel(); //Create new panel
 		panelQueues.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null)); //Set border
 		panelQueues.setBounds(642, 107, 315, 473); //Set bounds
 		add(panelQueues); //Add to panel
-		panelQueues.setLayout(new GridLayout(20, 0, 0, 0)); //Set panel's layout
+		panelQueues.setLayout(new GridLayout(20, 0, 0, 0)); //Set layout
 		
 		
 		buttonCreateFlight.addMouseListener(new MouseAdapter() {
@@ -129,7 +130,7 @@ public class CreateFlightPanel extends JPanel {
 			
 				//Gather data
 				String nomeCompagnia = (String)cBoxCompany.getSelectedItem();
-				Date data = (Date)spinnerTakeOffTime.getValue();
+				Date data = (Date)spinnerTakeOffDate.getValue();
 				int gate = (int)spinnerGate.getValue();
 				createFlight(nomeCompagnia, data, gate);
 			
@@ -212,3 +213,11 @@ public class CreateFlightPanel extends JPanel {
 	}
 
 }
+
+//Disable typing in the spinner
+/*
+DateFormatter formatter = (DateFormatter)editor.getTextField().getFormatter();
+formatter.setAllowsInvalid(false);
+formatter.setOverwriteMode(true);
+*/
+

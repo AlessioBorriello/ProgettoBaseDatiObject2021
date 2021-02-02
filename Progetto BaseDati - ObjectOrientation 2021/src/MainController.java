@@ -2,6 +2,10 @@ import java.awt.EventQueue;
 
 
 public class MainController {
+	
+	static String URL = "jdbc:mysql://localhost:3306/aereoporto?autoReconnect=true&useSSL=false"; //Database URL
+	static String PASSWORD = "password";
+	static String USER = "root";
 
 	public static void main(String[] args) {
 		
