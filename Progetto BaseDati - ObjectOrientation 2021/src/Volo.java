@@ -10,12 +10,12 @@ public class Volo {
 	private Slot slot;
 	private int numeroPrenotazioni = 0;
 	private boolean partito = false;
-	private int ID = 0;
+	private String ID = null;
 	
-	public int getID() {
+	public String getID() {
 		return ID;
 	}
-	public void setID(int iD) {
+	public void setID(String iD) {
 		ID = iD;
 	}
 	public CompagniaAerea getCompagnia() {
@@ -57,7 +57,7 @@ public class Volo {
 	
 	public void printFlightInfo() {
 		
-		System.out.println("Compagnia: " + compagnia.getNome() + " Data: " + orarioDecollo + " gate: " + gate.getNumeroGate() + "\nSlot: " + slot.getTempoStimatoInferiore() + " - " + slot.getTempoStimatoSuperiore());
+		System.out.println("ID: " + ID + " Compagnia: " + compagnia.getNome() + " Data: " + orarioDecollo + " gate: " + gate.getNumeroGate() + "\nSlot: " + slot.getInizioTempoStimato() + " - " + slot.getFineTempoStimato());
 		for(Coda c : gate.getListaCode()) {
 			System.out.print(c.getTipo() + " ");
 		}

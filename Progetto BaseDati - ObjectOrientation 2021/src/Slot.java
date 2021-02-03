@@ -3,23 +3,35 @@ import java.util.Date;
 
 public class Slot {
 	
-	private Date tempoStimatoInferiore;
-	private Date tempoStimatoSuperiore;
-	private Date tempoEffettivoInferiore;
-	private Date tempoEffettivoSuperiore;
+	private Date inizioTempoStimato = null;
+	private Date fineTempoStimato = null;
+	private Date inizioTempoEffettivo = null;
+	private Date fineTempoEffettivo = null;
 	
 	
-	public Date getTempoStimatoInferiore() {
-		return tempoStimatoInferiore;
+	public Date getInizioTempoStimato() {
+		return inizioTempoStimato;
 	}
-	public void setTempoStimatoInferiore(Date tempoStimatoInferiore) {
-		this.tempoStimatoInferiore = tempoStimatoInferiore;
+	public void setInizioTempoStimato(Date inizioTempoStimato) {
+		this.inizioTempoStimato = inizioTempoStimato;
 	}
-	public Date getTempoStimatoSuperiore() {
-		return tempoStimatoSuperiore;
+	public Date getFineTempoStimato() {
+		return fineTempoStimato;
 	}
-	public void setTempoStimatoSuperiore(Date tempoStimatoSuperiore) {
-		this.tempoStimatoSuperiore = tempoStimatoSuperiore;
+	public void setFineTempoStimato(Date fineTempoStimato) {
+		this.fineTempoStimato = fineTempoStimato;
+	}
+	public Date getInizioTempoEffettivo() {
+		return inizioTempoEffettivo;
+	}
+	public void setInizioTempoEffettivo(Date inizioTempoEffettivo) {
+		this.inizioTempoEffettivo = inizioTempoEffettivo;
+	}
+	public Date getFineTempoEffettivo() {
+		return fineTempoEffettivo;
+	}
+	public void setFineTempoEffettivo(Date fineTempoEffettivo) {
+		this.fineTempoEffettivo = fineTempoEffettivo;
 	}
 	
 }

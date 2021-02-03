@@ -34,15 +34,19 @@ public class CheckFlightsPanel extends JPanel {
 		gridPanel.setName("gridPanel"); //Name component
 		scrollPanel.setViewportView(gridPanel); //Make the scroll pane look at the grid panel and add it to the scroll pane
 		
+		//Get list of the flights
+		VoloDAO dao = new VoloDAO();
+		listaVoli = dao.getAllFlights(false);
 		//Debug population
+		/*
 		for(int i = 0; i < 23; i++) {
 			
-			Random r = new Random();
 			Volo v = new Volo();
-			v.setID(r.nextInt(2000));
+			v.setID(mainController.generateIDString());
 			listaVoli.add(v);
 			
 		}
+		*/
 		
 		populateGrid(gridPanel, listaVoli, 4, 15, 15, 25, 25); //Create grid of flights info panel based on the listaVoli array
 		

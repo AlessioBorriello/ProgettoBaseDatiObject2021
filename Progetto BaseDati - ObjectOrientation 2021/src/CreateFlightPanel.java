@@ -5,6 +5,7 @@ import javax.swing.JLabel;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerDateModel;
 import java.util.Date;
+import java.util.Random;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.awt.Color;
@@ -208,19 +209,22 @@ public class CreateFlightPanel extends JPanel {
 			}
 		}
 		
+		//Generate ID
+		String id = mainController.generateIDString();
+		
 		//Calculate the range of the slot
 		Calendar c = Calendar.getInstance(); //Create a calendar instance
 		c.setTime(data); //Set the calendar time to the passed date
 		
 		//Get lower range
 		c.add(Calendar.MINUTE, -5);
-		Date tempoStimatoLower = new Date();
-		tempoStimatoLower = c.getTime();
+		Date inizioTempoStimato = new Date();
+		inizioTempoStimato = c.getTime();
 		
 		//Get higher range
 		c.add(Calendar.MINUTE, 15);
-		Date tempoStimatoHigher = new Date();
-		tempoStimatoHigher = c.getTime();
+		Date fineTempoStimato = new Date();
+		fineTempoStimato = c.getTime();
 		
 		//Create queue list
 		ArrayList<Coda> list = new ArrayList<Coda>();
@@ -238,11 +242,12 @@ public class CreateFlightPanel extends JPanel {
 		
 		//Create slot
 		Slot s = new Slot();
-		s.setTempoStimatoInferiore(tempoStimatoLower);
-		s.setTempoStimatoSuperiore(tempoStimatoHigher);
+		s.setInizioTempoStimato(inizioTempoStimato);
+		s.setFineTempoStimato(fineTempoStimato);
 		
 		//Create flight
 		Volo v = new Volo();
+		v.setID(id);
 		v.setCompagnia(compagnia);
 		v.setGate(g);
 		v.setNumeroPrenotazioni(0);

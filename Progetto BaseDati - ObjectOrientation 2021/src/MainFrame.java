@@ -56,7 +56,6 @@ public class MainFrame extends JFrame {
 
 	public MainFrame(MainController c) {
 		
-		
 		controller = c; //Link controller and frame
 		
 		//Frame proprieties

@@ -41,6 +41,44 @@ public class CompagniaAereaDAO {
 			System.out.println(e);
 			return null; //Return null
 		}
+		
+	}
+	
+	public CompagniaAerea getCompagniaAereaByNome(String nome) {
+		
+		try {
+			
+			Class.forName("com.mysql.jdbc.Driver");
+			String q = "Select * from compagniaaerea where nomeCompagnia = '" + nome + "'" ; //Initialize query
+			
+			String connectionURL = MainController.URL; //Connection URL
+
+	        Connection con = DriverManager.getConnection(connectionURL, MainController.USER, MainController.PASSWORD); //Create connection
+			Statement st = con.createStatement(); //Create statement
+			ResultSet rs = st.executeQuery(q); //Execute query
+			
+			if(rs.next()) { //Company found
+				
+				//Create company instance
+				CompagniaAerea c = new CompagniaAerea();
+				c.setNome(nome);
+				c.setNumeroVoli(rs.getInt("numeroVoli"));
+				
+				return c;
+				
+			}else { //Company not found
+				
+				con.close(); //Close connection
+				st.close(); //Close statement
+				
+				return null; //Return null
+			}
+			
+		}catch(Exception e) { //Error catching
+			System.out.println(e);
+			return null; //Return null
+		}
+		
 	}
 	
 }
