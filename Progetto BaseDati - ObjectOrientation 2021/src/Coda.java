@@ -1,13 +1,13 @@
 
 public class Coda {
 
-	private queueType tipo;
+	private String tipo;
 	private int personeInCoda = 0;
 	
-	public queueType getTipo() {
+	public String getTipo() {
 		return tipo;
 	}
-	public void setTipo(queueType tipo) {
+	public void setTipo(String tipo) {
 		this.tipo = tipo;
 	}
 	public int getPersoneInCoda() {

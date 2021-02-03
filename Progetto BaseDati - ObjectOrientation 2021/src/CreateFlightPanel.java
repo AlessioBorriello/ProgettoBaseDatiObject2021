@@ -208,7 +208,52 @@ public class CreateFlightPanel extends JPanel {
 			}
 		}
 		
-		System.out.println("Compagnia: " + compagnia.getNome() + " Data: " + data + " gate: " + gate + " Code: " + listaCode);
+		//Calculate the range of the slot
+		Calendar c = Calendar.getInstance(); //Create a calendar instance
+		c.setTime(data); //Set the calendar time to the passed date
+		
+		//Get lower range
+		c.add(Calendar.MINUTE, -5);
+		Date tempoStimatoLower = new Date();
+		tempoStimatoLower = c.getTime();
+		
+		//Get higher range
+		c.add(Calendar.MINUTE, 15);
+		Date tempoStimatoHigher = new Date();
+		tempoStimatoHigher = c.getTime();
+		
+		//Create queue list
+		ArrayList<Coda> list = new ArrayList<Coda>();
+		for(String s : listaCode) {
+			Coda coda = new Coda();
+			coda.setPersoneInCoda(0);
+			coda.setTipo(s);
+			list.add(coda);
+		}
+		
+		//Create gate
+		Gate g = new Gate();
+		g.setListaCode(list);
+		g.setNumeroGate(gate);
+		
+		//Create slot
+		Slot s = new Slot();
+		s.setTempoStimatoInferiore(tempoStimatoLower);
+		s.setTempoStimatoSuperiore(tempoStimatoHigher);
+		
+		//Create flight
+		Volo v = new Volo();
+		v.setCompagnia(compagnia);
+		v.setGate(g);
+		v.setNumeroPrenotazioni(0);
+		v.setOrarioDecollo(data);
+		v.setPartito(false);
+		v.setSlot(s);
+		
+		v.printFlightInfo();
+		//Insert in the database
+		VoloDAO dao = new VoloDAO();
+		dao.insertVolo(mainFrame, v);
 		
 	}
 
