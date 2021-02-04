@@ -76,4 +76,32 @@ public class SlotDAO {
 		
 	}
 	
+	public boolean updateTempoEffettivo(MainFrame mainFrame, Slot s, String id) {
+		
+		String inizioTempoEffettivo = dateTimeFormat.format(s.getInizioTempoEffettivo());
+		String fineTempoEffettivo = dateTimeFormat.format(s.getFineTempoEffettivo());
+		
+		try {
+			
+			Class.forName("com.mysql.jdbc.Driver");
+			String q = "UPDATE slot SET inizioTempoEffettivo = '" + inizioTempoEffettivo + "', fineTempoEffettivo = '" + fineTempoEffettivo + "' WHERE IDVolo = '" + id + "'"; //Initialize query
+			
+			String connectionURL = MainController.URL; //Connection URL
+
+	        Connection con = DriverManager.getConnection(connectionURL, MainController.USER, MainController.PASSWORD); //Create connection
+			Statement st = con.createStatement(); //Create statement
+			st.executeUpdate(q); //Execute query
+			
+			con.close(); //Close connection
+			st.close(); //Close statement
+			
+			return true; //Operation successful
+			
+		}catch(Exception e) { //Error catching
+			System.out.println(e);
+			return false; //Operation failed
+		}
+		
+	}
+
 }

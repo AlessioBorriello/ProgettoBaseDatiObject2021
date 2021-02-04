@@ -142,7 +142,7 @@ public class CreateFlightPanel extends JPanel {
 	
 	public void createAddQueuePanel() {
 		
-		AddQueuePanel frame = new AddQueuePanel(mainFrame); //Create a popup panel
+		AddQueueFrame frame = new AddQueueFrame(mainFrame); //Create a popup panel
 		frame.setVisible(true); //Make it visible
 		String choice = frame.getChoice(); //Get the choice taken from the frame
 		if(!choice.equals("undo")) { //If the user has not pressed the undo button
@@ -185,7 +185,7 @@ public class CreateFlightPanel extends JPanel {
 	
 	public void removeQueue(JLabel queueLabel) {
 		
-		ConfirmationFrame frame = new ConfirmationFrame("Sei sicuro di voler eliminare questa coda?", mainFrame); //Create confirmation frame
+		ConfirmationFrame frame = new ConfirmationFrame("Sei sicuro di voler rimuovere questa coda?", mainFrame); //Create confirmation frame
 		frame.setVisible(true); //Set confirmation frame visible
 		if(frame.getAnswer()) { //If the user has confirmed the action
 			
@@ -258,7 +258,7 @@ public class CreateFlightPanel extends JPanel {
 		v.printFlightInfo();
 		//Insert in the database
 		VoloDAO dao = new VoloDAO();
-		dao.insertVolo(mainFrame, v);
+		dao.insertFlight(mainFrame, v);
 		
 	}
 

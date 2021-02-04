@@ -1,4 +1,11 @@
+import java.awt.Component;
+import java.awt.Container;
 import java.awt.EventQueue;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import java.util.Random;
 
 
@@ -43,4 +50,31 @@ public class MainController {
 	    
 	}
 
+	public Component getComponentByName(Container container, String nome) {
+		
+		List<Component> list = getAllComponents(container); //Take all components from the container
+		
+		for(Component c: list) {
+			if(c.getName() != null && c.getName().contentEquals(nome)) { //Component found
+				return c;
+			}
+		}
+		
+		return null;
+		
+	}
+	
+	public List<Component> getAllComponents(Container container) {
+		
+	    Component[] components = container.getComponents(); //Take all the components from the outer container
+	    List<Component> listaComponents = new ArrayList<Component>();
+	    for (Component c: components) {
+	    	listaComponents.add(c); //Add component to the list
+	        if (c instanceof Container) //If the component is a container in itself, repeat
+	        	listaComponents.addAll(getAllComponents((Container) c)); //Recursive call
+	    }
+	    return listaComponents; //Return list
+	    
+	}
+	
 }

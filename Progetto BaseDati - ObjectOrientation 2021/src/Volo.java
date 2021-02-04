@@ -10,6 +10,7 @@ public class Volo {
 	private Slot slot;
 	private int numeroPrenotazioni = 0;
 	private boolean partito = false;
+	private boolean cancellato = false;
 	private String ID = null;
 	
 	public String getID() {
@@ -54,6 +55,12 @@ public class Volo {
 	public void setSlot(Slot slot) {
 		this.slot = slot;
 	}
+	public boolean isCancellato() {
+		return cancellato;
+	}
+	public void setCancellato(boolean cancellato) {
+		this.cancellato = cancellato;
+	}
 	
 	public void printFlightInfo() {
 		
@@ -63,5 +70,28 @@ public class Volo {
 		}
 		
 	}
+
+	public boolean checkIfFlightTookOffLate() {
+		
+		//If the flight has not taken off yet
+		if(partito == false) {
+			return false;
+		}
+		
+		//Get slot times
+		//Date inizioTempoStimato = slot.getInizioTempoStimato();
+		Date fineTempoStimato = slot.getFineTempoStimato();
+		Date inizioTempoEffettivo = slot.getInizioTempoEffettivo();
+		Date fineTempoEffettivo = slot.getFineTempoEffettivo();
+		
+		//If the effective times are null (should not be possible if the above if is ignored)
+		if(inizioTempoEffettivo == null || fineTempoEffettivo == null) {
+			return false;
+		}
+		
+		return fineTempoStimato.before(fineTempoEffettivo);
+		
+	}
+	
 
 }

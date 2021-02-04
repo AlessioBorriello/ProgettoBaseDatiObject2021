@@ -12,12 +12,11 @@ public class VoloDAO {
 	
 	private SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 	
-	public boolean insertVolo(MainFrame mainFrame, Volo v) {
+	public boolean insertFlight(MainFrame mainFrame, Volo v) {
 		
 		String compagnia = v.getCompagnia().getNome();
 		Date orarioDecollo = v.getOrarioDecollo();
 		int numeroPrenotazioni = v.getNumeroPrenotazioni();
-		int numeroGate = v.getGate().getNumeroGate();
 		String id = v.getID();
 		
 		//Convert date format to a usable format in the database
@@ -26,8 +25,8 @@ public class VoloDAO {
 		try {
 			
 			Class.forName("com.mysql.jdbc.Driver");
-			String q = "INSERT INTO volo(id, nomeCompagnia, dataPartenza, numeroPrenotazioni, partito, numeroGate)\r\n" + 
-					"VALUES ('" + id + "','" + compagnia + "','"+ dataString + "', '" + numeroPrenotazioni + "','" +  0 + "','" + numeroGate + "');"; //Initialize query
+			String q = "INSERT INTO volo(id, nomeCompagnia, dataPartenza, numeroPrenotazioni, partito, cancellato)\r\n" + 
+					"VALUES ('" + id + "','" + compagnia + "','"+ dataString + "', '" + numeroPrenotazioni + "','" +  0 + "','" + 0 + "');"; //Initialize query
 			String connectionURL = MainController.URL; //Connection URL
 	
 	        Connection con = DriverManager.getConnection(connectionURL, MainController.USER, MainController.PASSWORD);  //Create connection
@@ -119,6 +118,8 @@ public class VoloDAO {
 				v.setOrarioDecollo(rs.getTimestamp("dataPartenza"));
 				boolean partito = (rs.getInt("partito") != 0)? true : false; //Set partito to true if the database has a different value than 0, otherwise set it to false
 				v.setPartito(partito);
+				boolean cancellato = (rs.getInt("cancellato") != 0)? true : false; //Set cancellato to true if the database has a different value than 0, otherwise set it to false
+				v.setCancellato(cancellato);
 				v.setSlot(new SlotDAO().getSlotByID(ID)); //Get the slot by the ID
 				
 				return v;
@@ -138,17 +139,12 @@ public class VoloDAO {
 		
 	}
 	
-	/**
-	 * Get a list with all of the flights where partito is true or false
-	 * @param partito Wether to get the flights where partito is true or false
-	 * @return List of the flights
-	 */
-	public ArrayList<Volo> getAllFlights(boolean partito){
+	public ArrayList<Volo> getAllFlights(boolean partito, boolean cancellato){
 		
 		try {
 			
 			Class.forName("com.mysql.jdbc.Driver");
-			String q = "Select id from volo where partito = '" + partito + "'" ; //Initialize query
+			String q = "Select id from volo where partito = " + partito + " and cancellato = " + cancellato + ""; //Initialize query
 			String connectionURL = MainController.URL; //Connection URL
 
 	        Connection con = DriverManager.getConnection(connectionURL, MainController.USER, MainController.PASSWORD); //Create connection
@@ -157,12 +153,13 @@ public class VoloDAO {
 			
 			ArrayList<Volo> list = new ArrayList<Volo>(); //Initialize a list of flights
 			
-			//Get results and store them in the list
+			//Get all the ID and make queries for each one of them
 			while(rs.next()) {
 				
-				VoloDAO dao = new VoloDAO();
-				Volo v = dao.getFlightByID(rs.getString("id"));
+				//Make query for all of them
+				Volo v = (new VoloDAO().getFlightByID(rs.getString("id")));
 				list.add(v);
+				
 			}
 			
 			con.close(); //Close connection
@@ -176,4 +173,29 @@ public class VoloDAO {
 		
 	}
 
+	public boolean setFlightAsTakenOff(MainFrame mainFrame, Volo v) {
+		
+		try {
+			
+			Class.forName("com.mysql.jdbc.Driver");
+			String q = "UPDATE volo SET partito = '1' where id = '" + v.getID() + "'"; //Initialize query
+			
+			String connectionURL = MainController.URL; //Connection URL
+
+	        Connection con = DriverManager.getConnection(connectionURL, MainController.USER, MainController.PASSWORD); //Create connection
+			Statement st = con.createStatement(); //Create statement
+			st.executeUpdate(q); //Execute query
+			
+			con.close(); //Close connection
+			st.close(); //Close statement
+			
+			return true; //Operation successful
+			
+		}catch(Exception e) { //Error catching
+			System.out.println(e);
+			return false; //Operation failed
+		}
+		
+	}
+	
 }

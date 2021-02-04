@@ -16,7 +16,7 @@ import javax.swing.border.EtchedBorder;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.JComboBox;
 
-public class AddQueuePanel extends JDialog {
+public class AddQueueFrame extends JDialog {
 
 	private final JPanel contentPanel = new JPanel();
 	private JButton addButton;
@@ -26,7 +26,7 @@ public class AddQueuePanel extends JDialog {
 	private JLabel lblAddQueue;
 	private JComboBox cBoxAddQueue;
 
-	public AddQueuePanel(MainFrame mf) {
+	public AddQueueFrame(MainFrame mf) {
 		
 		MainFrame mainFrame = mf;
 		
