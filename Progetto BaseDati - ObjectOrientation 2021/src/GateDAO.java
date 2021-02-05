@@ -2,6 +2,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.Date;
 
 public class GateDAO {
@@ -70,6 +71,73 @@ public class GateDAO {
 				
 				return null; //Return null
 			}
+			
+		}catch(Exception e) { //Error catching
+			System.out.println(e);
+			return null; //Return null
+		}
+		
+	}
+
+	public ArrayList<Gate> getGateListByNumber(int gateNumber){
+		
+		try {
+			
+			Class.forName("com.mysql.jdbc.Driver");
+			String q = "Select * from gate where numeroGate = " + gateNumber + ""; //Initialize query
+			String connectionURL = MainController.URL; //Connection URL
+
+	        Connection con = DriverManager.getConnection(connectionURL, MainController.USER, MainController.PASSWORD); //Create connection
+			Statement st = con.createStatement(); //Create statement
+			ResultSet rs = st.executeQuery(q); //Execute query
+			
+			ArrayList<Gate> list = new ArrayList<Gate>(); //Initialize a list of gates
+			
+			//Get all the gates
+			while(rs.next()) {
+				
+				Gate g = new Gate();
+				g.setNumeroGate(gateNumber);
+				g.setListaCode(new CodaDAO().getQueueListByID(rs.getString("IDVolo")));
+				list.add(g);
+				
+			}
+			
+			con.close(); //Close connection
+			st.close(); //Close statement
+			return list; //Return list
+			
+		}catch(Exception e) { //Error catching
+			System.out.println(e);
+			return null; //Return null
+		}
+		
+	}
+	
+	public ArrayList<String> getFlightIdByGateNumber(int gateNumber){
+		
+		try {
+			
+			Class.forName("com.mysql.jdbc.Driver");
+			String q = "Select IDVolo from gate where numeroGate = " + gateNumber + ""; //Initialize query
+			String connectionURL = MainController.URL; //Connection URL
+
+	        Connection con = DriverManager.getConnection(connectionURL, MainController.USER, MainController.PASSWORD); //Create connection
+			Statement st = con.createStatement(); //Create statement
+			ResultSet rs = st.executeQuery(q); //Execute query
+			
+			ArrayList<String> list = new ArrayList<String>(); //Initialize a list of gates
+			
+			//Get all the gates
+			while(rs.next()) {
+				
+				list.add(rs.getString("IDVolo"));
+				
+			}
+			
+			con.close(); //Close connection
+			st.close(); //Close statement
+			return list; //Return list
 			
 		}catch(Exception e) { //Error catching
 			System.out.println(e);

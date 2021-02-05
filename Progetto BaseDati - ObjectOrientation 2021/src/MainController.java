@@ -77,4 +77,19 @@ public class MainController {
 	    
 	}
 	
+	public boolean checkIfSlotIsTaken(Slot s, int gateNumber) {
+		
+		ArrayList<String> idList = (new GateDAO().getFlightIdByGateNumber(gateNumber));
+		for(String idString : idList) { //For all of the flights id where the gate number is the gate selected in the flight creation
+			Slot slot = (new SlotDAO().getSlotByID(idString)); //Get the slot with that id
+			if(s.getInizioTempoStimato().before(slot.getFineTempoStimato())) { //If the slot passed as argument starts before the end of the slot we are currently checking in the for loop
+				//The slot s is taken
+				return true;
+			}
+		}
+		
+		return false; //The slot is not taken
+		
+	}
+	
 }

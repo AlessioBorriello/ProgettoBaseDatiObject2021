@@ -121,13 +121,17 @@ public class ViewFlightInfoPanel extends JPanel {
 		flightStatusLabel.setFont(new Font("Tahoma", Font.BOLD, 18));
 		flightStatusLabel.setBounds(634, 45, 453, 64);
 		//Check flight status and change the text
-		if(!v.isPartito()) {
-			flightStatusLabel.setText("Questo volo non e' ancora partito");
-		}else {
-			if(!v.checkIfFlightTookOffLate()) {
-				flightStatusLabel.setText("Questo volo e' partito in orario");
-			}else {
+		if(volo.isPartito()) {
+			if(volo.checkIfFlightTookOffLate()) {
 				flightStatusLabel.setText("Questo volo e' partito in ritardo");
+			}else {
+				flightStatusLabel.setText("Questo volo e' partito in orario");
+			}
+		}else {
+			if(volo.isCancellato()) {
+				flightStatusLabel.setText("Questo volo e' stato cancellato");
+			}else {
+				flightStatusLabel.setText("Questo volo non e' ancora partito");
 			}
 		}
 		add(flightStatusLabel);
@@ -149,6 +153,13 @@ public class ViewFlightInfoPanel extends JPanel {
 		
 		buttonCancelFlight = new JButton("Cancella questo volo");
 		buttonCancelFlight.setName("buttonCancelFlight");
+		buttonCancelFlight.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(MouseEvent e) {
+			
+				setFlightAsCancelled();
+			
+			}
+		});
 		buttonCancelFlight.setFont(new Font("Tahoma", Font.BOLD, 14));
 		buttonCancelFlight.setBounds(765, 214, 191, 64);
 		if(!volo.isPartito() && !volo.isCancellato()) {
@@ -227,6 +238,30 @@ public class ViewFlightInfoPanel extends JPanel {
 				mainFrame.createNotificationFrame("Volo impostato come 'partito'!");
 				
 			}
+		}
+		
+	}
+
+	public void setFlightAsCancelled() {
+		
+		if(mainFrame.createConfirmationFrame("Sei sicuro di voler impostare questo volo come 'cancellato'?")) {
+			
+			//Remove buttons
+			remove(buttonFlightTakenOff);
+			remove(buttonCancelFlight);
+			remove(buttonEditFlight);
+			
+			//Update flight in database
+			new VoloDAO().setFlightAsCancelled(mainFrame, volo);
+			volo.setCancellato(true);
+			
+			flightStatusLabel.setText("Questo volo e' stato cancellato");
+			
+			//Repaint and revalidate panel
+			repaint();
+			revalidate();
+			mainFrame.createNotificationFrame("Volo impostato come 'cancellato'!");
+			
 		}
 		
 	}

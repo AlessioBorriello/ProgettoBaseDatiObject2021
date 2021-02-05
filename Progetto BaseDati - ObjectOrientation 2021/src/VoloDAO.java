@@ -139,12 +139,16 @@ public class VoloDAO {
 		
 	}
 	
-	public ArrayList<Volo> getAllFlights(boolean partito, boolean cancellato){
+	/**
+	 * Get all the flights that are not archived (where partito and cancellato are false)
+	 * @return
+	 */
+	public ArrayList<Volo> getNonArchivedFlights(){
 		
 		try {
 			
 			Class.forName("com.mysql.jdbc.Driver");
-			String q = "Select id from volo where partito = " + partito + " and cancellato = " + cancellato + ""; //Initialize query
+			String q = "Select * from volo where partito = " + false + " and cancellato = " + false + ""; //Initialize query
 			String connectionURL = MainController.URL; //Connection URL
 
 	        Connection con = DriverManager.getConnection(connectionURL, MainController.USER, MainController.PASSWORD); //Create connection
@@ -153,11 +157,67 @@ public class VoloDAO {
 			
 			ArrayList<Volo> list = new ArrayList<Volo>(); //Initialize a list of flights
 			
-			//Get all the ID and make queries for each one of them
+			//Get all the flights
 			while(rs.next()) {
 				
-				//Make query for all of them
-				Volo v = (new VoloDAO().getFlightByID(rs.getString("id")));
+				Volo v = new Volo();
+				v.setCompagnia(new CompagniaAereaDAO().getCompagniaAereaByNome(rs.getString("nomeCompagnia"))); //Get the company by its name
+				v.setGate(new GateDAO().getGateByID(rs.getString("id"))); //Get the gate by the ID
+				v.setID(rs.getString("id"));
+				v.setNumeroPrenotazioni(rs.getInt("numeroPrenotazioni"));
+				v.setOrarioDecollo(rs.getTimestamp("dataPartenza"));
+				boolean partito = (rs.getInt("partito") != 0)? true : false; //Set partito to true if the database has a different value than 0, otherwise set it to false
+				v.setPartito(partito);
+				boolean cancellato = (rs.getInt("cancellato") != 0)? true : false; //Set cancellato to true if the database has a different value than 0, otherwise set it to false
+				v.setCancellato(cancellato);
+				v.setSlot(new SlotDAO().getSlotByID(rs.getString("id"))); //Get the slot by the ID
+				list.add(v);
+				
+			}
+			
+			con.close(); //Close connection
+			st.close(); //Close statement
+			return list; //Return list
+			
+		}catch(Exception e) { //Error catching
+			System.out.println(e);
+			return null; //Return null
+		}
+		
+	}
+	
+	/**
+	 * Get all the flights that are archived (where partito or cancellato are true)
+	 * @return
+	 */
+	public ArrayList<Volo> getArchivedFlights(){
+		
+		try {
+			
+			Class.forName("com.mysql.jdbc.Driver");
+			String q = "Select * from volo where partito = " + true + " or cancellato = " + true + ""; //Initialize query
+			String connectionURL = MainController.URL; //Connection URL
+
+	        Connection con = DriverManager.getConnection(connectionURL, MainController.USER, MainController.PASSWORD); //Create connection
+			Statement st = con.createStatement(); //Create statement
+			ResultSet rs = st.executeQuery(q); //Execute query
+			
+			ArrayList<Volo> list = new ArrayList<Volo>(); //Initialize a list of flights
+			
+			//Get all the flights
+			while(rs.next()) {
+				
+				Volo v = new Volo();
+				v.setCompagnia(new CompagniaAereaDAO().getCompagniaAereaByNome(rs.getString("nomeCompagnia"))); //Get the company by its name
+				v.setGate(new GateDAO().getGateByID(rs.getString("id"))); //Get the gate by the ID
+				v.setID(rs.getString("id"));
+				v.setNumeroPrenotazioni(rs.getInt("numeroPrenotazioni"));
+				v.setOrarioDecollo(rs.getTimestamp("dataPartenza"));
+				boolean partito = (rs.getInt("partito") != 0)? true : false; //Set partito to true if the database has a different value than 0, otherwise set it to false
+				v.setPartito(partito);
+				boolean cancellato = (rs.getInt("cancellato") != 0)? true : false; //Set cancellato to true if the database has a different value than 0, otherwise set it to false
+				v.setCancellato(cancellato);
+				v.setSlot(new SlotDAO().getSlotByID(rs.getString("id"))); //Get the slot by the ID
 				list.add(v);
 				
 			}
@@ -179,6 +239,31 @@ public class VoloDAO {
 			
 			Class.forName("com.mysql.jdbc.Driver");
 			String q = "UPDATE volo SET partito = '1' where id = '" + v.getID() + "'"; //Initialize query
+			
+			String connectionURL = MainController.URL; //Connection URL
+
+	        Connection con = DriverManager.getConnection(connectionURL, MainController.USER, MainController.PASSWORD); //Create connection
+			Statement st = con.createStatement(); //Create statement
+			st.executeUpdate(q); //Execute query
+			
+			con.close(); //Close connection
+			st.close(); //Close statement
+			
+			return true; //Operation successful
+			
+		}catch(Exception e) { //Error catching
+			System.out.println(e);
+			return false; //Operation failed
+		}
+		
+	}
+	
+	public boolean setFlightAsCancelled(MainFrame mainFrame, Volo v) {
+		
+		try {
+			
+			Class.forName("com.mysql.jdbc.Driver");
+			String q = "UPDATE volo SET cancellato = '1' where id = '" + v.getID() + "'"; //Initialize query
 			
 			String connectionURL = MainController.URL; //Connection URL
 

@@ -43,6 +43,7 @@ public class MainFrame extends JFrame {
 	private JLayeredPane centerPanel; //Panel containing content panel and dashboard
 	
 	private JPanel currentPanel = null; //Current panel being displayed in the content panel
+	private boolean lookingAtArchive; //To differentiate when on the panel CheckFlightsPanel if looking at the archive or not
 	
 	final private int screenWidth = (int)screenSize.getWidth(); //Screen width
 	final private int screenHeight = (int)screenSize.getHeight(); //Screen height
@@ -144,23 +145,26 @@ public class MainFrame extends JFrame {
 		centerPanel.add(contentPanel); //Add the content panel to the center panel
 		contentPanel.setLayout(new BorderLayout(0, 0)); //Set content panel's layout
 		
-		setContentPanelToCheckFlightsPanel();
+		setContentPanelToCheckFlightsPanel(false);
 		//changeContentPanel();
 		
 	}
 
-	public boolean setContentPanelToCheckFlightsPanel() {
+	public boolean setContentPanelToCheckFlightsPanel(boolean lookingAtArchive) {
 		
 		//Check if the current panel is already in place in the content panel (They have the same class name)
 		if(currentPanel != null && currentPanel.getClass().getName().equals("CheckFlightsPanel")) {
-			System.out.println("Already on this panel!");
-			return false; //Dont replace the content panel
+			//Differentiate if looking at the archive or not
+			if(this.lookingAtArchive == lookingAtArchive) { //Already looking at the same type of CheckFlightsPanel (lookingAtArchive here and the one passed are the same)
+				System.out.println("Already on this panel!");
+				return false; //Dont replace the content panel
+			}
 		}
 		
 		Rectangle bounds = new Rectangle(contentPanel.getBounds()); //Get bounds of the content panel
 		centerPanel.remove(contentPanel); //Remove content panel from the center panel
 		
-		contentPanel = new CheckFlightsPanel(bounds, this, controller); //Create new panel and store it in the contentPanel
+		contentPanel = new CheckFlightsPanel(bounds, this, controller, lookingAtArchive); //Create new panel and store it in the contentPanel
 		
 		contentPanel.setBounds(bounds); //Position the content panel based on the bounds gathered beforehand
 		centerPanel.add(contentPanel); //Add new content panel to the center panel
@@ -170,6 +174,8 @@ public class MainFrame extends JFrame {
 		centerPanel.repaint(); //Repaint center panel
 		
 		currentPanel = contentPanel; //Update current panel
+		this.lookingAtArchive = lookingAtArchive; //Set if looking at the archive or not
+		
 		return true;
 		
 	}

@@ -65,6 +65,23 @@ public class FlightPreviewPanel extends JPanel {
 		numeroPrenotazioniLabel.setBounds(20, 151, 225, 14); //Set bounds
 		add(numeroPrenotazioniLabel); //Add label to the panel
 		
+		JLabel statusLabel = new JLabel("");
+		statusLabel.setBounds(20, 217, 225, 14);
+		if(volo.isPartito()) {
+			if(volo.checkIfFlightTookOffLate()) {
+				statusLabel.setText("Volo partito in ritardo");
+			}else {
+				statusLabel.setText("Volo partito");
+			}
+		}else {
+			if(volo.isCancellato()) {
+				statusLabel.setText("Volo cancellato");
+			}else {
+				statusLabel.setText("Volo non partito");
+			}
+		}
+		add(statusLabel);
+		
 		addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent e) {
 				//Change panel to the EditFlightPanel

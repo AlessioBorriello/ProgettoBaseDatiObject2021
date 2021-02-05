@@ -68,7 +68,7 @@ public class DashboardPanel extends JPanel {
 			public void mouseClicked(MouseEvent e) {
 				
 				//Set panel on main frame to the correct panel
-				mf.setContentPanelToCheckFlightsPanel();
+				mf.setContentPanelToCheckFlightsPanel(false);
 				
 			}
 		});
@@ -76,6 +76,14 @@ public class DashboardPanel extends JPanel {
 		dashboardControlPanel.add(buttonCheckFlights); //Add to dashboardControlPanel
 		
 		JButton buttonFlightsArchive = new JButton("Flights archive"); //Create check flights archive button
+		buttonFlightsArchive.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(MouseEvent e) {
+				
+				//Set panel on main frame to the correct panel
+				mf.setContentPanelToCheckFlightsPanel(true);
+				
+			}
+		});
 		buttonFlightsArchive.setName("buttonFlightsArchive"); //Set component name
 		buttonFlightsArchive.setBounds(10, 100, 276, 50); //Set position and bounds
 		dashboardControlPanel.add(buttonFlightsArchive); //Add to dashboardControlPanel

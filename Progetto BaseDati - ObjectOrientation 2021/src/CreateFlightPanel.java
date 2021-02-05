@@ -235,6 +235,12 @@ public class CreateFlightPanel extends JPanel {
 			list.add(coda);
 		}
 		
+		//Check if there is at least one queue
+		if(list.size() == 0) {
+			mainFrame.createNotificationFrame("Seleziona almeno una coda!");
+			return;
+		}
+		
 		//Create gate
 		Gate g = new Gate();
 		g.setListaCode(list);
@@ -244,6 +250,12 @@ public class CreateFlightPanel extends JPanel {
 		Slot s = new Slot();
 		s.setInizioTempoStimato(inizioTempoStimato);
 		s.setFineTempoStimato(fineTempoStimato);
+		
+		//Check if the gate at that slot is available
+		if(mainController.checkIfSlotIsTaken(s, gate)) {
+			mainFrame.createNotificationFrame("Il gate selezionato non e' disponibile a quell'ora!");
+			return;
+		}
 		
 		//Create flight
 		Volo v = new Volo();

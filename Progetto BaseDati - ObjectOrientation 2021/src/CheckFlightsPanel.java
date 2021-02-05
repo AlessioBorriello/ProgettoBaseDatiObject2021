@@ -17,7 +17,7 @@ public class CheckFlightsPanel extends JPanel {
 	private MainController mainController; //Main controller
 	private ArrayList<Volo> listaVoli = new ArrayList<Volo>();
 
-	public CheckFlightsPanel(Rectangle bounds, MainFrame mf, MainController c) {
+	public CheckFlightsPanel(Rectangle bounds, MainFrame mf, MainController c, boolean lookingAtArchive) {
 		
 		mainFrame = mf; //Link main frame
 		mainController = c; //Link main controller
@@ -35,7 +35,11 @@ public class CheckFlightsPanel extends JPanel {
 		scrollPanel.setViewportView(gridPanel); //Make the scroll pane look at the grid panel and add it to the scroll pane
 		
 		//Get list of the flights
-		listaVoli.addAll(new VoloDAO().getAllFlights(false, false));
+		if(!lookingAtArchive) {
+			listaVoli.addAll(new VoloDAO().getNonArchivedFlights()); //Add non archived flights
+		}else {
+			listaVoli.addAll(new VoloDAO().getArchivedFlights()); //Add archived flights
+		}
 		
 		populateGrid(gridPanel, listaVoli, 4, 15, 15, 25, 25); //Create grid of flights info panel based on the listaVoli array
 		
@@ -98,4 +102,5 @@ public class CheckFlightsPanel extends JPanel {
 	
 	}
 
+	
 }
