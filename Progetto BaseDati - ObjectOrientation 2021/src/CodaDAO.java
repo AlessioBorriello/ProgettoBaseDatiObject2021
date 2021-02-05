@@ -34,6 +34,30 @@ public class CodaDAO {
 		
 	}
 	
+	public boolean removeCoda(MainFrame mainFrame, String id) {
+		
+		try {
+			
+			Class.forName("com.mysql.jdbc.Driver");
+			String q = "DELETE FROM coda where IDVolo = '" + id + "'"; //Initialize query
+			String connectionURL = MainController.URL; //Connection URL
+	
+	        Connection con = DriverManager.getConnection(connectionURL, MainController.USER, MainController.PASSWORD);  //Create connection
+			Statement st = con.createStatement(); //Create statement
+			st.executeUpdate(q); //Execute query
+			
+			con.close(); //Close connection
+			st.close(); //Close statement
+			
+			return true; //Operation successful
+		
+		}catch(Exception e) { //Error catching
+			System.out.println(e);
+			return false; //Operation failed
+		}
+		
+	}
+	
 	public ArrayList<Coda> getQueueListByID(String ID){
 		
 		try {

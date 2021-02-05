@@ -70,6 +70,48 @@ public class VoloDAO {
 		
 	}
 	
+	public boolean updateFlight(MainFrame mainFrame, Volo oldFlight, Volo newFlight) {
+		
+		String compagnia = newFlight.getCompagnia().getNome();
+		Date orarioDecollo = newFlight.getOrarioDecollo();
+		String id = oldFlight.getID();
+		
+		//Convert date format to a usable format in the database
+		String dataString = dateTimeFormat.format(orarioDecollo);
+		
+		try {
+			
+			Class.forName("com.mysql.jdbc.Driver");
+			String q = "UPDATE volo SET nomeCompagnia = '" + compagnia + "', dataPartenza = '" + dataString + "' WHERE id = '" + id + "'"; //Initialize query
+			String connectionURL = MainController.URL; //Connection URL
+	
+	        Connection con = DriverManager.getConnection(connectionURL, MainController.USER, MainController.PASSWORD);  //Create connection
+			Statement st = con.createStatement(); //Create statement
+			st.executeUpdate(q); //Execute query
+			
+			con.close(); //Close connection
+			st.close(); //Close statement
+			
+			//Update gate
+			GateDAO daoGate = new GateDAO();
+			daoGate.updateGate(mainFrame, oldFlight.getGate(), newFlight.getGate(), id);
+			
+			//Update slot
+			SlotDAO daoSlot = new SlotDAO();
+			daoSlot.updateSlot(mainFrame, newFlight.getSlot(), id);
+			
+			mainFrame.createNotificationFrame("Volo modificato!");
+			
+			return true; //Operation successful
+		
+		}catch(Exception e) { //Error catching
+			System.out.println(e);
+			mainFrame.createNotificationFrame("Qualcosa è andato storto!");
+			return false; //Operation failed
+		}
+		
+	}
+	
 	public boolean removeFlight(MainFrame mainFrame, Volo v) {
 		
 		try {
@@ -218,6 +260,10 @@ public class VoloDAO {
 				boolean cancellato = (rs.getInt("cancellato") != 0)? true : false; //Set cancellato to true if the database has a different value than 0, otherwise set it to false
 				v.setCancellato(cancellato);
 				v.setSlot(new SlotDAO().getSlotByID(rs.getString("id"))); //Get the slot by the ID
+				//Check if the flight has taken off and if so check if it did so late
+				if(partito) {
+					v.setInRitardo(v.checkIfFlightTookOffLate());
+				}
 				list.add(v);
 				
 			}

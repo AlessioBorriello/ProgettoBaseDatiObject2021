@@ -11,6 +11,7 @@ public class Volo {
 	private int numeroPrenotazioni = 0;
 	private boolean partito = false;
 	private boolean cancellato = false;
+	private boolean inRitardo = false;
 	private String ID = null;
 	
 	public String getID() {
@@ -61,6 +62,12 @@ public class Volo {
 	public void setCancellato(boolean cancellato) {
 		this.cancellato = cancellato;
 	}
+	public boolean isInRitardo() {
+		return inRitardo;
+	}
+	public void setInRitardo(boolean inRitardo) {
+		this.inRitardo = inRitardo;
+	}
 	
 	public void printFlightInfo() {
 		
@@ -92,5 +99,6 @@ public class Volo {
 		return fineTempoStimato.before(fineTempoEffettivo);
 		
 	}
+
 	
 }

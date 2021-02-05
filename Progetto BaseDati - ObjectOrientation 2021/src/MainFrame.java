@@ -204,6 +204,31 @@ public class MainFrame extends JFrame {
 		return true;
 		
 	}
+	
+	public boolean setContentPanelToEditFlightPanel(Volo flightToUpdate) {
+		
+		//Check if the current panel is already in place in the content panel (They have the same class name)
+		if(currentPanel != null && currentPanel.getClass().getName().equals("EditFlightPanel")) {
+			System.out.println("Already on this panel!");
+			return false; //Dont replace the content panel
+		}
+		
+		Rectangle bounds = new Rectangle(contentPanel.getBounds()); //Get bounds of the content panel
+		centerPanel.remove(contentPanel); //Remove content panel from the center panel
+		
+		contentPanel = new EditFlightPanel(bounds, this, controller, flightToUpdate); //Create new panel and store it in the contentPanel
+		
+		contentPanel.setBounds(bounds); //Position the content panel based on the bounds gathered beforehand
+		centerPanel.add(contentPanel); //Add new content panel to the center panel
+		
+		contentPanel.repaint(); //Repaint content panel
+		contentPanel.revalidate(); //Revalidate content panel
+		centerPanel.repaint(); //Repaint center panel
+		
+		currentPanel = contentPanel; //Update current panel
+		return true;
+		
+	}
 
 	public boolean setContentPanelToViewFlightInfoPanel(Volo volo) {
 		

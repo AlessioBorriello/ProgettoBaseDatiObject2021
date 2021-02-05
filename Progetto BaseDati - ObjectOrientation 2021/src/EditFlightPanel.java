@@ -26,7 +26,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import javax.swing.JTable;
 
-public class CreateFlightPanel extends JPanel {
+public class EditFlightPanel extends JPanel {
 
 	private MainFrame mainFrame; //Main panel
 	private MainController mainController; //Main controller
@@ -36,7 +36,7 @@ public class CreateFlightPanel extends JPanel {
 	
 	private JPanel panelQueues;
 	
-	public CreateFlightPanel(Rectangle bounds, MainFrame mf, MainController c) {
+	public EditFlightPanel(Rectangle bounds, MainFrame mf, MainController c, Volo v) {
 		
 		mainFrame = mf; //Link main frame
 		mainController = c; //Link main controller
@@ -61,10 +61,18 @@ public class CreateFlightPanel extends JPanel {
 		cBoxCompany.setBounds(389, 80, 148, 22); //Set bounds
 		add(cBoxCompany); //Add to panel
 		//Populate combo box
+		int companyIndex = 0; //Index where the company of the flight is located
+		int tempIndex = 0; //Index to increment in the for loop
 		for(CompagniaAerea comp : listaCompagnie) {
 			//Add each member of the array listaCompagnie to the combobox
 			cBoxCompany.addItem(comp.getNome());
+			if(comp.getNome().equals(v.getCompagnia().getNome())) {
+				companyIndex = tempIndex; //Set the correct index
+			}
+			tempIndex++; //Increment temporary index
 		}
+		//Set the comboBox
+		cBoxCompany.setSelectedIndex(companyIndex);
 		
 		JLabel lblInsertTakeOffDate = new JLabel("Inserisci data partenza:"); //Create label insert take off date
 		lblInsertTakeOffDate.setName("lblInsertTakeOffDate"); //Name component
@@ -75,6 +83,7 @@ public class CreateFlightPanel extends JPanel {
 		
 		JSpinner spinnerTakeOffDate = new JSpinner(); //Create spinner to declare the take off date
 		spinnerTakeOffDate.setModel(new SpinnerDateModel(new Date(1612134000000L), null, null, Calendar.DAY_OF_YEAR)); //Set spinner model
+		spinnerTakeOffDate.setValue(v.getOrarioDecollo());
 		spinnerTakeOffDate.setName("spinnerTakeOffDate"); //Name component
 		spinnerTakeOffDate.setFont(new Font("Tahoma", Font.BOLD, 11)); //Set text font
 		spinnerTakeOffDate.setBounds(389, 140, 148, 20); //Set bounds
@@ -90,14 +99,15 @@ public class CreateFlightPanel extends JPanel {
 		JSpinner spinnerGate = new JSpinner(); //Create spinner to declare the gate
 		spinnerGate.setName("spinnerGate"); //Name component
 		spinnerGate.setModel(new SpinnerNumberModel(new Integer(1), new Integer(1), null, new Integer(1))); //Set the type of spinner
+		spinnerGate.setValue(Integer.valueOf(v.getGate().getNumeroGate()));
 		spinnerGate.setBounds(389, 195, 148, 20); //Set bounds
 		add(spinnerGate); //Add to panel
 		
-		JButton buttonCreateFlight = new JButton("Crea nuovo volo"); //Create button create flight
-		buttonCreateFlight.setName("buttonCreateFlight"); //Name component
-		buttonCreateFlight.setFont(new Font("Tahoma", Font.BOLD, 17)); //Set text font
-		buttonCreateFlight.setBounds(243, 522, 294, 58); //Set bounds
-		add(buttonCreateFlight); //Add to panel
+		JButton buttonEditFlight = new JButton("Modifica volo"); //Create button create flight
+		buttonEditFlight.setName("buttonCreateFlight"); //Name component
+		buttonEditFlight.setFont(new Font("Tahoma", Font.BOLD, 17)); //Set text font
+		buttonEditFlight.setBounds(243, 522, 294, 58); //Set bounds
+		add(buttonEditFlight); //Add to panel
 		
 		JLabel lblQueues = new JLabel("Code inserite: (Clicca su una per rimuovere)"); //Create label queues
 		lblQueues.setName("lblQueues"); //Name component
@@ -122,18 +132,22 @@ public class CreateFlightPanel extends JPanel {
 		panelQueues = new JPanel(); //Create new panel
 		panelQueues.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null)); //Set border
 		panelQueues.setBounds(642, 107, 315, 473); //Set bounds
+		//Add queues to the panel
+		for(Coda coda : (v.getGate().getListaCode())) {
+			addQueue(coda.getTipo());
+		}
 		add(panelQueues); //Add to panel
 		panelQueues.setLayout(new GridLayout(20, 0, 0, 0)); //Set layout
 		
 		
-		buttonCreateFlight.addMouseListener(new MouseAdapter() {
+		buttonEditFlight.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent e) {
 			
 				//Gather data
 				String nomeCompagnia = (String)cBoxCompany.getSelectedItem();
 				Date data = (Date)spinnerTakeOffDate.getValue();
 				int gate = (int)spinnerGate.getValue();
-				createFlight(nomeCompagnia, data, gate);
+				editFlight(v, nomeCompagnia, data, gate);
 			
 			}
 		});
@@ -198,7 +212,7 @@ public class CreateFlightPanel extends JPanel {
 		
 	}
 	
-	public void createFlight(String nomeCompagnia, Date data, int gate) {
+	public void editFlight(Volo v, String nomeCompagnia, Date data, int gate) {
 		
 		//Get company class from it's name
 		CompagniaAerea compagnia = null;
@@ -208,9 +222,6 @@ public class CreateFlightPanel extends JPanel {
 				break;
 			}
 		}
-		
-		//Generate ID
-		String id = mainController.generateIDString();
 		
 		//Calculate the range of the slot
 		Calendar c = Calendar.getInstance(); //Create a calendar instance
@@ -252,24 +263,24 @@ public class CreateFlightPanel extends JPanel {
 		s.setFineTempoStimato(fineTempoStimato);
 		
 		//Check if the gate at that slot is available
-		if(mainController.checkIfSlotIsTaken(s, gate, null)) {
+		if(mainController.checkIfSlotIsTaken(s, gate, v)) {
 			mainFrame.createNotificationFrame("Il gate selezionato non e' disponibile a quell'ora!");
 			return;
 		}
 		
 		//Create flight
-		Volo v = new Volo();
-		v.setID(id);
-		v.setCompagnia(compagnia);
-		v.setGate(g);
-		v.setNumeroPrenotazioni(0);
-		v.setOrarioDecollo(data);
-		v.setPartito(false);
-		v.setSlot(s);
+		Volo editedVolo = new Volo();
+		editedVolo.setID(v.getID());
+		editedVolo.setCompagnia(compagnia);
+		editedVolo.setGate(g);
+		editedVolo.setNumeroPrenotazioni(0);
+		editedVolo.setOrarioDecollo(data);
+		editedVolo.setPartito(false);
+		editedVolo.setSlot(s);
 		
-		//Insert in the database
+		//Update in the database
 		VoloDAO dao = new VoloDAO();
-		dao.insertFlight(mainFrame, v);
+		dao.updateFlight(mainFrame, v, editedVolo);
 		
 	}
 

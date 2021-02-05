@@ -168,6 +168,13 @@ public class ViewFlightInfoPanel extends JPanel {
 		
 		buttonEditFlight = new JButton("Modifica volo");
 		buttonEditFlight.setName("buttonEditFlight");
+		buttonEditFlight.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(MouseEvent e) {
+			
+				mainFrame.setContentPanelToEditFlightPanel(v);
+			
+			}
+		});
 		buttonEditFlight.setFont(new Font("Tahoma", Font.BOLD, 14));
 		buttonEditFlight.setBounds(765, 289, 191, 64);
 		if(!volo.isPartito() && !volo.isCancellato()) {

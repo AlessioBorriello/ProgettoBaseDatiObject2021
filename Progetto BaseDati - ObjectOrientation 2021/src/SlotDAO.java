@@ -38,6 +38,33 @@ public class SlotDAO {
 		
 	}
 	
+	public boolean updateSlot(MainFrame mainFrame, Slot newSlot, String id) {
+		
+		String inizioTempoStimato = dateTimeFormat.format(newSlot.getInizioTempoStimato());
+		String fineTempoStimato = dateTimeFormat.format(newSlot.getFineTempoStimato());
+		
+		try {
+			
+			Class.forName("com.mysql.jdbc.Driver");
+			String q = "UPDATE slot SET inizioTempoStimato = '" + inizioTempoStimato + "', fineTempoStimato = '" + fineTempoStimato + "' WHERE IDVolo = '" + id + "'"; //Initialize query
+			String connectionURL = MainController.URL; //Connection URL
+	
+	        Connection con = DriverManager.getConnection(connectionURL, MainController.USER, MainController.PASSWORD);  //Create connection
+			Statement st = con.createStatement(); //Create statement
+			st.executeUpdate(q); //Execute query
+			
+			con.close(); //Close connection
+			st.close(); //Close statement
+			
+			return true; //Operation successful
+		
+		}catch(Exception e) { //Error catching
+			System.out.println(e);
+			return false; //Operation failed
+		}
+		
+	}
+	
 	public Slot getSlotByID(String ID) {
 		
 		try {

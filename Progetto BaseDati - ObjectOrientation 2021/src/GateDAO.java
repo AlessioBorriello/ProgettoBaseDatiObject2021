@@ -43,6 +43,44 @@ public class GateDAO {
 		
 	}
 	
+	public boolean updateGate(MainFrame mainFrame, Gate oldGate, Gate newGate, String id) {
+		
+		int numeroGate = newGate.getNumeroGate();
+		
+		try {
+			
+			Class.forName("com.mysql.jdbc.Driver");
+			String q = "UPDATE gate SET numeroGate = '" + numeroGate + "' WHERE IDVolo = '" + id + "'"; //Initialize query
+			String connectionURL = MainController.URL; //Connection URL
+	
+	        Connection con = DriverManager.getConnection(connectionURL, MainController.USER, MainController.PASSWORD);  //Create connection
+			Statement st = con.createStatement(); //Create statement
+			st.executeUpdate(q); //Execute query
+			
+			con.close(); //Close connection
+			st.close(); //Close statement
+			
+			//Remove old queues
+			CodaDAO removeDAO = new CodaDAO();
+			for(Coda c : oldGate.getListaCode()) {
+				removeDAO.removeCoda(mainFrame, id);
+			}
+			
+			//Insert new queues
+			CodaDAO insertDAO = new CodaDAO();
+			for(Coda c : newGate.getListaCode()) {
+				insertDAO.insertCoda(mainFrame, c, id);
+			}
+			
+			return true; //Operation successful
+		
+		}catch(Exception e) { //Error catching
+			System.out.println(e);
+			return false; //Operation failed
+		}
+		
+	}
+	
 	public Gate getGateByID(String ID) {
 		
 		try {
@@ -79,7 +117,7 @@ public class GateDAO {
 		
 	}
 
-	public ArrayList<Gate> getGateListByNumber(int gateNumber){
+	public ArrayList<Gate> getGateListByGateNumber(int gateNumber){
 		
 		try {
 			

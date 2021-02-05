@@ -77,9 +77,22 @@ public class MainController {
 	    
 	}
 	
-	public boolean checkIfSlotIsTaken(Slot s, int gateNumber) {
+	/**
+	 * Checks if a gate is free in a given slot of time or if it's already in use at that moment
+	 * @param s The new slot to check if its available
+	 * @param gateNumber The gate number where the slot takes place
+	 * @param volo If the check is being done updating a flight (set to null otherwise) gets it's ID and removes it from the list of IDs so the updated flight can have the same slot without returning true
+	 * @return If the given gate is taken in the given slot of time
+	 */
+	public boolean checkIfSlotIsTaken(Slot s, int gateNumber, Volo volo) {
 		
 		ArrayList<String> idList = (new GateDAO().getFlightIdByGateNumber(gateNumber));
+		
+		//If an id has been passed then we are updating a flight, therefore remove it from the array of IDs (If the gate of the new flight (gateNumber) is the same as the old one (volo.getGate().getNumeroGate()))
+		if(volo != null && volo.getGate().getNumeroGate() == gateNumber) {
+			idList.remove(idList.indexOf(volo.getID()));
+		}
+		
 		for(String idString : idList) { //For all of the flights id where the gate number is the gate selected in the flight creation
 			Slot slot = (new SlotDAO().getSlotByID(idString)); //Get the slot with that id
 			if(s.getInizioTempoStimato().before(slot.getFineTempoStimato())) { //If the slot passed as argument starts before the end of the slot we are currently checking in the for loop

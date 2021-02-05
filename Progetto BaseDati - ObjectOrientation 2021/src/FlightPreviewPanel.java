@@ -28,6 +28,9 @@ public class FlightPreviewPanel extends JPanel {
 	//Dimensions of panel
 	private int width = 255;
 	private int height = 255;
+	
+	//Border color based on the flight status
+	Color borderColor;
 
 	public FlightPreviewPanel(MainFrame mf, MainController c, Volo v, int panelNumber, int gridPositionX, int gridPositionY) {
 		
@@ -39,10 +42,25 @@ public class FlightPreviewPanel extends JPanel {
 		this.gridPositionX = gridPositionX;
 		this.gridPositionY = gridPositionY;
 		
+		//Determine border color
+		if(volo.isPartito()) {
+			if(volo.checkIfFlightTookOffLate()) {
+				borderColor = new Color(255, 255, 0); //Yellow border
+			}else {
+				borderColor = new Color(0, 0, 255); //Blue border
+			}
+		}else {
+			if(volo.isCancellato()) {
+				borderColor = new Color(255, 0, 0); //Red border
+			}else {
+				borderColor = new Color(0, 0, 0); //Black border
+			}
+		}
+		
 		setSize(width, height); //Set panel size
 		setBackground(new Color(200, 200, 255, 255)); //Set background color
 		setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)); //Set cursor to hand when hovering
-		setBorder(new LineBorder(new Color(0, 0, 0), 2)); //Set border
+		setBorder(new LineBorder(borderColor, 2)); //Set border
 		setLayout(null);
 		
 		JLabel idLabel = new JLabel("ID: " + volo.getID()); //Create label with Flight ID
