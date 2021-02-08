@@ -1,9 +1,10 @@
 
 public class CompagniaAerea {
 	
-	private String nome;
-	private int numeroVoli = 0;
+	private String nome; //Company name
+	private int numeroVoli = 0; //Number of flights the company has
 
+	//Setters and getters
 	public String getNome() {
 		return nome;
 	}

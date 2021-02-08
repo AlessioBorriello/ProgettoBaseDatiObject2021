@@ -34,8 +34,15 @@ public class EditFlightPanel extends JPanel {
 	private int queueNumber = 0; //How many queues have been added
 	private ArrayList<String> listaCode = new ArrayList<String>(); //List of the queues
 	
-	private JPanel panelQueues;
+	private JPanel panelQueues; //Panel containing the queues added
 	
+	/**
+	 * Panel where the user can edit a flight and update it into the database
+	 * @param bounds Bounds of the contentPanel that contains this panel (to give it the contentPanel's dimensions)
+	 * @param mf Link to the MainFrame
+	 * @param c Link to the MainController
+	 * @param v Flight to edit
+	 */
 	public EditFlightPanel(Rectangle bounds, MainFrame mf, MainController c, Volo v) {
 		
 		mainFrame = mf; //Link main frame
@@ -117,9 +124,11 @@ public class EditFlightPanel extends JPanel {
 		add(lblQueues); //Add to panel
 		
 		JLabel lblAddQueue = new JLabel("+ Aggiungi coda"); //Create label insert queue
+		//Label action listener
 		lblAddQueue.addMouseListener(new MouseAdapter() {
+			//Mouse clicked
 			public void mouseClicked(MouseEvent e) {
-				createAddQueuePanel();
+				createAddQueueFrame();
 			}
 		});
 		lblAddQueue.setName("lblAddQueue"); //Name component
@@ -139,22 +148,27 @@ public class EditFlightPanel extends JPanel {
 		add(panelQueues); //Add to panel
 		panelQueues.setLayout(new GridLayout(20, 0, 0, 0)); //Set layout
 		
-		
+		//Button action listener
 		buttonEditFlight.addMouseListener(new MouseAdapter() {
+			//Mouse click
 			public void mouseClicked(MouseEvent e) {
 			
 				//Gather data
 				String nomeCompagnia = (String)cBoxCompany.getSelectedItem();
 				Date data = (Date)spinnerTakeOffDate.getValue();
 				int gate = (int)spinnerGate.getValue();
-				editFlight(v, nomeCompagnia, data, gate);
+				
+				editFlight(v, nomeCompagnia, data, gate); //Update flight with the gathered data
 			
 			}
 		});
 		
 	}
 	
-	public void createAddQueuePanel() {
+	/**
+	 * Create a frame prompting the user to choose a queue to add
+	 */
+	public void createAddQueueFrame() {
 		
 		AddQueueFrame frame = new AddQueueFrame(mainFrame); //Create a popup panel
 		frame.setVisible(true); //Make it visible
@@ -179,6 +193,10 @@ public class EditFlightPanel extends JPanel {
 		
 	}
 	
+	/**
+	 * Add a queue to the panelQueues
+	 * @param type
+	 */
 	public void addQueue(String type) {
 		
 		listaCode.add(type); //Add the queue to the ArrayList listaCode
@@ -186,7 +204,9 @@ public class EditFlightPanel extends JPanel {
 		JLabel lblAddedQueue = new JLabel(type); //Create label with the queue type chosen
 		lblAddedQueue.setHorizontalAlignment(SwingConstants.CENTER); //Set text h alignment to center
 		lblAddedQueue.setFont(new Font("Tahoma", Font.BOLD, 18)); //Set text font
+		//Label action listener
 		lblAddedQueue.addMouseListener(new MouseAdapter() {
+			//Mouse clicked
 			public void mouseClicked(MouseEvent e) {
 				removeQueue(lblAddedQueue);
 			}
@@ -197,6 +217,10 @@ public class EditFlightPanel extends JPanel {
 		
 	}
 	
+	/**
+	 * Remove a queue from the panelQueues containing the queues
+	 * @param queueLabel What label to remove from the panel
+	 */
 	public void removeQueue(JLabel queueLabel) {
 		
 		ConfirmationFrame frame = new ConfirmationFrame("Sei sicuro di voler rimuovere questa coda?", mainFrame); //Create confirmation frame
@@ -212,6 +236,13 @@ public class EditFlightPanel extends JPanel {
 		
 	}
 	
+	/**
+	 * Update the passed flight in the database
+	 * @param v Old flight instance
+	 * @param nomeCompagnia Company name of the updated flight
+	 * @param data Take off date of the updated flight
+	 * @param gate Gate where the updated flight's embark takes place
+	 */
 	public void editFlight(Volo v, String nomeCompagnia, Date data, int gate) {
 		
 		//Get company class from it's name
@@ -268,7 +299,7 @@ public class EditFlightPanel extends JPanel {
 			return;
 		}
 		
-		//Create flight
+		//Create edited flight
 		Volo editedVolo = new Volo();
 		editedVolo.setID(v.getID());
 		editedVolo.setCompagnia(compagnia);

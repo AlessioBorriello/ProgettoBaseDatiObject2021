@@ -34,8 +34,14 @@ public class CreateFlightPanel extends JPanel {
 	private int queueNumber = 0; //How many queues have been added
 	private ArrayList<String> listaCode = new ArrayList<String>(); //List of the queues
 	
-	private JPanel panelQueues;
+	private JPanel panelQueues; //Panel containing the queues added
 	
+	/**
+	 * Panel where the user can create a new flight to add to the database
+	 * @param bounds Bounds of the contentPanel that contains this panel (to give it the contentPanel's dimensions)
+	 * @param mf Link to the MainFrame
+	 * @param c Link to the MainController
+	 */
 	public CreateFlightPanel(Rectangle bounds, MainFrame mf, MainController c) {
 		
 		mainFrame = mf; //Link main frame
@@ -107,9 +113,11 @@ public class CreateFlightPanel extends JPanel {
 		add(lblQueues); //Add to panel
 		
 		JLabel lblAddQueue = new JLabel("+ Aggiungi coda"); //Create label insert queue
+		//Label action listener
 		lblAddQueue.addMouseListener(new MouseAdapter() {
+			//Mouse clicked
 			public void mouseClicked(MouseEvent e) {
-				createAddQueuePanel();
+				createAddQueueFrame();
 			}
 		});
 		lblAddQueue.setName("lblAddQueue"); //Name component
@@ -126,21 +134,25 @@ public class CreateFlightPanel extends JPanel {
 		panelQueues.setLayout(new GridLayout(20, 0, 0, 0)); //Set layout
 		
 		
+		//Button action listener
 		buttonCreateFlight.addMouseListener(new MouseAdapter() {
+			//Mouse clicked
 			public void mouseClicked(MouseEvent e) {
-			
 				//Gather data
 				String nomeCompagnia = (String)cBoxCompany.getSelectedItem();
 				Date data = (Date)spinnerTakeOffDate.getValue();
 				int gate = (int)spinnerGate.getValue();
-				createFlight(nomeCompagnia, data, gate);
-			
+				
+				createFlight(nomeCompagnia, data, gate); //Create flight with the gathered data
 			}
 		});
 		
 	}
 	
-	public void createAddQueuePanel() {
+	/**
+	 * Create a frame prompting the user to choose a queue to add
+	 */
+	public void createAddQueueFrame() {
 		
 		AddQueueFrame frame = new AddQueueFrame(mainFrame); //Create a popup panel
 		frame.setVisible(true); //Make it visible
@@ -165,6 +177,11 @@ public class CreateFlightPanel extends JPanel {
 		
 	}
 	
+	
+	/**
+	 * Add a queue to the panelQueues
+	 * @param type
+	 */
 	public void addQueue(String type) {
 		
 		listaCode.add(type); //Add the queue to the ArrayList listaCode
@@ -172,7 +189,9 @@ public class CreateFlightPanel extends JPanel {
 		JLabel lblAddedQueue = new JLabel(type); //Create label with the queue type chosen
 		lblAddedQueue.setHorizontalAlignment(SwingConstants.CENTER); //Set text h alignment to center
 		lblAddedQueue.setFont(new Font("Tahoma", Font.BOLD, 18)); //Set text font
+		//Label action listener
 		lblAddedQueue.addMouseListener(new MouseAdapter() {
+			//When mouse clicked
 			public void mouseClicked(MouseEvent e) {
 				removeQueue(lblAddedQueue);
 			}
@@ -183,6 +202,11 @@ public class CreateFlightPanel extends JPanel {
 		
 	}
 	
+
+	/**
+	 * Remove a queue from the panelQueues containing the queues
+	 * @param queueLabel What label to remove from the panel
+	 */
 	public void removeQueue(JLabel queueLabel) {
 		
 		ConfirmationFrame frame = new ConfirmationFrame("Sei sicuro di voler rimuovere questa coda?", mainFrame); //Create confirmation frame
@@ -198,6 +222,13 @@ public class CreateFlightPanel extends JPanel {
 		
 	}
 	
+	
+	/**
+	 * Create a flight and add it to the database
+	 * @param nomeCompagnia Company name of the flight
+	 * @param data Take off date of the flight
+	 * @param gate Gate where the flight's embark takes place
+	 */
 	public void createFlight(String nomeCompagnia, Date data, int gate) {
 		
 		//Get company class from it's name
@@ -210,7 +241,7 @@ public class CreateFlightPanel extends JPanel {
 		}
 		
 		//Generate ID
-		String id = mainController.generateIDString();
+		String id = mainController.generateIDString(8);
 		
 		//Calculate the range of the slot
 		Calendar c = Calendar.getInstance(); //Create a calendar instance
@@ -272,6 +303,7 @@ public class CreateFlightPanel extends JPanel {
 		dao.insertFlight(mainFrame, v);
 		
 	}
+	
 
 }
 

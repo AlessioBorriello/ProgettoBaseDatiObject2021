@@ -7,10 +7,18 @@ import java.util.Date;
 
 public class SlotDAO {
 	
-	private SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+	private SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss"); //Date format
 	
+	/**
+	 * Insert a slot in the database
+	 * @param mainFrame Link to the mainFrame
+	 * @param s Slot to add in the database
+	 * @param id ID of the flight linked to this slot
+	 * @return If the insert operation was successful
+	 */
 	public boolean insertSlot(MainFrame mainFrame, Slot s, String id) {
 		
+		//Convert dates to a string format
 		String inizioTempoStimato = dateTimeFormat.format(s.getInizioTempoStimato());
 		String fineTempoStimato = dateTimeFormat.format(s.getFineTempoStimato());
 		
@@ -38,8 +46,16 @@ public class SlotDAO {
 		
 	}
 	
+	/**
+	 * Update a slot in the database
+	 * @param mainFrame Link to the mainFrame
+	 * @param newSlot Instance of the updated slot
+	 * @param id ID of the flight to link the slot to
+	 * @return If the update operation was successful
+	 */
 	public boolean updateSlot(MainFrame mainFrame, Slot newSlot, String id) {
 		
+		//Convert dates to a string format
 		String inizioTempoStimato = dateTimeFormat.format(newSlot.getInizioTempoStimato());
 		String fineTempoStimato = dateTimeFormat.format(newSlot.getFineTempoStimato());
 		
@@ -65,6 +81,11 @@ public class SlotDAO {
 		
 	}
 	
+	/**
+	 * Get a slot instance by it's flight's id
+	 * @param ID ID of the flight the slot is linked to
+	 * @return The slot linked to the given id
+	 */
 	public Slot getSlotByID(String ID) {
 		
 		try {
@@ -103,8 +124,16 @@ public class SlotDAO {
 		
 	}
 	
+	/**
+	 * Update the effective time in a given slot
+	 * @param mainFrame Link to the mainFrame
+	 * @param s Slot with the updated effective time
+	 * @param id ID of the flight to link the slot to
+	 * @return If the update operation was successful
+	 */
 	public boolean updateTempoEffettivo(MainFrame mainFrame, Slot s, String id) {
 		
+		//Convert dates to a string format
 		String inizioTempoEffettivo = dateTimeFormat.format(s.getInizioTempoEffettivo());
 		String fineTempoEffettivo = dateTimeFormat.format(s.getFineTempoEffettivo());
 		

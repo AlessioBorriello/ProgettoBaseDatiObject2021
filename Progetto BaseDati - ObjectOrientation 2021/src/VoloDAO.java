@@ -10,10 +10,17 @@ import java.util.List;
 
 public class VoloDAO {
 	
-	private SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+	private SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss"); //Date format
 	
+	/**
+	 * Insert a flight into the database
+	 * @param mainFrame Link to the mainFrame
+	 * @param v Flight instance to add
+	 * @return If the insert operation was successful
+	 */
 	public boolean insertFlight(MainFrame mainFrame, Volo v) {
 		
+		//Gather info
 		String compagnia = v.getCompagnia().getNome();
 		Date orarioDecollo = v.getOrarioDecollo();
 		int numeroPrenotazioni = v.getNumeroPrenotazioni();
@@ -70,6 +77,13 @@ public class VoloDAO {
 		
 	}
 	
+	/**
+	 * Update a flight into the database
+	 * @param mainFrame Link to the mainFrame
+	 * @param oldFlight Instance of the old flight
+	 * @param newFlight Instance of the updated flight
+	 * @return If the update operation was successful
+	 */
 	public boolean updateFlight(MainFrame mainFrame, Volo oldFlight, Volo newFlight) {
 		
 		String compagnia = newFlight.getCompagnia().getNome();
@@ -94,7 +108,7 @@ public class VoloDAO {
 			
 			//Update gate
 			GateDAO daoGate = new GateDAO();
-			daoGate.updateGate(mainFrame, oldFlight.getGate(), newFlight.getGate(), id);
+			daoGate.updateGate(mainFrame, newFlight.getGate(), id);
 			
 			//Update slot
 			SlotDAO daoSlot = new SlotDAO();
@@ -112,6 +126,12 @@ public class VoloDAO {
 		
 	}
 	
+	/**
+	 * Remove a flight from a database
+	 * @param mainFrame Link to the mainFrame
+	 * @param v Instance of the flight to remove from the database
+	 * @return If the remove operation was successful
+	 */
 	public boolean removeFlight(MainFrame mainFrame, Volo v) {
 		
 		try {
@@ -137,6 +157,11 @@ public class VoloDAO {
 		
 	}
 	
+	/**
+	 * Get a flight instance by it's ID
+	 * @param ID ID of the flight to get
+	 * @return The flight with the given ID
+	 */
 	public Volo getFlightByID(String ID) {
 		
 		try {
@@ -279,6 +304,12 @@ public class VoloDAO {
 		
 	}
 
+	/**
+	 * Set a given flight's 'partito' as 1 inside the database
+	 * @param mainFrame Link to the mainFrame
+	 * @param v Flight to set as 'partito' = 1 inside the database
+	 * @return If the update operation was successful
+	 */
 	public boolean setFlightAsTakenOff(MainFrame mainFrame, Volo v) {
 		
 		try {
@@ -304,6 +335,12 @@ public class VoloDAO {
 		
 	}
 	
+	/**
+	 * Set a given flight's 'cancellato' as 1 inside the database
+	 * @param mainFrame Link to the mainFrame
+	 * @param v Flight to set as 'cancellato' = 1 inside the database
+	 * @return If the update operation was successful
+	 */
 	public boolean setFlightAsCancelled(MainFrame mainFrame, Volo v) {
 		
 		try {
@@ -329,6 +366,11 @@ public class VoloDAO {
 		
 	}
 	
+	/**
+	 * Gets a list of Flights from the database that pass the given query
+	 * @param query Query to make to the database
+	 * @return List of Flights that passed the query
+	 */
 	public ArrayList<Volo> searchFlight(String query){
 		
 		try {

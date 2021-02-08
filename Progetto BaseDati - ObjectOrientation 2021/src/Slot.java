@@ -3,12 +3,12 @@ import java.util.Date;
 
 public class Slot {
 	
-	private Date inizioTempoStimato = null;
-	private Date fineTempoStimato = null;
-	private Date inizioTempoEffettivo = null;
-	private Date fineTempoEffettivo = null;
+	private Date inizioTempoStimato = null; //Lower end of the estimated time slot
+	private Date fineTempoStimato = null; //Higher end of the estimated time slot
+	private Date inizioTempoEffettivo = null; //Lower end of the effective time slot
+	private Date fineTempoEffettivo = null; //Higher end of the effective time slot
 	
-	
+	//Setter and getters
 	public Date getInizioTempoStimato() {
 		return inizioTempoStimato;
 	}

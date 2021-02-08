@@ -34,6 +34,12 @@ public class DashboardPanel extends JPanel {
 	
 	private dashboardAnimationStatus status = dashboardAnimationStatus.retracted; //Status of the animation (starts fully retracted)
 	
+	/**
+	 * Dashboard on the side with controls the user can interact with
+	 * @param h Dashboard height
+	 * @param mf Link to the mainFrame
+	 * @param mc Link to the mainController
+	 */
 	public DashboardPanel(int h, MainFrame mf, MainController mc) {
 		
 		height = h; //Set height value of the dashboard
@@ -59,15 +65,17 @@ public class DashboardPanel extends JPanel {
 		
 		JButton buttonCheckFlights = new JButton("Check flights"); //Create check flights button
 		buttonCheckFlights.setName("buttonCheckFlights"); //Set component name
+		//Button action listener
 		buttonCheckFlights.addMouseListener(new MouseAdapter() {
+			//Mouse clicked
 			public void mouseClicked(MouseEvent e) {
 				
-				//Set panel on main frame to the correct panel
-				if(mf.setContentPanelToCheckFlightsPanel(false)) {
+				//Set panel on main frame to the correct panel (not looking at the archive)
+				if(mf.setContentPanelToCheckFlightsPanel(false)) { //If the panel gets changed
 					
-					SearchPanel searchPanel = (SearchPanel)mainController.getComponentByName(mainFrame, "searchPanel");
-					if(searchPanel != null) {
-						searchPanel.makeSearch();
+					SearchPanel searchPanel = (SearchPanel)mainController.getComponentByName(mainFrame, "searchPanel"); //Get searchPanel from the mainFrame
+					if(searchPanel != null) { //If the searchPanel gets found
+						searchPanel.makeSearch(); //Make search
 					}
 					
 					//Update dashboard
@@ -83,15 +91,17 @@ public class DashboardPanel extends JPanel {
 		dashboardControlPanel.add(buttonCheckFlights); //Add to dashboardControlPanel
 		
 		JButton buttonFlightsArchive = new JButton("Flights archive"); //Create check flights archive button
+		//Button action listener
 		buttonFlightsArchive.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent e) {
+				//Mouse clicked
 				
-				//Set panel on main frame to the correct panel
-				if(mf.setContentPanelToCheckFlightsPanel(true)) {
+				//Set panel on main frame to the correct panel (looking at the archive)
+				if(mf.setContentPanelToCheckFlightsPanel(true)) { //If the panel gets changed
 					
-					SearchPanel searchPanel = (SearchPanel)mainController.getComponentByName(mainFrame, "searchPanel");
-					if(searchPanel != null) {
-						searchPanel.makeSearch();
+					SearchPanel searchPanel = (SearchPanel)mainController.getComponentByName(mainFrame, "searchPanel"); //Get searchPanel from the mainFrame
+					if(searchPanel != null) { //If the searchPanel gets found
+						searchPanel.makeSearch(); //Make search
 					}
 					
 					//Update dashboard
@@ -130,52 +140,7 @@ public class DashboardPanel extends JPanel {
 			
 			//When mouse enters the dashboard
 			public void mouseEntered(MouseEvent e) {
-				
-				//If the dashboard is not already extended
-				if(status != dashboardAnimationStatus.extended) {
-					
-					//Extend animation
-					status = dashboardAnimationStatus.extending; //Set status to extending status (animating)
-					class AnimationExtending extends TimerTask { //Create animation class
-						
-						//Override run method
-						public void run() {
-							
-							currentPositionX += 2 * animationMultiplierSpeedCurrent; //Increase dashboard's current position based on the multiplier
-							moveDashboard(currentPositionX); //Move dashboard
-							
-							//If the multiplier has not reached it's max
-							if(animationMultiplierSpeedCurrent < animationMultiplierSpeedMax) {
-								
-								animationMultiplierSpeedCurrent += animationMultiplierSpeedAmount; //Increase multiplier
-								
-							}
-							
-							//If animation is interrupted (it's status is no longer extending)
-							if(status != dashboardAnimationStatus.extending) {
-								
-								animationMultiplierSpeedCurrent = 1.0f; //Reset the multiplier
-								this.cancel(); //Stop animation
-								
-							}else if(currentPositionX >= endingPositionX) { //If the current position has reached it's destination (ending position)
-								
-								animationMultiplierSpeedCurrent = 1.0f; //Reset the multiplier
-								currentPositionX = endingPositionX; //Set the current position to the ending position
-								moveDashboard(currentPositionX); //Move dashboard
-								status = dashboardAnimationStatus.extended; //Set status to extended status (animation complete)
-								this.cancel(); //Stop animation
-								
-							}
-							
-						}
-						
-					}
-				
-					AnimationExtending animation = new AnimationExtending(); //Create animation instance
-					Timer t = new Timer(); //Create timer
-					t.schedule(animation, 10, 10); //Schedule the animation task in the timer with a delay of 10ms and a repeat of 10ms
-					
-				}
+				openDashboardAnimation();
 			}
 
 			//When mouse exits the dashboard
@@ -188,51 +153,8 @@ public class DashboardPanel extends JPanel {
 		        	return; //Exit event and ignore rest of the code
 		        }
 		        
-		        //If the dashboard is not already retracted
-				if(status != dashboardAnimationStatus.retracted) {
-					
-					//Retract animation
-					status = dashboardAnimationStatus.retracting;  //Set status to retracting status (animating)
-					class AnimationRetracting extends TimerTask { //Create animation class
-						
-						//Override run method
-						public void run() {
-							
-							currentPositionX -= 2 * animationMultiplierSpeedCurrent; //Decrease dashboard's current position based on the multiplier
-							moveDashboard(currentPositionX); //Move dashboard
-							
-							//If the multiplier has not reached it's max
-							if(animationMultiplierSpeedCurrent < animationMultiplierSpeedMax) {
-								
-								animationMultiplierSpeedCurrent += animationMultiplierSpeedAmount; //Increase multiplier
-								
-							}
-							
-							//If animation is interrupted (it's status is no longer retracting)
-							if(status != dashboardAnimationStatus.retracting) {
-								
-								animationMultiplierSpeedCurrent = 1.0f; //Reset the multiplier
-								this.cancel(); //Stop animation
-								
-							}else if(currentPositionX <= startingPositionX) { //If the current position has reached it's destination (starting position)
-								
-								animationMultiplierSpeedCurrent = 1.0f; //Reset the multiplier
-								currentPositionX = startingPositionX; //Set the current position to the starting position
-								moveDashboard(currentPositionX); //Move dashboard
-								status = dashboardAnimationStatus.retracted; //Set status to retracted status (animation complete)
-								this.cancel(); //Stop animation
-								
-							}
-							
-						}
-						
-					}
-				
-					AnimationRetracting animation = new AnimationRetracting(); //Create animation instance
-					Timer t = new Timer(); //Create timer
-					t.schedule(animation, 10, 10); //Schedule the animation task in the timer with a delay of 10ms and a repeat of 10ms
-					
-				}
+		        closeDashboardAnimation();
+		        
 			}
 			
 		});
@@ -247,7 +169,114 @@ public class DashboardPanel extends JPanel {
 		setLocation(positionX, getLocation().y); //Set the location
 	}
 
+	/**
+	 * Makes the dashboard open with it's animation
+	 */
+	public void openDashboardAnimation() {
+		
+		//If the dashboard is not already extended
+		if(status != dashboardAnimationStatus.extended) {
+			
+			//Extend animation
+			status = dashboardAnimationStatus.extending; //Set status to extending status (animating)
+			class AnimationExtending extends TimerTask { //Create animation class
+				
+				//Override run method
+				public void run() {
+					
+					currentPositionX += 2 * animationMultiplierSpeedCurrent; //Increase dashboard's current position based on the multiplier
+					moveDashboard(currentPositionX); //Move dashboard
+					
+					//If the multiplier has not reached it's max
+					if(animationMultiplierSpeedCurrent < animationMultiplierSpeedMax) {
+						
+						animationMultiplierSpeedCurrent += animationMultiplierSpeedAmount; //Increase multiplier
+						
+					}
+					
+					//If animation is interrupted (it's status is no longer extending)
+					if(status != dashboardAnimationStatus.extending) {
+						
+						animationMultiplierSpeedCurrent = 1.0f; //Reset the multiplier
+						this.cancel(); //Stop animation
+						
+					}else if(currentPositionX >= endingPositionX) { //If the current position has reached it's destination (ending position)
+						
+						animationMultiplierSpeedCurrent = 1.0f; //Reset the multiplier
+						currentPositionX = endingPositionX; //Set the current position to the ending position
+						moveDashboard(currentPositionX); //Move dashboard
+						status = dashboardAnimationStatus.extended; //Set status to extended status (animation complete)
+						this.cancel(); //Stop animation
+						
+					}
+					
+				}
+				
+			}
+		
+			AnimationExtending animation = new AnimationExtending(); //Create animation instance
+			Timer t = new Timer(); //Create timer
+			t.schedule(animation, 10, 10); //Schedule the animation task in the timer with a delay of 10ms and a repeat of 10ms
+			animationMultiplierSpeedCurrent = 1.0f; //Reset animation speed multiplier
+			
+		}
+		
+	}
 	
+	/**
+	 * Makes the dashboard close with it's animation
+	 */
+	public void closeDashboardAnimation() {
+		
+		//If the dashboard is not already retracted
+		if(status != dashboardAnimationStatus.retracted) {
+			
+			//Retract animation
+			status = dashboardAnimationStatus.retracting;  //Set status to retracting status (animating)
+			class AnimationRetracting extends TimerTask { //Create animation class
+				
+				//Override run method
+				public void run() {
+					
+					currentPositionX -= 2 * animationMultiplierSpeedCurrent; //Decrease dashboard's current position based on the multiplier
+					moveDashboard(currentPositionX); //Move dashboard
+					
+					//If the multiplier has not reached it's max
+					if(animationMultiplierSpeedCurrent < animationMultiplierSpeedMax) {
+						
+						animationMultiplierSpeedCurrent += animationMultiplierSpeedAmount; //Increase multiplier
+						
+					}
+					
+					//If animation is interrupted (it's status is no longer retracting)
+					if(status != dashboardAnimationStatus.retracting) {
+						
+						animationMultiplierSpeedCurrent = 1.0f; //Reset the multiplier
+						this.cancel(); //Stop animation
+						
+					}else if(currentPositionX <= startingPositionX) { //If the current position has reached it's destination (starting position)
+						
+						animationMultiplierSpeedCurrent = 1.0f; //Reset the multiplier
+						currentPositionX = startingPositionX; //Set the current position to the starting position
+						moveDashboard(currentPositionX); //Move dashboard
+						status = dashboardAnimationStatus.retracted; //Set status to retracted status (animation complete)
+						this.cancel(); //Stop animation
+						
+					}
+					
+				}
+				
+			}
+		
+			AnimationRetracting animation = new AnimationRetracting(); //Create animation instance
+			Timer t = new Timer(); //Create timer
+			t.schedule(animation, 10, 10); //Schedule the animation task in the timer with a delay of 10ms and a repeat of 10ms
+			animationMultiplierSpeedCurrent = 1.0f; //Reset animation speed multiplier
+			
+		}
+		
+	}
+
 }
 
 //Enumeration of the animation status

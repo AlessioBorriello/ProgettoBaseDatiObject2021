@@ -1,9 +1,10 @@
 
 public class Coda {
 
-	private String tipo;
-	private int personeInCoda = 0;
+	private String tipo; //Queue type
+	private int personeInCoda = 0; //People in this queue
 	
+	//Setters and getters
 	public String getTipo() {
 		return tipo;
 	}
@@ -19,6 +20,7 @@ public class Coda {
 	
 }
 
+//Enum containing the possible types of queues
 enum queueType{
 	
 	famiglie,

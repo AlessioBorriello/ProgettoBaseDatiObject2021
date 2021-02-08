@@ -15,10 +15,6 @@ public class FlightPreviewPanel extends JPanel {
 	private MainFrame mainFrame; //Main panel
 	private MainController mainController; //Main controller
 
-	//Position in the grid
-	private int panelNumber = 0;
-	int gridPositionX = 0;
-	int gridPositionY = 0;
 	
 	//Flight instance to show its info
 	private Volo volo;
@@ -32,15 +28,11 @@ public class FlightPreviewPanel extends JPanel {
 	//Border color based on the flight status
 	Color borderColor;
 
-	public FlightPreviewPanel(MainFrame mf, MainController c, Volo v, int panelNumber, int gridPositionX, int gridPositionY) {
+	public FlightPreviewPanel(MainFrame mf, MainController c, Volo v) {
 		
 		mainFrame = mf; //Link main frame
 		mainController = c; //Link main controller
 		volo = v; //Flight instance to show its info
-		this.panelNumber = panelNumber; //Number of this panel in the grid
-		//Grid coordinates
-		this.gridPositionX = gridPositionX;
-		this.gridPositionY = gridPositionY;
 		
 		//Determine border color
 		if(volo.isPartito()) {
@@ -83,24 +75,27 @@ public class FlightPreviewPanel extends JPanel {
 		numeroPrenotazioniLabel.setBounds(20, 151, 225, 14); //Set bounds
 		add(numeroPrenotazioniLabel); //Add label to the panel
 		
-		JLabel statusLabel = new JLabel("");
-		statusLabel.setBounds(20, 217, 225, 14);
-		if(volo.isPartito()) {
-			if(volo.checkIfFlightTookOffLate()) {
+		JLabel statusLabel = new JLabel(""); //Create label with the flight status
+		statusLabel.setBounds(20, 217, 225, 14); //Set bounds
+		//Gather flight's status
+		if(volo.isPartito()) { //If the flight has taken off
+			if(volo.checkIfFlightTookOffLate()) { //Check if it did so late
 				statusLabel.setText("Volo partito in ritardo");
-			}else {
+			}else { //Otherwise
 				statusLabel.setText("Volo partito");
 			}
-		}else {
-			if(volo.isCancellato()) {
+		}else { //The flight has not taken off
+			if(volo.isCancellato()) { //Check if it has been cancelled
 				statusLabel.setText("Volo cancellato");
-			}else {
+			}else { //Otherwise
 				statusLabel.setText("Volo non partito");
 			}
 		}
-		add(statusLabel);
+		add(statusLabel); //Add the label
 		
+		//Panel action listener
 		addMouseListener(new MouseAdapter() {
+			//Mouse clicked
 			public void mouseClicked(MouseEvent e) {
 				//Change panel to the EditFlightPanel
 				mainFrame.setContentPanelToViewFlightInfoPanel(v);

@@ -12,18 +12,18 @@ import java.util.Random;
 public class MainController {
 	
 	static String URL = "jdbc:mysql://localhost:3306/aereoporto?autoReconnect=true&useSSL=false"; //Database URL
-	static String PASSWORD = "password";
-	static String USER = "root";
+	static String PASSWORD = "password"; //Password
+	static String USER = "root"; //User name
 
 	public static void main(String[] args) {
 		
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					//Crea Main frame
+					//Create MainFrame and MainController
 					MainController controller = new MainController();
 					MainFrame mainFrame = new MainFrame(controller);
-					mainFrame.setVisible(true);
+					mainFrame.setVisible(true); //Set it visible
 					
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -33,29 +33,41 @@ public class MainController {
 
 	}
 	
-	public String generateIDString() {
+	/**
+	 * Generate a random alphanumeric string of a specified length
+	 * @param lenght Length of the string
+	 * @return Generated string
+	 */
+	public String generateIDString(int length) {
 		
-	    int leftLimit = 48; // numeral '0'
-	    int rightLimit = 122; // letter 'z'
-	    int targetStringLength = 8;
-	    Random random = new Random();
+	    int leftLimit = 48; //Numeral '0'
+	    int rightLimit = 122; //Letter 'z'
+	    int targetStringLength = length; //Length of the generated string 
+	    
+	    Random random = new Random(); //Create random instance
 
 	    String generatedString = random.ints(leftLimit, rightLimit + 1)
 	      .filter(i -> (i <= 57 || i >= 65) && (i <= 90 || i >= 97))
 	      .limit(targetStringLength)
 	      .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
-	      .toString();
+	      .toString(); //Create string
 
 	    return generatedString;
 	    
 	}
 
-	public Component getComponentByName(Container container, String nome) {
+	/**
+	 * Get a component by it's name
+	 * @param container Outer container that contains the component
+	 * @param name Name of the component to find
+	 * @return The component if it is found, null otherwise
+	 */
+	public Component getComponentByName(Container container, String name) {
 		
 		List<Component> list = getAllComponents(container); //Take all components from the container
 		
 		for(Component c: list) {
-			if(c.getName() != null && c.getName().contentEquals(nome)) { //Component found
+			if(c.getName() != null && c.getName().contentEquals(name)) { //Component found
 				return c;
 			}
 		}
@@ -64,6 +76,12 @@ public class MainController {
 		
 	}
 	
+	
+	/**
+	 * Get a list of the all the components contained in a specified container
+	 * @param container Container  that the  user wants the components of
+	 * @return List of the components contained in the passed container
+	 */
 	public List<Component> getAllComponents(Container container) {
 		
 	    Component[] components = container.getComponents(); //Take all the components from the outer container

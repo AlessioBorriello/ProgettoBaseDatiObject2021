@@ -44,7 +44,7 @@ public class MainFrame extends JFrame {
 	private JPanel contentPanel; //Panel that changes
 	private JLayeredPane centerPanel; //Panel containing content panel and dashboard
 	
-	private SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+	private SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss"); //Date format
 	
 	private JPanel currentPanel = null; //Current panel being displayed in the content panel
 	private boolean lookingAtArchive; //To differentiate when on the panel CheckFlightsPanel if looking at the archive or not
@@ -61,15 +61,19 @@ public class MainFrame extends JFrame {
 	
 	private ArrayList<Volo> flightList = null; //List of the flights to be displayed in the content panel
 
+	/**
+	 * Frame containing the entire application
+	 * @param c Link to the mainController
+	 */
 	public MainFrame(MainController c) {
 		
 		controller = c; //Link controller and frame
 		
-		//Frame proprieties
+		//Frame properties
 		setResizable(false); //Not resizable
 		setUndecorated(true); //Undecorated (No close, minimize buttons)
 		setTitle("Title"); //Set frame title
-		setBounds((screenWidth/2) - (frameWidth/2), (screenHeight/2) - (frameHeight/2), frameWidth, frameHeight); //Set the frame sizes and position (not fullscreen)
+		setBounds((screenWidth/2) - (frameWidth/2), (screenHeight/2) - (frameHeight/2), frameWidth, frameHeight); //Set the frame sizes and position in the middle of the screen
 		
 		//Main Panel
 		JPanel mainPanel = new JPanel(); //Create panel
@@ -153,18 +157,15 @@ public class MainFrame extends JFrame {
 		
 		flightList = searchFlights("", -1, null, null, true, true, true, true, true, true, true); //Start a research to get all of the flights
 		
-		setContentPanelToCheckFlightsPanel(false);
+		setContentPanelToCheckFlightsPanel(false); //Set content panel at the start of the application to the CheckFlightsPanel
 		
 	}
 	
-	public ArrayList<Volo> getFlightList() {
-		return flightList;
-	}
-	
-	public void setFlightList(ArrayList<Volo> list) {
-		flightList = list;
-	}
-
+	/**
+	 * Set contentPanel to the CheckFlightsPanel
+	 * @param lookingAtArchive If the panel has to show the archive of the flights (where 'partito' or 'cancellato' = 1)
+	 * @return If the panel got changed
+	 */
 	public boolean setContentPanelToCheckFlightsPanel(boolean lookingAtArchive) {
 		
 		//Check if the current panel is already in place in the content panel (They have the same class name)
@@ -196,6 +197,10 @@ public class MainFrame extends JFrame {
 		
 	}
 
+	/**
+	 * Set contentPanel to the CreateFlightsPanel
+	 * @return If the panel got changed
+	 */
 	public boolean setContentPanelToCreateFlightsPanel() {
 		
 		//Check if the current panel is already in place in the content panel (They have the same class name)
@@ -222,6 +227,10 @@ public class MainFrame extends JFrame {
 		
 	}
 	
+	/**
+	 * Set contentPanel to the EditFlightPanel
+	 * @return If the panel got changed
+	 */
 	public boolean setContentPanelToEditFlightPanel(Volo flightToUpdate) {
 		
 		//Check if the current panel is already in place in the content panel (They have the same class name)
@@ -248,6 +257,10 @@ public class MainFrame extends JFrame {
 		
 	}
 
+	/**
+	 * Set contentPanel to the ViewFlightInfoPanel
+	 * @return If the panel got changed
+	 */
 	public boolean setContentPanelToViewFlightInfoPanel(Volo volo) {
 		
 		//Check if the current panel is already in place in the content panel (They have the same class name)
@@ -274,26 +287,48 @@ public class MainFrame extends JFrame {
 		
 	}
 	
+	/**
+	 * Create a notification frame
+	 * @param notification Notification text to show the user
+	 */
 	public void createNotificationFrame(String notification) {
 		
+		//Create frame and set it visible
 		NotificationFrame frame = new NotificationFrame(notification, this);
 		frame.setVisible(true);
 		
 	}
 
+	/**
+	 * Create confirmation frame
+	 * @param notification Notification text to show the user
+	 * @return What the user has chosen
+	 */
 	public boolean createConfirmationFrame(String notification) {
 		
+		//Create frame and set it visible
 		ConfirmationFrame frame = new ConfirmationFrame(notification, this);
 		frame.setVisible(true);
-		boolean answer = frame.getAnswer();
-		return answer;
+		
+		return frame.getAnswer(); //Return user choice
 		
 	}
-
-	public boolean isLookingAtArchive() {
-		return lookingAtArchive;
-	}
 	
+	/**
+	 * Create a query based on the arguments passed and get a list of flights satisfying the query
+	 * @param idField ID the flights has to have (at least part of it) to pass the query (set as "" to ignore)
+	 * @param gateNumber Number the flight has to have to pass the query (set as -1 to ignore)
+	 * @param dateStart Lower end of the date the flight has to have to pass the query (set as null to ignore)
+	 * @param dateEnd Higher end of the date the flight has to have to pass the query (set as null to ignore)
+	 * @param airFrance Include flights with this company name
+	 * @param alitalia Include flights with this company name
+	 * @param easyJet Include flights with this company name
+	 * @param ryanair Include flights with this company name
+	 * @param cancelled Include flights cancelled
+	 * @param delayed Include flights that took off late
+	 * @param inTime Include flights that took off on time
+	 * @return List of the flights that passed the generated query
+	 */
 	public ArrayList<Volo> searchFlights(String idField, int gateNumber, Date dateStart, Date dateEnd, boolean airFrance, boolean alitalia, boolean easyJet, boolean ryanair, boolean cancelled, boolean delayed, boolean inTime) {
 		
 		//Query generation setup
@@ -339,12 +374,11 @@ public class MainFrame extends JFrame {
 			if((delayed || inTime) && !(delayed && inTime)) {
 				if(!delayed) { //Exclude delayed flights if delayed is false
 					archiveOnlyQuery += " AND ((fineTempoStimato >= fineTempoEffettivo)"; //Only non delayed flights
-					archiveOnlyQuery += (cancelled)? " OR (cancellato = 1))" : ")"; //Add cancelled back if the cancelled boolean is true otherwise simply close brackets
+					archiveOnlyQuery += (cancelled)? " OR (cancellato = 1))" : ")"; //Add cancelled back if the cancelled boolean is true (since they get removed by the above condition) otherwise simply close brackets
 				}else { //Exclude inTime flights if inTime is false
 					archiveOnlyQuery += " AND ((fineTempoStimato < fineTempoEffettivo)"; //Only delayed flights
-					archiveOnlyQuery += (cancelled)? " OR (cancellato = 1))" : ")"; //Add cancelled back if the cancelled boolean is true otherwise simply close brackets
+					archiveOnlyQuery += (cancelled)? " OR (cancellato = 1))" : ")"; //Add cancelled back if the cancelled boolean is true (since they get removed by the above condition) otherwise simply close brackets
 				}
-				
 			}
 			
 		}
@@ -360,16 +394,31 @@ public class MainFrame extends JFrame {
 		
 	}
 
+	/**
+	 * Get the flight panel and (if found) repopulate it's grid
+	 */
 	public void redrawCheckFlightsPanel() {
 		
 		CheckFlightsPanel flightPanel = (CheckFlightsPanel)controller.getComponentByName(this, "checkFlightsPanel"); //Get panel
 		if(flightPanel != null) { //If it has been found
-			flightPanel.populateGrid(flightList, 4, 15, 15, 25, 25);
+			flightPanel.populateGrid(flightList, 4, 15, 15, 25, 25); //Populate grid with the mainFrame's flight list
 			repaint();
 			revalidate();
 		}
 		
 	}
 	
+	//Setters and getters
+	public ArrayList<Volo> getFlightList() {
+		return flightList;
+	}
+	public void setFlightList(ArrayList<Volo> list) {
+		flightList = list;
+	}
+	public boolean isLookingAtArchive() {
+		return lookingAtArchive;
+	}
+
+
 }
 

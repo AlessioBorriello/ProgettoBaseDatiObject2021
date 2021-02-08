@@ -6,10 +6,17 @@ import java.util.ArrayList;
 
 public class CodaDAO {
 	
+	/**
+	 * Insert a queue in the database
+	 * @param mainFrame Link to the MainFrame
+	 * @param c Queue to add in the database
+	 * @param id ID of the flights to link with this queue
+	 * @return If the insert operation was successful
+	 */
 	public boolean insertCoda(MainFrame mainFrame, Coda c, String id) {
 		
-		String tipo = c.getTipo();
-		int lunghezza = c.getPersoneInCoda();
+		String tipo = c.getTipo(); //Get queue's type
+		int lunghezza = c.getPersoneInCoda(); //Get queue's amount of people in the queue
 		
 		try {
 			
@@ -34,7 +41,13 @@ public class CodaDAO {
 		
 	}
 	
-	public boolean removeCoda(MainFrame mainFrame, String id) {
+	/**
+	 * Remove queues of a flight in the database
+	 * @param mainFrame Link to the MainFrame
+	 * @param id ID of the flight that the user wants to remove the queue of
+	 * @return If the delete operation was successful
+	 */
+	public boolean removeCode(MainFrame mainFrame, String id) {
 		
 		try {
 			
@@ -58,6 +71,11 @@ public class CodaDAO {
 		
 	}
 	
+	/**
+	 * Get a list of the queues of a specified Flight
+	 * @param ID ID of the flight the user wants the queue of
+	 * @return List of queues of the specified Flight
+	 */
 	public ArrayList<Coda> getQueueListByID(String ID){
 		
 		try {

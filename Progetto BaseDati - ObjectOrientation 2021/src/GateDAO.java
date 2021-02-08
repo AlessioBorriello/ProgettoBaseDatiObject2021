@@ -7,6 +7,13 @@ import java.util.Date;
 
 public class GateDAO {
 	
+	/**
+	 * Insert a gate into the database
+	 * @param mainFrame Link to the mainFrame
+	 * @param g Gate instance to add
+	 * @param id ID of the flight to link the gate to
+	 * @return If the insert operation was successful
+	 */
 	public boolean insertGate(MainFrame mainFrame, Gate g, String id) {
 		
 		int numeroGate = g.getNumeroGate();
@@ -43,7 +50,14 @@ public class GateDAO {
 		
 	}
 	
-	public boolean updateGate(MainFrame mainFrame, Gate oldGate, Gate newGate, String id) {
+	/**
+	 * Update a gate into the database
+	 * @param mainFrame Link to the mainFrame
+	 * @param newGate Instance of the updated gate
+	 * @param id ID of the flight to link the gate to
+	 * @return If the update operation was successful
+	 */
+	public boolean updateGate(MainFrame mainFrame, Gate newGate, String id) {
 		
 		int numeroGate = newGate.getNumeroGate();
 		
@@ -60,13 +74,11 @@ public class GateDAO {
 			con.close(); //Close connection
 			st.close(); //Close statement
 			
-			//Remove old queues
+			//Remove all old gate's queues
 			CodaDAO removeDAO = new CodaDAO();
-			for(Coda c : oldGate.getListaCode()) {
-				removeDAO.removeCoda(mainFrame, id);
-			}
+			removeDAO.removeCode(mainFrame, id);
 			
-			//Insert new queues
+			//Insert new queues of the updated gate
 			CodaDAO insertDAO = new CodaDAO();
 			for(Coda c : newGate.getListaCode()) {
 				insertDAO.insertCoda(mainFrame, c, id);
@@ -81,6 +93,11 @@ public class GateDAO {
 		
 	}
 	
+	/**
+	 * Get a gate instance by it's flight's id
+	 * @param ID ID of the flight the gate is linked to
+	 * @return The gate linked to the given id
+	 */
 	public Gate getGateByID(String ID) {
 		
 		try {
@@ -117,6 +134,11 @@ public class GateDAO {
 		
 	}
 
+	/**
+	 * Get a list of all the gates with a specified gate number
+	 * @param gateNumber The number of the gate
+	 * @return List of gates where gateNumber is equal to the passed gateNumber argument
+	 */
 	public ArrayList<Gate> getGateListByGateNumber(int gateNumber){
 		
 		try {
@@ -152,6 +174,11 @@ public class GateDAO {
 		
 	}
 	
+	/**
+	 * Get a list of the flight's ID with a specified gate number in it's linked gate
+	 * @param gateNumber The number of the gate
+	 * @return List of ID where a flight's linked gate has the gateNumber equal to the passed gateNumber argument
+	 */
 	public ArrayList<String> getFlightIdByGateNumber(int gateNumber){
 		
 		try {

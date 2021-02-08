@@ -7,6 +7,10 @@ import java.util.List;
 
 public class CompagniaAereaDAO {
 	
+	/**
+	 * Get all the companies contained in the database
+	 * @return List of all the companies
+	 */
 	public ArrayList<CompagniaAerea> getAllCompagniaAerea(){
 		
 		try {
@@ -44,12 +48,17 @@ public class CompagniaAereaDAO {
 		
 	}
 	
-	public CompagniaAerea getCompagniaAereaByNome(String nome) {
+	/**
+	 * Get a specific company from the database by it's name
+	 * @param nome Name of the company to get
+	 * @return If the company was found
+	 */
+	public CompagniaAerea getCompagniaAereaByNome(String name) {
 		
 		try {
 			
 			Class.forName("com.mysql.jdbc.Driver");
-			String q = "Select * from compagniaaerea where nomeCompagnia = '" + nome + "'" ; //Initialize query
+			String q = "Select * from compagniaaerea where nomeCompagnia = '" + name + "'" ; //Initialize query
 			
 			String connectionURL = MainController.URL; //Connection URL
 
@@ -61,7 +70,7 @@ public class CompagniaAereaDAO {
 				
 				//Create company instance
 				CompagniaAerea c = new CompagniaAerea();
-				c.setNome(nome);
+				c.setNome(name);
 				c.setNumeroVoli(rs.getInt("numeroVoli"));
 				
 				return c;

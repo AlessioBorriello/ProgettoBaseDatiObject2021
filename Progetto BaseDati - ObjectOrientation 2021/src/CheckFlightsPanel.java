@@ -17,8 +17,15 @@ public class CheckFlightsPanel extends JPanel {
 	private MainFrame mainFrame; //Main panel
 	private MainController mainController; //Main controller
 	
-	private JPanel gridPanel;
+	private JPanel gridPanel; //Panel containing the FlightPreviewPanels in a grid
 
+	/**
+	 * Panel containing the grid of the FlightPreviewPanels
+	 * @param bounds Bounds of the contentPanel that contains this panel (to give it the contentPanel's dimensions)
+	 * @param mf Link to the MainFrame
+	 * @param c Link to the MainController
+	 * @param lookingAtArchive If the panel is displaying the archive of the flights (the flights where 'partito' = 1)
+	 */
 	public CheckFlightsPanel(Rectangle bounds, MainFrame mf, MainController c, boolean lookingAtArchive) {
 		
 		mainFrame = mf; //Link main frame
@@ -72,7 +79,7 @@ public class CheckFlightsPanel extends JPanel {
 			xPosition = i % columns;
 			yPosition = i / columns;
 			
-			FlightPreviewPanel f = new FlightPreviewPanel(mainFrame, mainController, array.get(i), i, xPosition, yPosition); //Create new panel
+			FlightPreviewPanel f = new FlightPreviewPanel(mainFrame, mainController, array.get(i)); //Create new panel
 			
 			//Get width and height of the panel
 			width = f.getWidth();
