@@ -9,13 +9,15 @@ import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
 
 import javax.swing.GroupLayout;
+import javax.swing.JButton;
 import javax.swing.GroupLayout.Alignment;
 
 public class CheckFlightsPanel extends JPanel {
 	
 	private MainFrame mainFrame; //Main panel
 	private MainController mainController; //Main controller
-	private ArrayList<Volo> listaVoli = new ArrayList<Volo>();
+	
+	private JPanel gridPanel;
 
 	public CheckFlightsPanel(Rectangle bounds, MainFrame mf, MainController c, boolean lookingAtArchive) {
 		
@@ -28,20 +30,14 @@ public class CheckFlightsPanel extends JPanel {
 		
 		JScrollPane scrollPanel = new JScrollPane(); //Create scroll panel
 		scrollPanel.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER); //Dont show horizontal scrollbar
+		scrollPanel.getVerticalScrollBar().setUnitIncrement(14); //Set scrollbar speed
 		add(scrollPanel, BorderLayout.CENTER); //Add scroll panel
 		
-		JPanel gridPanel = new JPanel(); //Create grid panel
+		gridPanel = new JPanel(); //Create grid panel
 		gridPanel.setName("gridPanel"); //Name component
 		scrollPanel.setViewportView(gridPanel); //Make the scroll pane look at the grid panel and add it to the scroll pane
 		
-		//Get list of the flights
-		if(!lookingAtArchive) {
-			listaVoli.addAll(new VoloDAO().getNonArchivedFlights()); //Add non archived flights
-		}else {
-			listaVoli.addAll(new VoloDAO().getArchivedFlights()); //Add archived flights
-		}
-		
-		populateGrid(gridPanel, listaVoli, 4, 15, 15, 25, 25); //Create grid of flights info panel based on the listaVoli array
+		populateGrid(mainFrame.getFlightList(), 4, 15, 15, 25, 25); //Create grid of flights info panel based on the listaVoli array
 		
 	}
 	
@@ -55,7 +51,10 @@ public class CheckFlightsPanel extends JPanel {
 	 * @param xStartOffset Starting x offset of the first panel
 	 * @param yStartOffset Starting y offset of the first panel
 	 */
-	public void populateGrid(JPanel gridPanel, ArrayList<Volo> array, int columns, int hgap, int vgap, int xStartOffset, int yStartOffset) {
+	public void populateGrid(ArrayList<Volo> array, int columns, int hgap, int vgap, int xStartOffset, int yStartOffset) {
+		
+		//Clear grid before anything
+		gridPanel.removeAll();
 		
 		//Position in the grid
 		int xPosition = 0;
@@ -65,7 +64,7 @@ public class CheckFlightsPanel extends JPanel {
 		int width = 0;
 		int height = 0;
 		
-		int panelNumber = array.size(); //Get the number of panels to create
+		int panelNumber = (array != null) ? array.size() : 0; //Get the number of panels to create
 		
 		for(int i = 0; i < panelNumber; i++) {
 			
@@ -102,5 +101,8 @@ public class CheckFlightsPanel extends JPanel {
 	
 	}
 
-	
+	public JPanel getGridPanel() {
+		return gridPanel;
+	}
+
 }

@@ -90,7 +90,10 @@ public class MainController {
 		
 		//If an id has been passed then we are updating a flight, therefore remove it from the array of IDs (If the gate of the new flight (gateNumber) is the same as the old one (volo.getGate().getNumeroGate()))
 		if(volo != null && volo.getGate().getNumeroGate() == gateNumber) {
-			idList.remove(idList.indexOf(volo.getID()));
+			int index = idList.indexOf(volo.getID()); //Get the index of the ID in the list
+			if(index != -1) { //If the ID has been found (it always should be)
+				idList.remove(index); //Remove it from the list
+			}
 		}
 		
 		for(String idString : idList) { //For all of the flights id where the gate number is the gate selected in the flight creation

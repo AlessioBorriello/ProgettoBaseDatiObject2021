@@ -46,19 +46,14 @@ public class DashboardPanel extends JPanel {
 		setLayout(null); //Set layout to absolute
 		
 		
-		JPanel infoPanel = new JPanel(); //Create info panel
-		infoPanel.setBounds(2, 2, 296, 331); //Position info panel
-		infoPanel.setName("infoPanel"); //Set component name
-		add(infoPanel); //Add info panel to the dashboard
-		infoPanel.setLayout(new BorderLayout(0, 0)); //Set the info panel's layout to border layout
-
-		JLabel lblTest = new JLabel("Dashboard"); //Create lbl test and set it's text
-		lblTest.setHorizontalAlignment(SwingConstants.CENTER); //Set text alignment
-		infoPanel.add(lblTest);
+		SearchPanel searchPanel = new SearchPanel(mainController, mainFrame); //Create search panel
+		searchPanel.setLocation(new Point(2, 2)); //Position panel
+		searchPanel.setName("searchPanel"); //Set component name
+		add(searchPanel);
 		
 		JPanel dashboardControlPanel = new JPanel(); //Create dasboard control panel
 		dashboardControlPanel.setName("dashboardControlPanel"); //Set component name
-		dashboardControlPanel.setBounds(2, 336, 296, 331); //Position dashboard control panel
+		dashboardControlPanel.setBounds(2, 408, 296, 259); //Position dashboard control panel
 		add(dashboardControlPanel); //Add dashboard control panel to the dashboard
 		dashboardControlPanel.setLayout(null); //Set the dash board control's layout to absolute
 		
@@ -68,11 +63,23 @@ public class DashboardPanel extends JPanel {
 			public void mouseClicked(MouseEvent e) {
 				
 				//Set panel on main frame to the correct panel
-				mf.setContentPanelToCheckFlightsPanel(false);
+				if(mf.setContentPanelToCheckFlightsPanel(false)) {
+					
+					SearchPanel searchPanel = (SearchPanel)mainController.getComponentByName(mainFrame, "searchPanel");
+					if(searchPanel != null) {
+						searchPanel.makeSearch();
+					}
+					
+					//Update dashboard
+					searchPanel.toggleArchiveOnlyPanel(false);
+					repaint();
+					revalidate();
+					
+				}
 				
 			}
 		});
-		buttonCheckFlights.setBounds(10, 40, 276, 50); //Set position and bounds
+		buttonCheckFlights.setBounds(10, 11, 276, 50); //Set position and bounds
 		dashboardControlPanel.add(buttonCheckFlights); //Add to dashboardControlPanel
 		
 		JButton buttonFlightsArchive = new JButton("Flights archive"); //Create check flights archive button
@@ -80,12 +87,24 @@ public class DashboardPanel extends JPanel {
 			public void mouseClicked(MouseEvent e) {
 				
 				//Set panel on main frame to the correct panel
-				mf.setContentPanelToCheckFlightsPanel(true);
+				if(mf.setContentPanelToCheckFlightsPanel(true)) {
+					
+					SearchPanel searchPanel = (SearchPanel)mainController.getComponentByName(mainFrame, "searchPanel");
+					if(searchPanel != null) {
+						searchPanel.makeSearch();
+					}
+					
+					//Update dashboard
+					searchPanel.toggleArchiveOnlyPanel(true);
+					repaint();
+					revalidate();
+					
+				}
 				
 			}
 		});
 		buttonFlightsArchive.setName("buttonFlightsArchive"); //Set component name
-		buttonFlightsArchive.setBounds(10, 100, 276, 50); //Set position and bounds
+		buttonFlightsArchive.setBounds(10, 72, 276, 50); //Set position and bounds
 		dashboardControlPanel.add(buttonFlightsArchive); //Add to dashboardControlPanel
 		
 		JButton buttonCreateNewFlight = new JButton("Create new flight"); //Create create new flight button
@@ -98,12 +117,12 @@ public class DashboardPanel extends JPanel {
 			}
 		});
 		buttonCreateNewFlight.setName("buttonCreateNewFlight"); //Set component name
-		buttonCreateNewFlight.setBounds(10, 160, 276, 50); //Set position and bounds
+		buttonCreateNewFlight.setBounds(10, 133, 276, 50); //Set position and bounds
 		dashboardControlPanel.add(buttonCreateNewFlight); //Add to dashboardControlPanel
 		
 		JButton buttonCheckStatistics = new JButton("Check gate statistics"); //Create check stats button
 		buttonCheckStatistics.setName("buttonCheckStatistics"); //Set component name
-		buttonCheckStatistics.setBounds(10, 220, 276, 50); //Set position and bounds
+		buttonCheckStatistics.setBounds(10, 194, 276, 50); //Set position and bounds
 		dashboardControlPanel.add(buttonCheckStatistics); //Add to dashboardControlPanel
 		
 		//Mouse listeners of the dashboard
@@ -228,6 +247,7 @@ public class DashboardPanel extends JPanel {
 		setLocation(positionX, getLocation().y); //Set the location
 	}
 
+	
 }
 
 //Enumeration of the animation status

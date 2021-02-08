@@ -285,11 +285,3 @@ public class EditFlightPanel extends JPanel {
 	}
 
 }
-
-//Disable typing in the spinner
-/*
-DateFormatter formatter = (DateFormatter)editor.getTextField().getFormatter();
-formatter.setAllowsInvalid(false);
-formatter.setOverwriteMode(true);
-*/
-
