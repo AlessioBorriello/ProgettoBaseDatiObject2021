@@ -20,6 +20,8 @@ import javax.swing.SpinnerNumberModel;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.text.SimpleDateFormat;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 
@@ -81,8 +83,8 @@ public class SearchPanel extends JPanel {
 		JCheckBox chckbxGate = new JCheckBox("Gate"); //Create check box
 		chckbxGate.setName("chckbxGate"); //Set name
 		//Toggle gate spinner
-		chckbxGate.addMouseListener(new MouseAdapter() {
-			public void mouseClicked(MouseEvent e) {
+		chckbxGate.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
 				spinnerGate.setEnabled(chckbxGate.isSelected()); //Set the spinner gate as enabled
 			}
 		});
@@ -132,17 +134,11 @@ public class SearchPanel extends JPanel {
 		spinnerTimeHigher.setModel(new SpinnerDateModel(new Date(1612134000000L), null, null, Calendar.DAY_OF_YEAR)); //Set spinner model
 		add(spinnerTimeHigher); //Add spinner
 		
-		JLabel lblTimeSeparator = new JLabel("-"); //Create label
-		lblTimeSeparator.setName("lblTimeSeparator"); //Set name
-		lblTimeSeparator.setHorizontalAlignment(SwingConstants.CENTER); //Set label's horizontal's alignment
-		lblTimeSeparator.setBounds(145, 125, 14, 14); //Set bounds
-		add(lblTimeSeparator); //Add label
-		
 		JCheckBox chckbxTime = new JCheckBox(""); //Create check box
 		chckbxTime.setName("chckbxTime"); //Set name
 		//Toggle spinnerTimeLower and spinnerTimeHigher
-		chckbxTime.addMouseListener(new MouseAdapter() {
-			public void mouseClicked(MouseEvent e) {
+		chckbxTime.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
 				boolean selected = chckbxTime.isSelected(); //Get check box value
 				spinnerTimeLower.setEnabled(selected); //Set the spinnerTimeLower as enabled
 				spinnerTimeHigher.setEnabled(selected); ////Set the spinnerTimeLower as enabled
@@ -201,9 +197,8 @@ public class SearchPanel extends JPanel {
 		archiveOnlyPanel.add(chckbxInTime); //Add check box to the archiveOnlyPanel
 		
 		//Add mouse listener to the button search
-		buttonSearch.addMouseListener(new MouseAdapter() {
-			//Mouse clicked
-			public void mouseClicked(MouseEvent e) {
+		buttonSearch.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
 				makeSearch();
 			}
 		});

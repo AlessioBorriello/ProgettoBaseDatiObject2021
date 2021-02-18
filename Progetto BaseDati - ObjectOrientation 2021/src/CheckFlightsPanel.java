@@ -1,6 +1,8 @@
 import javax.swing.JPanel;
 import java.awt.Color;
 import java.awt.Rectangle;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionAdapter;
 import java.util.ArrayList;
 import java.util.Random;
 import java.awt.BorderLayout;
@@ -36,8 +38,8 @@ public class CheckFlightsPanel extends JPanel {
 		setLayout(new BorderLayout(0, 0)); //Set layout
 		
 		JScrollPane scrollPanel = new JScrollPane(); //Create scroll panel
-		scrollPanel.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER); //Dont show horizontal scrollbar
-		scrollPanel.getVerticalScrollBar().setUnitIncrement(14); //Set scrollbar speed
+		scrollPanel.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER); //Don't show horizontal scroll bar
+		scrollPanel.getVerticalScrollBar().setUnitIncrement(14); //Set scroll bar speed
 		add(scrollPanel, BorderLayout.CENTER); //Add scroll panel
 		
 		gridPanel = new JPanel(); //Create grid panel
@@ -60,7 +62,7 @@ public class CheckFlightsPanel extends JPanel {
 	 */
 	public void populateGrid(ArrayList<Volo> array, int columns, int hgap, int vgap, int xStartOffset, int yStartOffset) {
 		
-		//Clear grid before anything
+		//Clear grid
 		gridPanel.removeAll();
 		
 		//Position in the grid

@@ -9,15 +9,19 @@ import javax.swing.border.EmptyBorder;
 import java.awt.Dimension;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.MatteBorder;
+
 import java.awt.Color;
 import javax.swing.SpringLayout;
 import java.awt.Rectangle;
 import java.awt.GridLayout;
 import java.awt.Insets;
+import java.awt.MouseInfo;
 import java.awt.Point;
 
 import javax.swing.JLabel;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
+
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
@@ -28,6 +32,7 @@ import java.util.Date;
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.CompletableFuture;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridBagLayout;
@@ -35,14 +40,21 @@ import java.awt.GridBagConstraints;
 import java.awt.CardLayout;
 import javax.swing.JLayeredPane;
 import java.awt.SystemColor;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ContainerAdapter;
+import java.awt.event.ContainerEvent;
 
 
 public class MainFrame extends JFrame {
 
-	private MainController controller; //Linked controller
+	private MainController mainController; //Linked controller
 	private Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize(); //Screen dimensions
-	private JPanel contentPanel; //Panel that changes
-	private JLayeredPane centerPanel; //Panel containing content panel and dashboard
+	private JPanel contentPanel; //Panel that changes the content displayed
+	private JLayeredPane centerPanel; //Panel containing content panel and dash board
+	private DashboardPanel dashboardPanel; //Dash board panel
 	
 	private SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss"); //Date format
 	
@@ -55,9 +67,9 @@ public class MainFrame extends JFrame {
 	final private int frameHeight = 700; //Frame height
 	
 	private Point mouseClickPoint; //Mouse position
-	final private int maxDashboardWidth = 200; //Max width of the dashboard
-	final private int minDashboardWidth = 30; //Min width of the dashboard
-	private int dashboardWidth = minDashboardWidth; //Current width of the dashboard
+	final private int maxDashboardWidth = 200; //Max width of the dash board
+	final private int minDashboardWidth = 30; //Min width of the dash board
+	private int dashboardWidth = minDashboardWidth; //Current width of the dash board
 	
 	private ArrayList<Volo> flightList = null; //List of the flights to be displayed in the content panel
 
@@ -67,10 +79,10 @@ public class MainFrame extends JFrame {
 	 */
 	public MainFrame(MainController c) {
 		
-		controller = c; //Link controller and frame
+		mainController = c; //Link controller and frame
 		
 		//Frame properties
-		setResizable(false); //Not resizable
+		setResizable(false); //Not re sizable
 		setUndecorated(true); //Undecorated (No close, minimize buttons)
 		setTitle("Title"); //Set frame title
 		setBounds((screenWidth/2) - (frameWidth/2), (screenHeight/2) - (frameHeight/2), frameWidth, frameHeight); //Set the frame sizes and position in the middle of the screen
@@ -118,9 +130,8 @@ public class MainFrame extends JFrame {
 		buttonMinimize.setName("buttonMinimize"); //Name component
 		controlPanel.add(buttonMinimize); //Add minimize button to the control panel
 		//Mouse listeners of minimize button
-		buttonMinimize.addMouseListener(new MouseAdapter() {
-			//Mouse clicked event
-			public void mouseClicked(MouseEvent e) {
+		buttonMinimize.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
 				setState(ICONIFIED); //Minimize frame
 			}
 		});
@@ -129,9 +140,8 @@ public class MainFrame extends JFrame {
 		buttonClose.setName("buttonClose"); //Name component
 		controlPanel.add(buttonClose); //Add close button to the control panel
 		//Mouse listeners of close button
-		buttonClose.addMouseListener(new MouseAdapter() {
-			//Mouse clicked event
-			public void mouseClicked(MouseEvent e) {
+		buttonClose.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
 				setVisible(false); //Make frame invisible
 				dispose(); //Dispose of it
 				System.exit(0); //Close application
@@ -144,7 +154,7 @@ public class MainFrame extends JFrame {
 		centerPanel.setPreferredSize(new Dimension(frameWidth, frameHeight - upperPanelHeight)); //Set center panel preferred size
 		mainPanel.add(centerPanel); //Add center panel to the main panel
 		
-		DashboardPanel dashboardPanel = new DashboardPanel(centerPanel.getPreferredSize().height, this, controller);
+		dashboardPanel = new DashboardPanel(centerPanel.getPreferredSize().height, this, mainController);
 		dashboardPanel.setName("dashboardPanel");
 		centerPanel.add(dashboardPanel);
 		
@@ -158,6 +168,9 @@ public class MainFrame extends JFrame {
 		flightList = searchFlights("", -1, null, null, true, true, true, true, true, true, true); //Start a research to get all of the flights
 		
 		setContentPanelToCheckFlightsPanel(false); //Set content panel at the start of the application to the CheckFlightsPanel
+		
+		//Check if the dash board has not closed correctly every 1000ms
+		checkDashboardStatus(1000);
 		
 	}
 	
@@ -180,18 +193,20 @@ public class MainFrame extends JFrame {
 		Rectangle bounds = new Rectangle(contentPanel.getBounds()); //Get bounds of the content panel
 		centerPanel.remove(contentPanel); //Remove content panel from the center panel
 		
-		contentPanel = new CheckFlightsPanel(bounds, this, controller, lookingAtArchive); //Create new panel and store it in the contentPanel
+		contentPanel = new CheckFlightsPanel(bounds, this, mainController, lookingAtArchive); //Create new panel and store it in the contentPanel
 		
 		contentPanel.setBounds(bounds); //Position the content panel based on the bounds gathered beforehand
 		contentPanel.setName("checkFlightsPanel"); //Set name
 		centerPanel.add(contentPanel); //Add new content panel to the center panel
 		
 		contentPanel.repaint(); //Repaint content panel
-		contentPanel.revalidate(); //Revalidate content panel
+		contentPanel.revalidate(); //Re validate content panel
 		centerPanel.repaint(); //Repaint center panel
 		
 		currentPanel = contentPanel; //Update current panel
 		this.lookingAtArchive = lookingAtArchive; //Set if looking at the archive or not
+		
+		dashboardPanel.toggleSearchPanel(true); //Show search panel on dash board
 		
 		return true;
 		
@@ -212,17 +227,20 @@ public class MainFrame extends JFrame {
 		Rectangle bounds = new Rectangle(contentPanel.getBounds()); //Get bounds of the content panel
 		centerPanel.remove(contentPanel); //Remove content panel from the center panel
 		
-		contentPanel = new CreateFlightPanel(bounds, this, controller); //Create new panel and store it in the contentPanel
+		contentPanel = new CreateFlightPanel(bounds, this, mainController); //Create new panel and store it in the contentPanel
 		
 		contentPanel.setBounds(bounds); //Position the content panel based on the bounds gathered beforehand
 		contentPanel.setName("createFlightsPanel"); //Set name
 		centerPanel.add(contentPanel); //Add new content panel to the center panel
 		
 		contentPanel.repaint(); //Repaint content panel
-		contentPanel.revalidate(); //Revalidate content panel
+		contentPanel.revalidate(); //Re validate content panel
 		centerPanel.repaint(); //Repaint center panel
 		
 		currentPanel = contentPanel; //Update current panel
+		
+		dashboardPanel.toggleSearchPanel(false); //Hide search panel on dash board
+		
 		return true;
 		
 	}
@@ -236,23 +254,26 @@ public class MainFrame extends JFrame {
 		//Check if the current panel is already in place in the content panel (They have the same class name)
 		if(currentPanel != null && currentPanel.getClass().getName().equals("EditFlightPanel")) {
 			System.out.println("Already on this panel!");
-			return false; //Dont replace the content panel
+			return false; //Don't replace the content panel
 		}
 		
 		Rectangle bounds = new Rectangle(contentPanel.getBounds()); //Get bounds of the content panel
 		centerPanel.remove(contentPanel); //Remove content panel from the center panel
 		
-		contentPanel = new EditFlightPanel(bounds, this, controller, flightToUpdate); //Create new panel and store it in the contentPanel
+		contentPanel = new EditFlightPanel(bounds, this, mainController, flightToUpdate); //Create new panel and store it in the contentPanel
 		
 		contentPanel.setBounds(bounds); //Position the content panel based on the bounds gathered beforehand
 		contentPanel.setName("editFlightPanel"); //Set name
 		centerPanel.add(contentPanel); //Add new content panel to the center panel
 		
 		contentPanel.repaint(); //Repaint content panel
-		contentPanel.revalidate(); //Revalidate content panel
+		contentPanel.revalidate(); //Re validate content panel
 		centerPanel.repaint(); //Repaint center panel
 		
 		currentPanel = contentPanel; //Update current panel
+		
+		dashboardPanel.toggleSearchPanel(false); //Hide search panel on dash board
+		
 		return true;
 		
 	}
@@ -272,17 +293,86 @@ public class MainFrame extends JFrame {
 		Rectangle bounds = new Rectangle(contentPanel.getBounds()); //Get bounds of the content panel
 		centerPanel.remove(contentPanel); //Remove content panel from the center panel
 		
-		contentPanel = new ViewFlightInfoPanel(bounds, this, controller, volo); //Create new panel and store it in the contentPanel
+		contentPanel = new ViewFlightInfoPanel(bounds, this, mainController, volo); //Create new panel and store it in the contentPanel
 		
 		contentPanel.setBounds(bounds); //Position the content panel based on the bounds gathered beforehand
 		contentPanel.setName("viewFlightsPanel"); //Set name
 		centerPanel.add(contentPanel); //Add new content panel to the center panel
 		
 		contentPanel.repaint(); //Repaint content panel
-		contentPanel.revalidate(); //Revalidate content panel
+		contentPanel.revalidate(); //Re validate content panel
 		centerPanel.repaint(); //Repaint center panel
 		
 		currentPanel = contentPanel; //Update current panel
+		
+		dashboardPanel.toggleSearchPanel(false); //Hide search panel on dash board
+		
+		return true;
+		
+	}
+	
+	/**
+	 * Set contentPanel to the StatisticsPanel
+	 * @return If the panel got changed
+	 */
+	public boolean setContentPanelToStatisticsPanel() {
+		
+		//Check if the current panel is already in place in the content panel (They have the same class name)
+		if(currentPanel != null && currentPanel.getClass().getName().equals("StatisticsPanel")) {
+			System.out.println("Already on this panel!");
+			return false; //Don t replace the content panel
+		}
+		
+		Rectangle bounds = new Rectangle(contentPanel.getBounds()); //Get bounds of the content panel
+		centerPanel.remove(contentPanel); //Remove content panel from the center panel
+		
+		contentPanel = new StatisticsPanel(bounds, this, mainController); //Create new panel and store it in the contentPanel
+		
+		contentPanel.setBounds(bounds); //Position the content panel based on the bounds gathered beforehand
+		contentPanel.setName("statisticsPanel"); //Set name
+		centerPanel.add(contentPanel); //Add new content panel to the center panel
+		
+		contentPanel.repaint(); //Repaint content panel
+		contentPanel.revalidate(); //Re validate content panel
+		centerPanel.repaint(); //Repaint center panel
+		
+		currentPanel = contentPanel; //Update current panel
+		
+		dashboardPanel.toggleSearchPanel(false); //Hide search panel on dash board
+		
+		return true;
+		
+	}
+	
+	/**
+	 * Set contentPanel to the CheckGatePanel
+	 * @return If the panel got changed
+	 */
+	public boolean setContentPanelToCheckGatePanel(ArrayList<Volo> flightList, int gateNumber) {
+		
+		//Check if the current panel is already in place in the content panel (They have the same class name)
+		if(currentPanel != null && currentPanel.getClass().getName().equals("CheckGatePanel")) {
+			System.out.println("Already on this panel!");
+			return false; //Don t replace the content panel
+		}
+		
+		Rectangle bounds = new Rectangle(contentPanel.getBounds()); //Get bounds of the content panel
+		centerPanel.remove(contentPanel); //Remove content panel from the center panel
+		
+		contentPanel = new CheckGatePanel(bounds, this, mainController, flightList, gateNumber); //Create new panel and store it in the contentPanel
+		
+		contentPanel.setBounds(bounds); //Position the content panel based on the bounds gathered beforehand
+		contentPanel.setName("checkGatePanel"); //Set name
+		centerPanel.add(contentPanel); //Add new content panel to the center panel
+		
+		contentPanel.repaint(); //Repaint content panel
+		contentPanel.revalidate(); //Re validate content panel
+		centerPanel.repaint(); //Repaint center panel
+		
+		currentPanel = contentPanel; //Update current panel
+		
+		dashboardPanel.toggleSearchPanel(false); //Hide search panel on dash board
+		
 		return true;
 		
 	}
@@ -395,16 +485,43 @@ public class MainFrame extends JFrame {
 	}
 
 	/**
-	 * Get the flight panel and (if found) repopulate it's grid
+	 * Get the flight panel and (if found) re populate it's grid
 	 */
 	public void redrawCheckFlightsPanel() {
 		
-		CheckFlightsPanel flightPanel = (CheckFlightsPanel)controller.getComponentByName(this, "checkFlightsPanel"); //Get panel
+		CheckFlightsPanel flightPanel = (CheckFlightsPanel)mainController.getComponentByName(this, "checkFlightsPanel"); //Get panel
 		if(flightPanel != null) { //If it has been found
 			flightPanel.populateGrid(flightList, 4, 15, 15, 25, 25); //Populate grid with the mainFrame's flight list
 			repaint();
 			revalidate();
 		}
+		
+	}
+
+	/**
+	 * Check repeatedly if the dash board is open while it should be closed
+	 * @param interval The interval between each check
+	 */
+	public void checkDashboardStatus(int interval) {
+		
+		CompletableFuture.runAsync(() -> { //Create asynchronous thread
+			while(true) {
+				try {
+					Thread.sleep(interval); //Wait
+				}catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				//Check if the dash board is extended
+				if(dashboardPanel.getAnimationStatus() == dashboardAnimationStatus.extended) {
+					//Check if it should be
+					Point p = new Point(MouseInfo.getPointerInfo().getLocation()); //Get Mouse point
+			        SwingUtilities.convertPointFromScreen(p, dashboardPanel); //Convert p from a screen coordinates to a component's coordinate system
+			        if(!dashboardPanel.contains(p)) { //If the point is not on the dash board
+			        	dashboardPanel.closeDashboardAnimation(); //Close dash board
+			        }
+				}
+			}
+		});
 		
 	}
 	
@@ -418,7 +535,9 @@ public class MainFrame extends JFrame {
 	public boolean isLookingAtArchive() {
 		return lookingAtArchive;
 	}
-
-
+	public DashboardPanel getDashboardPanel() {
+		return dashboardPanel;
+	}
+	
 }
 

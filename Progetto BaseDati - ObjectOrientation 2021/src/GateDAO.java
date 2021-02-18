@@ -184,7 +184,7 @@ public class GateDAO {
 		try {
 			
 			Class.forName("com.mysql.jdbc.Driver");
-			String q = "Select IDVolo from gate where numeroGate = " + gateNumber + ""; //Initialize query
+			String q = "Select IDVolo, partito, cancellato from gate inner join volo on gate.IDVolo = volo.id where numeroGate = " + gateNumber + " AND partito = 0 and cancellato = 0"; //Initialize query
 			String connectionURL = MainController.URL; //Connection URL
 
 	        Connection con = DriverManager.getConnection(connectionURL, MainController.USER, MainController.PASSWORD); //Create connection

@@ -67,6 +67,9 @@ public class VoloDAO {
 			
 			mainFrame.createNotificationFrame("Volo inserito!");
 			
+			//Update flight count
+			new CompagniaAereaDAO().increaseCompagniaAereaFlightCount(mainFrame, v.getCompagnia().getNome());
+			
 			return true; //Operation successful
 		
 		}catch(Exception e) { //Error catching
@@ -326,6 +329,9 @@ public class VoloDAO {
 			con.close(); //Close connection
 			st.close(); //Close statement
 			
+			//Update flight count
+			new CompagniaAereaDAO().decreaseCompagniaAereaFlightCount(mainFrame, v.getCompagnia().getNome());
+			
 			return true; //Operation successful
 			
 		}catch(Exception e) { //Error catching
@@ -357,6 +363,9 @@ public class VoloDAO {
 			con.close(); //Close connection
 			st.close(); //Close statement
 			
+			//Update flight count
+			new CompagniaAereaDAO().decreaseCompagniaAereaFlightCount(mainFrame, v.getCompagnia().getNome());
+			
 			return true; //Operation successful
 			
 		}catch(Exception e) { //Error catching
@@ -377,6 +386,54 @@ public class VoloDAO {
 			
 			Class.forName("com.mysql.jdbc.Driver");
 			String q = query; //Initialize query
+			String connectionURL = MainController.URL; //Connection URL
+
+	        Connection con = DriverManager.getConnection(connectionURL, MainController.USER, MainController.PASSWORD); //Create connection
+			Statement st = con.createStatement(); //Create statement
+			ResultSet rs = st.executeQuery(q); //Execute query
+			
+			ArrayList<Volo> list = new ArrayList<Volo>(); //Initialize a list of flights
+			
+			//Get all the flights
+			while(rs.next()) {
+				
+				Volo v = new Volo();
+				v.setCompagnia(new CompagniaAereaDAO().getCompagniaAereaByNome(rs.getString("nomeCompagnia"))); //Get the company by its name
+				v.setGate(new GateDAO().getGateByID(rs.getString("id"))); //Get the gate by the ID
+				v.setID(rs.getString("id"));
+				v.setNumeroPrenotazioni(rs.getInt("numeroPrenotazioni"));
+				v.setOrarioDecollo(rs.getTimestamp("dataPartenza"));
+				boolean partito = (rs.getInt("partito") != 0)? true : false; //Set partito to true if the database has a different value than 0, otherwise set it to false
+				v.setPartito(partito);
+				boolean cancellato = (rs.getInt("cancellato") != 0)? true : false; //Set cancellato to true if the database has a different value than 0, otherwise set it to false
+				v.setCancellato(cancellato);
+				v.setSlot(new SlotDAO().getSlotByID(rs.getString("id"))); //Get the slot by the ID
+				list.add(v);
+				
+			}
+			
+			con.close(); //Close connection
+			st.close(); //Close statement
+			return list; //Return list
+			
+		}catch(Exception e) { //Error catching
+			System.out.println(e);
+			return null; //Return null
+		}
+		
+	}
+
+	/**
+	 * Get a flight instance by it's gate number
+	 * @param gateNumber Gate number of the flight to get
+	 * @return The flight with the given gate number
+	 */
+	public ArrayList<Volo> getFlightsByGate(int gateNumber){
+		
+		try {
+			
+			Class.forName("com.mysql.jdbc.Driver");
+			String q = "SELECT * FROM volo INNER JOIN gate ON volo.id = gate.IDVolo WHERE numeroGate = " + gateNumber + " ORDER BY dataPartenza ASC"; //Initialize query
 			String connectionURL = MainController.URL; //Connection URL
 
 	        Connection con = DriverManager.getConnection(connectionURL, MainController.USER, MainController.PASSWORD); //Create connection

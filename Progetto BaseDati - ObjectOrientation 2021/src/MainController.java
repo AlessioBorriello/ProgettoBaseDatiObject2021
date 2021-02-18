@@ -1,6 +1,12 @@
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.EventQueue;
+import java.awt.Font;
+import java.awt.FontFormatException;
+import java.awt.GraphicsEnvironment;
+import java.io.File;
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -14,8 +20,42 @@ public class MainController {
 	static String URL = "jdbc:mysql://localhost:3306/aereoporto?autoReconnect=true&useSSL=false"; //Database URL
 	static String PASSWORD = "password"; //Password
 	static String USER = "root"; //User name
+	
+	//Fonts
+	static Font fontOne;
+	static Font fontTwo;
 
+	//Defined palette (numbers are from darker to brighter)
+	static Color backgroundColorOne;
+	static Color backgroundColorTwo;
+	static Color backgroundColorThree;
+	
+	static Color foregroundColorOne;
+	static Color foregroundColorTwo;
+	static Color foregroundColorThree;
+	
+	static Color highlightColorOne;
+	static Color highlightColorTwo;
+	static Color highlightColorThree;
+	
+	//Companies color
+	static Color airfranceColor = Color.red;
+	static Color alitaliaColor = Color.green;
+	static Color easyjetColor = Color.orange;
+	static Color ryanairColor = Color.blue;
+	
 	public static void main(String[] args) {
+		
+		//Import fonts
+		try {
+			
+			fontOne = Font.createFont(Font.TRUETYPE_FONT, new File("fonts/hgrsmp_0.TTF"));
+			GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+			ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new File("fonts/hgrsmp_0.TTF")));
+			
+		}catch(IOException | FontFormatException e) {
+			System.out.println(e);
+		}
 		
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
@@ -76,7 +116,6 @@ public class MainController {
 		
 	}
 	
-	
 	/**
 	 * Get a list of the all the components contained in a specified container
 	 * @param container Container  that the  user wants the components of
@@ -105,6 +144,7 @@ public class MainController {
 	public boolean checkIfSlotIsTaken(Slot s, int gateNumber, Volo volo) {
 		
 		ArrayList<String> idList = (new GateDAO().getFlightIdByGateNumber(gateNumber));
+		System.out.println(idList);
 		
 		//If an id has been passed then we are updating a flight, therefore remove it from the array of IDs (If the gate of the new flight (gateNumber) is the same as the old one (volo.getGate().getNumeroGate()))
 		if(volo != null && volo.getGate().getNumeroGate() == gateNumber) {
@@ -115,8 +155,28 @@ public class MainController {
 		}
 		
 		for(String idString : idList) { //For all of the flights id where the gate number is the gate selected in the flight creation
-			Slot slot = (new SlotDAO().getSlotByID(idString)); //Get the slot with that id
-			if(s.getInizioTempoStimato().before(slot.getFineTempoStimato())) { //If the slot passed as argument starts before the end of the slot we are currently checking in the for loop
+			Slot slotToCheck = (new SlotDAO().getSlotByID(idString)); //Get the slot with that id
+			
+			/*
+			 *  	|-----| slot to insert (passed as argument)
+			 *   |-----|	  slot to check
+			 */
+			boolean condition1 = (slotToCheck.getInizioTempoStimato().before(s.getInizioTempoStimato()) && slotToCheck.getFineTempoStimato().after(s.getInizioTempoStimato()));
+			
+			/*
+			 *  	|-----| 		  slot to insert (passed as argument)
+			 *   		|-----|	  slot to check
+			 */
+			boolean condition2 = (slotToCheck.getInizioTempoStimato().before(s.getFineTempoStimato()) && slotToCheck.getFineTempoStimato().after(s.getFineTempoStimato()));
+			
+			/*
+			 *  	|-----|   slot to insert (passed as argument)
+			 *   	|-----|	  slot to check
+			 */
+			boolean condition3 = (slotToCheck.getInizioTempoStimato().compareTo(s.getInizioTempoStimato()) == 0 && slotToCheck.getFineTempoStimato().compareTo(s.getFineTempoStimato()) == 0); //Dates are the same
+
+			
+			if(condition1 || condition2 || condition3) { //If any of the above condition is true
 				//The slot s is taken
 				return true;
 			}

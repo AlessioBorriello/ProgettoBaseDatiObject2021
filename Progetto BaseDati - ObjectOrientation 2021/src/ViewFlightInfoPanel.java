@@ -15,6 +15,9 @@ import javax.swing.text.DateFormatter;
 
 import java.awt.GridLayout;
 import javax.swing.JButton;
+
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
@@ -148,9 +151,8 @@ public class ViewFlightInfoPanel extends JPanel {
 		buttonFlightTakenOff = new JButton("Fai partire questo volo"); //Create button
 		buttonFlightTakenOff.setName("buttonFlightTakenOff"); //Set name
 		//Add action listener
-		buttonFlightTakenOff.addMouseListener(new MouseAdapter() {
-			//Mouse clicked
-			public void mouseClicked(MouseEvent e) {
+		buttonFlightTakenOff.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
 				setFlightAsTakenOff();
 			}
 		});
@@ -163,9 +165,8 @@ public class ViewFlightInfoPanel extends JPanel {
 		buttonCancelFlight = new JButton("Cancella questo volo"); //Create button
 		buttonCancelFlight.setName("buttonCancelFlight"); //Set name
 		//Add action listener
-		buttonCancelFlight.addMouseListener(new MouseAdapter() {
-			//Mouse clicked
-			public void mouseClicked(MouseEvent e) {
+		buttonCancelFlight.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
 				setFlightAsCancelled();
 			}
 		});
@@ -178,9 +179,8 @@ public class ViewFlightInfoPanel extends JPanel {
 		buttonEditFlight = new JButton("Modifica volo"); //Create button
 		buttonEditFlight.setName("buttonEditFlight"); //Set name
 		//Add action listener
-		buttonEditFlight.addMouseListener(new MouseAdapter() {
-			//Mouse clicked
-			public void mouseClicked(MouseEvent e) {
+		buttonEditFlight.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
 				mainFrame.setContentPanelToEditFlightPanel(v);
 			}
 		});
@@ -251,7 +251,7 @@ public class ViewFlightInfoPanel extends JPanel {
 					flightStatusLabel.setText("Questo volo e' partito in ritardo");
 				}
 				
-				//Repaint and revalidate panel
+				//Repaint and re validate panel
 				repaint();
 				revalidate();
 				mainFrame.createNotificationFrame("Volo impostato come 'partito'!");
@@ -279,7 +279,7 @@ public class ViewFlightInfoPanel extends JPanel {
 			
 			flightStatusLabel.setText("Questo volo e' stato cancellato");
 			
-			//Repaint and revalidate panel
+			//Repaint and re validate panel
 			repaint();
 			revalidate();
 			mainFrame.createNotificationFrame("Volo impostato come 'cancellato'!");

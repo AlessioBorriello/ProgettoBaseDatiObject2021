@@ -2,6 +2,8 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
@@ -67,9 +69,8 @@ public class AddQueueFrame extends JDialog {
 		addButton.setFocusable(false); //Set as non focusable
 		addButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)); //Set cursor as HAND_CURSOR when the mouse hovers on the button
 		//Button's action listeners
-		addButton.addMouseListener(new MouseAdapter() {
-			//When button clicked
-			public void mouseClicked(MouseEvent e) { 
+		addButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
 				setVisible(false); //Set frame as invisible
 				choice = cBoxAddQueue.getSelectedItem().toString(); //Set choice string to the selected item in the combo box
 				dispose(); //Dispose frame
@@ -80,9 +81,8 @@ public class AddQueueFrame extends JDialog {
 		undoButton.setFocusable(false); //Set as non focusable
 		undoButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)); //Set cursor as HAND_CURSOR when the mouse hovers on the button
 		//Button's action listeners
-		undoButton.addMouseListener(new MouseAdapter() {
-			//When button clicked
-			public void mouseClicked(MouseEvent e) {
+		undoButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
 				setVisible(false); //Set frame as invisible
 				choice = "undo"; //Set choice string as "undo"
 				dispose(); //Dispose frame

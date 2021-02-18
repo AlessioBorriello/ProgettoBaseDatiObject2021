@@ -10,6 +10,10 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.GradientPaint;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+
 import javax.swing.JComboBox;
 import javax.swing.SwingConstants;
 import javax.swing.SpinnerNumberModel;
@@ -20,6 +24,8 @@ import javax.swing.text.DateFormatter;
 import javax.swing.BoxLayout;
 import java.awt.Component;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.text.ParseException;
@@ -33,6 +39,8 @@ public class CreateFlightPanel extends JPanel {
 	private ArrayList<CompagniaAerea> listaCompagnie = new ArrayList<CompagniaAerea>(); //Array containing the companies
 	private int queueNumber = 0; //How many queues have been added
 	private ArrayList<String> listaCode = new ArrayList<String>(); //List of the queues
+	
+	private int gatesNumber = 12; //How many gate there are in the airport
 	
 	private JPanel panelQueues; //Panel containing the queues added
 	
@@ -95,7 +103,7 @@ public class CreateFlightPanel extends JPanel {
 		
 		JSpinner spinnerGate = new JSpinner(); //Create spinner to declare the gate
 		spinnerGate.setName("spinnerGate"); //Name component
-		spinnerGate.setModel(new SpinnerNumberModel(new Integer(1), new Integer(1), null, new Integer(1))); //Set the type of spinner
+		spinnerGate.setModel(new SpinnerNumberModel(new Integer(1), new Integer(1), new Integer(gatesNumber), new Integer(1))); //Set the type of spinner
 		spinnerGate.setBounds(389, 195, 148, 20); //Set bounds
 		add(spinnerGate); //Add to panel
 		
@@ -135,9 +143,8 @@ public class CreateFlightPanel extends JPanel {
 		
 		
 		//Button action listener
-		buttonCreateFlight.addMouseListener(new MouseAdapter() {
-			//Mouse clicked
-			public void mouseClicked(MouseEvent e) {
+		buttonCreateFlight.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
 				//Gather data
 				String nomeCompagnia = (String)cBoxCompany.getSelectedItem();
 				Date data = (Date)spinnerTakeOffDate.getValue();
@@ -176,8 +183,7 @@ public class CreateFlightPanel extends JPanel {
 		}
 		
 	}
-	
-	
+		
 	/**
 	 * Add a queue to the panelQueues
 	 * @param type
@@ -201,7 +207,6 @@ public class CreateFlightPanel extends JPanel {
 		panelQueues.revalidate(); //Revalidate panelQueues
 		
 	}
-	
 
 	/**
 	 * Remove a queue from the panelQueues containing the queues
@@ -221,7 +226,6 @@ public class CreateFlightPanel extends JPanel {
 		}
 		
 	}
-	
 	
 	/**
 	 * Create a flight and add it to the database
@@ -304,7 +308,6 @@ public class CreateFlightPanel extends JPanel {
 		
 	}
 	
-
 }
 
 //Disable typing in the spinner

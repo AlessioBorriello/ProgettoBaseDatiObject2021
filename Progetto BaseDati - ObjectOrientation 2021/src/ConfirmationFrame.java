@@ -2,6 +2,8 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
@@ -60,9 +62,8 @@ public class ConfirmationFrame extends JDialog {
 		okButton.setFocusable(false); //Set as non focusable
 		okButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)); //Set cursor as HAND_CURSOR when the mouse hovers on the button
 		//Button's action listeners
-		okButton.addMouseListener(new MouseAdapter() {
-			//When button clicked
-			public void mouseClicked(MouseEvent e) {
+		okButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
 				setVisible(false); //Set frame as invisible
 				answer = true; //Set answer to true (confirm)
 				dispose(); //Dispose frame
@@ -73,9 +74,8 @@ public class ConfirmationFrame extends JDialog {
 		cancellaButton.setFocusable(false); //Set as non focusable
 		cancellaButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)); //Set cursor as HAND_CURSOR when the mouse hovers on the button
 		//Button's action listeners
-		cancellaButton.addMouseListener(new MouseAdapter() {
-			//When button clicked
-			public void mouseClicked(MouseEvent e) {
+		cancellaButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
 				setVisible(false); //Set frame as invisible
 				answer = false; //Set answer to true (undo)
 				dispose(); //Dispose frame

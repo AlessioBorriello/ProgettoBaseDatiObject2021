@@ -12,6 +12,9 @@ import javax.swing.SwingConstants;
 import java.awt.Font;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
+
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.border.BevelBorder;
@@ -63,9 +66,8 @@ public class NotificationFrame extends JDialog {
 		okButton.setFocusable(false); //Set as non focusable
 		okButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)); //Set cursor as HAND_CURSOR when the mouse hovers on the button
 		//Button's action listeners
-		okButton.addMouseListener(new MouseAdapter() {
-			//Mouse clicked
-			public void mouseClicked(MouseEvent e) {
+		okButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
 				setVisible(false); //Set frame as invisible
 				dispose(); //Dispose frame
 			}

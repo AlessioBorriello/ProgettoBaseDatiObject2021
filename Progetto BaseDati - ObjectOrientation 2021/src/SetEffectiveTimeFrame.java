@@ -2,6 +2,8 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Calendar;
@@ -48,7 +50,7 @@ public class SetEffectiveTimeFrame extends JDialog {
 		add(contentPanel, BorderLayout.CENTER); //Add contentPanel to the frame
 		contentPanel.setLayout(null); //Set contentPanel's layout to absolute
 		
-		JLabel setEffectiveTimeLabel = new JLabel("Imposta il tempo effettivo dello slot"); //Create label
+		JLabel setEffectiveTimeLabel = new JLabel("Imposta tempo partenza aereo"); //Create label
 		setEffectiveTimeLabel.setFont(new Font("Tahoma", Font.BOLD, 16)); //Set label's text font
 		setEffectiveTimeLabel.setHorizontalAlignment(SwingConstants.CENTER); //Set label's horizontal alignment
 		setEffectiveTimeLabel.setHorizontalTextPosition(SwingConstants.LEADING); //Set label's text position to leading
@@ -75,9 +77,8 @@ public class SetEffectiveTimeFrame extends JDialog {
 		setButton.setFocusable(false); //Set as non focusable
 		setButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)); //Set cursor as HAND_CURSOR when the mouse hovers on the button
 		//Button's action listeners
-		setButton.addMouseListener(new MouseAdapter() {
-			//Mouse clicked
-			public void mouseClicked(MouseEvent e) {
+		setButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
 				setVisible(false); //Set frame as invisible
 				time = (Date)spinnerTakeOffDate.getValue(); //Get return date from the spinner
 				dispose(); //Dispose frame
@@ -89,9 +90,8 @@ public class SetEffectiveTimeFrame extends JDialog {
 		undoButton.setFocusable(false); //Set as non focusable
 		undoButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)); //Set cursor as HAND_CURSOR when the mouse hovers on the button
 		//Button's action listeners
-		undoButton.addMouseListener(new MouseAdapter() {
-			//Mouse clicked
-			public void mouseClicked(MouseEvent e) {
+		undoButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
 				setVisible(false); //Set frame as invisible
 				time = null; //Set return date as null
 				dispose(); //Dispose frame

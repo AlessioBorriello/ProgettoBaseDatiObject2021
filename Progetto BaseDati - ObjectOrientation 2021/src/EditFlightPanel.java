@@ -20,6 +20,8 @@ import javax.swing.text.DateFormatter;
 import javax.swing.BoxLayout;
 import java.awt.Component;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.text.ParseException;
@@ -33,6 +35,8 @@ public class EditFlightPanel extends JPanel {
 	private ArrayList<CompagniaAerea> listaCompagnie = new ArrayList<CompagniaAerea>(); //Array containing the companies
 	private int queueNumber = 0; //How many queues have been added
 	private ArrayList<String> listaCode = new ArrayList<String>(); //List of the queues
+	
+	private int gatesNumber = 12; //How many gate there are in the airport
 	
 	private JPanel panelQueues; //Panel containing the queues added
 	
@@ -105,7 +109,7 @@ public class EditFlightPanel extends JPanel {
 		
 		JSpinner spinnerGate = new JSpinner(); //Create spinner to declare the gate
 		spinnerGate.setName("spinnerGate"); //Name component
-		spinnerGate.setModel(new SpinnerNumberModel(new Integer(1), new Integer(1), null, new Integer(1))); //Set the type of spinner
+		spinnerGate.setModel(new SpinnerNumberModel(new Integer(1), new Integer(1), new Integer(gatesNumber), new Integer(1))); //Set the type of spinner
 		spinnerGate.setValue(Integer.valueOf(v.getGate().getNumeroGate()));
 		spinnerGate.setBounds(389, 195, 148, 20); //Set bounds
 		add(spinnerGate); //Add to panel
@@ -149,9 +153,8 @@ public class EditFlightPanel extends JPanel {
 		panelQueues.setLayout(new GridLayout(20, 0, 0, 0)); //Set layout
 		
 		//Button action listener
-		buttonEditFlight.addMouseListener(new MouseAdapter() {
-			//Mouse click
-			public void mouseClicked(MouseEvent e) {
+		buttonEditFlight.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
 			
 				//Gather data
 				String nomeCompagnia = (String)cBoxCompany.getSelectedItem();
