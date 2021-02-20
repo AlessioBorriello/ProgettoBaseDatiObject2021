@@ -1,3 +1,4 @@
+import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
 import java.awt.Toolkit;
@@ -13,6 +14,7 @@ import javax.swing.border.MatteBorder;
 import java.awt.Color;
 import javax.swing.SpringLayout;
 import java.awt.Rectangle;
+import java.awt.RenderingHints;
 import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.MouseInfo;
@@ -35,6 +37,8 @@ import java.util.TimerTask;
 import java.util.concurrent.CompletableFuture;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import java.awt.CardLayout;
@@ -68,7 +72,7 @@ public class MainFrame extends JFrame {
 	
 	private Point mouseClickPoint; //Mouse position
 	final private int maxDashboardWidth = 200; //Max width of the dash board
-	final private int minDashboardWidth = 30; //Min width of the dash board
+	final private int minDashboardWidth = 30; //Minimum width of the dash board
 	private int dashboardWidth = minDashboardWidth; //Current width of the dash board
 	
 	private ArrayList<Volo> flightList = null; //List of the flights to be displayed in the content panel
@@ -97,13 +101,47 @@ public class MainFrame extends JFrame {
 		setContentPane(mainPanel); //Add panel to the frame
 		mainPanel.setLayout(null); //Set layout of the main panel
 		
-		JPanel upperPanel = new JPanel(); //Create upper panel
-		upperPanel.setBackground(SystemColor.textHighlight); //Set background
+		Rectangle buttonMinimizeBounds = new Rectangle(frameWidth - 60, 2, 26, 26); //Button minimize position on the upper panel
+		Rectangle buttonCloseBounds = new Rectangle(frameWidth - 30, 2, 26, 26); //Button close position on the upper panel
+		JPanel upperPanel = (new JPanel() {
+			
+			public void paintComponent(Graphics g) {
+				
+				super.paintComponent(g); //Paint the component normally first
+				
+				Graphics2D g2d = (Graphics2D)g;
+				
+				//AA
+			    g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+			   //Text AA
+			    g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+			    
+			    //Draw background
+			    g2d.setColor(MainController.backgroundColorTwo);
+				g2d.fillRect(0, 0, getWidth(), getHeight());
+			    
+			    //Draw application name
+				g2d.setFont(new Font(MainController.fontOne.getFontName(), Font.BOLD, 23));
+				g2d.setColor(MainController.foregroundColorThree);
+				g2d.drawString("Nome applicazione", 4, (getHeight()/2) + (g2d.getFont().getSize()/2) - 2);
+				
+				//Draw close button icon
+				g2d.setStroke(new BasicStroke(2, BasicStroke.CAP_ROUND, BasicStroke.JOIN_MITER));
+				g2d.drawLine(buttonCloseBounds.x + 6, buttonCloseBounds.y + 6, buttonCloseBounds.x + buttonCloseBounds.width - 6, buttonCloseBounds.y + buttonCloseBounds.height - 6);
+				g2d.drawLine(buttonCloseBounds.x + 6, buttonCloseBounds.y + buttonCloseBounds.height - 6, buttonCloseBounds.x + buttonCloseBounds.width - 6, buttonCloseBounds.y + 6);
+				
+				//Draw minimize button icon
+				g2d.drawLine(buttonMinimizeBounds.x + 6, buttonMinimizeBounds.y + buttonMinimizeBounds.height - 6, buttonMinimizeBounds.x + buttonMinimizeBounds.width - 6, buttonMinimizeBounds.y + buttonMinimizeBounds.height - 6);
+				
+			}
+			
+		}); //Create upper panel
 		upperPanel.setName("upperPanel"); //Name component
 		final int upperPanelHeight = 30; //Height of the upper panel
 		upperPanel.setBounds(0, 0, frameWidth, upperPanelHeight); //Position of the upper panel
 		mainPanel.add(upperPanel); //Add upper panel to the main panel
-		upperPanel.setLayout(new BorderLayout(0, 0)); //Set layout of the upper panel
+		upperPanel.setLayout(null); //Set layout of the upper panel
 		//Drag frame
 		upperPanel.addMouseMotionListener(new MouseMotionAdapter() {
 			//When dragging
@@ -120,25 +158,36 @@ public class MainFrame extends JFrame {
 		    }
 		});
 		
-		JPanel controlPanel = new JPanel(); //Create control panel
-		controlPanel.setName("upperPanel"); //Name component
-		controlPanel.setBackground(upperPanel.getBackground()); //Set background
-		upperPanel.add(controlPanel, BorderLayout.EAST); //Add control panel to the upper panel, east position of it's border layout
-		controlPanel.setLayout(new GridLayout(1, 0, 4, 0)); //Set layout of the control panel
-		
-		JButton buttonMinimize = new JButton("Minimize"); //Create minimize button
+		CustomButton buttonMinimize = new CustomButton("", null, new Color(MainController.foregroundColorThree.getRed(), 
+				MainController.foregroundColorThree.getGreen(), 
+				MainController.foregroundColorThree.getBlue(), 64), 
+				MainController.foregroundColorThree, 21, true, MainController.foregroundColorThree, 2); //Create minimize button
+		buttonMinimize.setBounds(buttonMinimizeBounds); //Set the button position to the previously defined position
 		buttonMinimize.setName("buttonMinimize"); //Name component
-		controlPanel.add(buttonMinimize); //Add minimize button to the control panel
+		upperPanel.add(buttonMinimize); //Add minimize button to the control panel
 		//Mouse listeners of minimize button
 		buttonMinimize.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				setState(ICONIFIED); //Minimize frame
 			}
 		});
+		buttonMinimize.addMouseListener(new MouseAdapter() {
+			public void mouseEntered(MouseEvent e) {
+				buttonMinimize.selectAnimation(8);
+			}
+
+			public void mouseExited(MouseEvent e) {
+				buttonMinimize.unselectAnimation(8);
+			}
+		});
 		
-		JButton buttonClose = new JButton("Close"); //Create close button
+		CustomButton buttonClose = new CustomButton("", null, new Color(MainController.foregroundColorThree.getRed(), 
+				MainController.foregroundColorThree.getGreen(), 
+				MainController.foregroundColorThree.getBlue(), 64), 
+				MainController.foregroundColorThree, 21, true, MainController.foregroundColorThree, 2); //Create close button
+		buttonClose.setBounds(buttonCloseBounds); //Set the button position to the previously defined position
 		buttonClose.setName("buttonClose"); //Name component
-		controlPanel.add(buttonClose); //Add close button to the control panel
+		upperPanel.add(buttonClose); //Add close button to the control panel
 		//Mouse listeners of close button
 		buttonClose.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -147,8 +196,37 @@ public class MainFrame extends JFrame {
 				System.exit(0); //Close application
 			}
 		});
+		buttonClose.addMouseListener(new MouseAdapter() {
+			public void mouseEntered(MouseEvent e) {
+				buttonClose.selectAnimation(8);
+			}
+
+			public void mouseExited(MouseEvent e) {
+				buttonClose.unselectAnimation(8);
+			}
+		});
 		
-		centerPanel = new JLayeredPane(); //Create centerPanel
+		centerPanel = (new JLayeredPane() {
+			
+			public void paintComponent(Graphics g) {
+				
+				super.paintComponent(g); //Paint the component normally first
+				
+				Graphics2D g2d = (Graphics2D)g;
+				
+				//AA
+			    g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+			   //Text AA
+			    g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+			    
+			    //Draw background
+			    g2d.setColor(MainController.backgroundColorOne);
+			    g2d.fillRect(0, 0, getWidth(), getHeight());
+			    
+			}
+			
+		}); //Create centerPanel
 		centerPanel.setName("centerPanel"); //Name component
 		centerPanel.setBounds(0, upperPanelHeight, frameWidth, frameHeight - upperPanelHeight); //Position of the central panel
 		centerPanel.setPreferredSize(new Dimension(frameWidth, frameHeight - upperPanelHeight)); //Set center panel preferred size
@@ -160,7 +238,6 @@ public class MainFrame extends JFrame {
 		
 		contentPanel = new JPanel(); //Create content panel
 		contentPanel.setName("contentPanel"); //Name component
-		contentPanel.setBackground(SystemColor.controlHighlight); //Set background
 		contentPanel.setBounds(72, 2, centerPanel.getPreferredSize().width - 72 - 4, centerPanel.getPreferredSize().height - 4); //Position the content panel
 		centerPanel.add(contentPanel); //Add the content panel to the center panel
 		contentPanel.setLayout(new BorderLayout(0, 0)); //Set content panel's layout
@@ -199,9 +276,9 @@ public class MainFrame extends JFrame {
 		contentPanel.setName("checkFlightsPanel"); //Set name
 		centerPanel.add(contentPanel); //Add new content panel to the center panel
 		
+		centerPanel.repaint(); //Repaint center panel
 		contentPanel.repaint(); //Repaint content panel
 		contentPanel.revalidate(); //Re validate content panel
-		centerPanel.repaint(); //Repaint center panel
 		
 		currentPanel = contentPanel; //Update current panel
 		this.lookingAtArchive = lookingAtArchive; //Set if looking at the archive or not
@@ -491,7 +568,7 @@ public class MainFrame extends JFrame {
 		
 		CheckFlightsPanel flightPanel = (CheckFlightsPanel)mainController.getComponentByName(this, "checkFlightsPanel"); //Get panel
 		if(flightPanel != null) { //If it has been found
-			flightPanel.populateGrid(flightList, 4, 15, 15, 25, 25); //Populate grid with the mainFrame's flight list
+			flightPanel.populateGrid(flightList, 4, 15, 15, 25, 95); //Populate grid with the mainFrame's flight list
 			repaint();
 			revalidate();
 		}

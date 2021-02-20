@@ -17,6 +17,7 @@ import java.awt.RenderingHints;
 
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.border.LineBorder;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -75,16 +76,28 @@ public class DashboardPanel extends JPanel {
 			
 			public void paintComponent(Graphics g) { //Access component paint method
 				
-				super.paintComponent(g); //Paint component normally first
+				super.paintComponent(g); //Paint the component normally first
 				
-				Graphics2D g2d = (Graphics2D)g; //Cast to Graphics2D
-			    g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON); //Text AA
+				Graphics2D g2d = (Graphics2D)g;
+				
+				//AA
+			    g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+			   //Text AA
+			    g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+			    
+			    //Draw background
+			    GradientPaint gPaint = new GradientPaint(getWidth()/2, 0, MainController.backgroundColorTwo, getWidth()/2, getHeight(), MainController.backgroundColorOne);
+			    g2d.setPaint(gPaint);
+			    g2d.fillRect(0, 0, getWidth(), getHeight());
 			    
 			    //Draw string
-			    g2d.setPaint(Color.black);
-			    g2d.setFont(new Font("Tahoma", Font.BOLD, 18));
 			    String s = "Ricerca non disponibile";
-			    g2d.drawString(s, (getWidth()/2) - (g2d.getFontMetrics().stringWidth(s)/2), getHeight()/2); //Draw string in the middle of the panel
+			    Font f = new Font(MainController.fontOne.getFontName(), Font.BOLD, 22);
+			    g2d.setFont(f);
+			    int sLength = g2d.getFontMetrics(f).stringWidth(s);
+			    g2d.setColor(MainController.foregroundColorThree);
+			    g2d.drawString(s, (getWidth()/2) - (sLength/2), (getHeight()/2) - 4);
 			    
 			}
 			
@@ -94,13 +107,46 @@ public class DashboardPanel extends JPanel {
 		noSearchAvailablePanel.setName("noSearchAvailablePanel"); //Set component name
 		add(noSearchAvailablePanel);
 		
-		JPanel dashboardControlPanel = new JPanel(); //Create dash board control panel
+		JPanel dashboardControlPanel = (new JPanel() {
+			
+			public void paintComponent(Graphics g) {
+				
+				super.paintComponent(g); //Paint the component normally first
+				
+				Graphics2D g2d = (Graphics2D)g;
+				
+				//AA
+			    g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+			   //Text AA
+			    g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+			    
+			    //Draw background
+			    GradientPaint gPaint = new GradientPaint(getWidth()/2, 0, MainController.backgroundColorOne, getWidth()/2, getHeight(), MainController.backgroundColorTwo);
+			    g2d.setPaint(gPaint);
+			    g2d.fillRect(0, 0, getWidth(), getHeight());
+			    
+			}
+			
+		}); //Create dash board control panel
 		dashboardControlPanel.setName("dashboardControlPanel"); //Set component name
-		dashboardControlPanel.setBounds(2, 408, 296, 259); //Position dash board control panel
+		dashboardControlPanel.setBounds(2, 408, 294, 258); //Position dash board control panel
 		add(dashboardControlPanel); //Add dash board control panel to the dash board
 		dashboardControlPanel.setLayout(null); //Set the dash board control's layout to absolute
 		
-		JButton buttonCheckFlights = new JButton("Check flights"); //Create check flights button
+		CustomButton buttonCheckFlights = new CustomButton("Controlla voli", null, new Color(MainController.foregroundColorThree.getRed(),
+				MainController.foregroundColorThree.getGreen(), 
+				MainController.foregroundColorThree.getBlue(), 64), 
+				MainController.foregroundColorThree, 22, false, null, 0); //Create check flights button
+		buttonCheckFlights.addMouseListener(new MouseAdapter() {
+			public void mouseEntered(MouseEvent e) {
+				buttonCheckFlights.selectAnimation(8);
+			}
+
+			public void mouseExited(MouseEvent e) {
+				buttonCheckFlights.unselectAnimation(8);
+			}
+		});
 		buttonCheckFlights.setName("buttonCheckFlights"); //Set component name
 		//Button action listener
 		buttonCheckFlights.addActionListener(new ActionListener() {
@@ -114,8 +160,8 @@ public class DashboardPanel extends JPanel {
 						searchPanel.makeSearch(); //Make search
 					}
 					
-					//Update dashboard
-					searchPanel.toggleArchiveOnlyPanel(false);
+					//Update dash board
+					searchPanel.toggleArchiveOnlyCheckBoxes(false);
 					repaint();
 					revalidate();
 					
@@ -126,7 +172,21 @@ public class DashboardPanel extends JPanel {
 		buttonCheckFlights.setBounds(10, 11, 276, 50); //Set position and bounds
 		dashboardControlPanel.add(buttonCheckFlights); //Add to dashboardControlPanel
 		
-		JButton buttonFlightsArchive = new JButton("Flights archive"); //Create check flights archive button
+		
+		
+		CustomButton buttonFlightsArchive = new CustomButton("Archivio voli", null, new Color(MainController.foregroundColorThree.getRed(), 
+				MainController.foregroundColorThree.getGreen(), 
+				MainController.foregroundColorThree.getBlue(), 64), 
+				MainController.foregroundColorThree, 22, false, null, 0); //Create check flights archive button
+		buttonFlightsArchive.addMouseListener(new MouseAdapter() {
+			public void mouseEntered(MouseEvent e) {
+				buttonFlightsArchive.selectAnimation(8);
+			}
+
+			public void mouseExited(MouseEvent e) {
+				buttonFlightsArchive.unselectAnimation(8);
+			}
+		});
 		//Button action listener
 		buttonFlightsArchive.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -140,7 +200,7 @@ public class DashboardPanel extends JPanel {
 					}
 					
 					//Update dashboard
-					searchPanel.toggleArchiveOnlyPanel(true);
+					searchPanel.toggleArchiveOnlyCheckBoxes(true);
 					repaint();
 					revalidate();
 					
@@ -152,7 +212,19 @@ public class DashboardPanel extends JPanel {
 		buttonFlightsArchive.setBounds(10, 72, 276, 50); //Set position and bounds
 		dashboardControlPanel.add(buttonFlightsArchive); //Add to dashboardControlPanel
 		
-		JButton buttonCreateNewFlight = new JButton("Create new flight"); //Create create new flight button
+		CustomButton buttonCreateNewFlight = new CustomButton("Crea nuovo volo", null, new Color(MainController.foregroundColorThree.getRed(), 
+				MainController.foregroundColorThree.getGreen(), 
+				MainController.foregroundColorThree.getBlue(), 64), 
+				MainController.foregroundColorThree, 22, false, null, 0); //Create create new flight button
+		buttonCreateNewFlight.addMouseListener(new MouseAdapter() {
+			public void mouseEntered(MouseEvent e) {
+				buttonCreateNewFlight.selectAnimation(8);
+			}
+
+			public void mouseExited(MouseEvent e) {
+				buttonCreateNewFlight.unselectAnimation(8);
+			}
+		});
 		buttonCreateNewFlight.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 			
@@ -165,7 +237,19 @@ public class DashboardPanel extends JPanel {
 		buttonCreateNewFlight.setBounds(10, 133, 276, 50); //Set position and bounds
 		dashboardControlPanel.add(buttonCreateNewFlight); //Add to dashboardControlPanel
 		
-		JButton buttonCheckStatistics = new JButton("Check airport statistics"); //Create check statistics button
+		CustomButton buttonCheckStatistics = new CustomButton("Statistiche aereoporto", null, new Color(MainController.foregroundColorThree.getRed(), 
+				MainController.foregroundColorThree.getGreen(), 
+				MainController.foregroundColorThree.getBlue(), 64), 
+				MainController.foregroundColorThree, 19, false, null, 0); //Create check statistics button
+		buttonCheckStatistics.addMouseListener(new MouseAdapter() {
+			public void mouseEntered(MouseEvent e) {
+				buttonCheckStatistics.selectAnimation(8);
+			}
+
+			public void mouseExited(MouseEvent e) {
+				buttonCheckStatistics.unselectAnimation(8);
+			}
+		});
 		buttonCheckStatistics.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 			
@@ -202,6 +286,24 @@ public class DashboardPanel extends JPanel {
 			
 		});
 		
+	}
+	
+	public void paintComponent(Graphics g) {
+		
+		super.paintComponent(g); //Paint the component normally first
+		
+		Graphics2D g2d = (Graphics2D)g;
+		
+		//AA
+	    g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+	   //Text AA
+	    g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+	    
+	    //Draw background
+	    g2d.setColor(MainController.backgroundColorTwo);
+	    g2d.fillRect(0, 0, getWidth(), getHeight());
+	    
 	}
 	
 	/**

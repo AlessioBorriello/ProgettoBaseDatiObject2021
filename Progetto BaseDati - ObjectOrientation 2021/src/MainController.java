@@ -4,7 +4,10 @@ import java.awt.Container;
 import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.FontFormatException;
+import java.awt.Graphics2D;
 import java.awt.GraphicsEnvironment;
+import java.awt.RenderingHints;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
@@ -24,6 +27,19 @@ public class MainController {
 	//Fonts
 	static Font fontOne;
 	static Font fontTwo;
+	
+	//Dark palette
+	static Color darkBackgroundColorOne = new Color(29, 35, 39);
+	static Color darkBackgroundColorTwo = new Color(33, 51, 64);
+	static Color darkBackgroundColorThree = new Color(32, 32, 54);
+	
+	static Color darkForegroundColorOne = new Color(15, 76, 117);
+	static Color darkForegroundColorTwo = new Color(50, 130, 184);
+	static Color darkForegroundColorThree = new Color(207, 245, 255);
+	
+	static Color darkHighlightColorOne = new Color(242, 163, 101);
+	static Color darkHighlightColorTwo = new Color(214, 90, 49);
+	static Color darkHighlightColorThree = new Color(255, 77, 0);
 
 	//Defined palette (numbers are from darker to brighter)
 	static Color backgroundColorOne;
@@ -44,6 +60,12 @@ public class MainController {
 	static Color easyjetColor = Color.orange;
 	static Color ryanairColor = Color.blue;
 	
+	//Flight statuses color
+	static Color flightProgrammedColor = new Color(180, 180, 180, 150);
+	static Color flightTakenOffColor = new Color(0, 180, 0, 150);
+	static Color flightTakenOffLateColor = new Color(180, 180, 0, 150);
+	static Color flightCancelledColor = new Color(180, 0, 0, 150);
+	
 	public static void main(String[] args) {
 		
 		//Import fonts
@@ -57,11 +79,16 @@ public class MainController {
 			System.out.println(e);
 		}
 		
+		//Set color palette
+		MainController.setPaletteToDarkPalette();
+		
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					//Create MainFrame and MainController
+					//Create MainController
 					MainController controller = new MainController();
+					
+					//Create MainFrame and show it
 					MainFrame mainFrame = new MainFrame(controller);
 					mainFrame.setVisible(true); //Set it visible
 					
@@ -185,5 +212,22 @@ public class MainController {
 		return false; //The slot is not taken
 		
 	}
+	
+	static public void setPaletteToDarkPalette() {
+		
+		backgroundColorOne = darkBackgroundColorOne;
+		backgroundColorTwo = darkBackgroundColorTwo;
+		backgroundColorThree = darkBackgroundColorThree;
+		
+		foregroundColorOne = darkForegroundColorOne;
+		foregroundColorTwo = darkForegroundColorTwo;
+		foregroundColorThree = darkForegroundColorThree;
+		
+		highlightColorOne = darkHighlightColorOne;
+		highlightColorTwo = darkHighlightColorTwo;
+		highlightColorThree = darkHighlightColorThree;
+		
+	}
+	
 	
 }

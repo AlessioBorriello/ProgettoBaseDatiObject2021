@@ -1,5 +1,6 @@
 import java.awt.BorderLayout;
 import java.awt.Rectangle;
+import java.awt.RenderingHints;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -9,6 +10,9 @@ import javax.swing.JPanel;
 import javax.swing.JLabel;
 import javax.swing.SwingConstants;
 import java.awt.Font;
+import java.awt.GradientPaint;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Color;
 import javax.swing.border.LineBorder;
 import javax.swing.text.DateFormatter;
