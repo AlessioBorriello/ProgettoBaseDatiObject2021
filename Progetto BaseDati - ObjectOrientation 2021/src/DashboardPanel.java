@@ -83,7 +83,7 @@ public class DashboardPanel extends JPanel {
 				//AA
 			    g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-			   //Text AA
+			    //Text AA
 			    g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 			    
 			    //Draw background
@@ -134,9 +134,7 @@ public class DashboardPanel extends JPanel {
 		add(dashboardControlPanel); //Add dash board control panel to the dash board
 		dashboardControlPanel.setLayout(null); //Set the dash board control's layout to absolute
 		
-		CustomButton buttonCheckFlights = new CustomButton("Controlla voli", null, new Color(MainController.foregroundColorThree.getRed(),
-				MainController.foregroundColorThree.getGreen(), 
-				MainController.foregroundColorThree.getBlue(), 64), 
+		CustomButton buttonCheckFlights = new CustomButton("Controlla voli", null, mainController.getDifferentAlphaColor(MainController.foregroundColorThree, 64), 
 				MainController.foregroundColorThree, 22, false, null, 0); //Create check flights button
 		buttonCheckFlights.addMouseListener(new MouseAdapter() {
 			public void mouseEntered(MouseEvent e) {
@@ -174,9 +172,7 @@ public class DashboardPanel extends JPanel {
 		
 		
 		
-		CustomButton buttonFlightsArchive = new CustomButton("Archivio voli", null, new Color(MainController.foregroundColorThree.getRed(), 
-				MainController.foregroundColorThree.getGreen(), 
-				MainController.foregroundColorThree.getBlue(), 64), 
+		CustomButton buttonFlightsArchive = new CustomButton("Archivio voli", null, mainController.getDifferentAlphaColor(MainController.foregroundColorThree, 64), 
 				MainController.foregroundColorThree, 22, false, null, 0); //Create check flights archive button
 		buttonFlightsArchive.addMouseListener(new MouseAdapter() {
 			public void mouseEntered(MouseEvent e) {
@@ -212,9 +208,7 @@ public class DashboardPanel extends JPanel {
 		buttonFlightsArchive.setBounds(10, 72, 276, 50); //Set position and bounds
 		dashboardControlPanel.add(buttonFlightsArchive); //Add to dashboardControlPanel
 		
-		CustomButton buttonCreateNewFlight = new CustomButton("Crea nuovo volo", null, new Color(MainController.foregroundColorThree.getRed(), 
-				MainController.foregroundColorThree.getGreen(), 
-				MainController.foregroundColorThree.getBlue(), 64), 
+		CustomButton buttonCreateNewFlight = new CustomButton("Crea nuovo volo", null, mainController.getDifferentAlphaColor(MainController.foregroundColorThree, 64), 
 				MainController.foregroundColorThree, 22, false, null, 0); //Create create new flight button
 		buttonCreateNewFlight.addMouseListener(new MouseAdapter() {
 			public void mouseEntered(MouseEvent e) {
@@ -237,9 +231,7 @@ public class DashboardPanel extends JPanel {
 		buttonCreateNewFlight.setBounds(10, 133, 276, 50); //Set position and bounds
 		dashboardControlPanel.add(buttonCreateNewFlight); //Add to dashboardControlPanel
 		
-		CustomButton buttonCheckStatistics = new CustomButton("Statistiche aereoporto", null, new Color(MainController.foregroundColorThree.getRed(), 
-				MainController.foregroundColorThree.getGreen(), 
-				MainController.foregroundColorThree.getBlue(), 64), 
+		CustomButton buttonCheckStatistics = new CustomButton("Statistiche aereoporto", null, mainController.getDifferentAlphaColor(MainController.foregroundColorThree, 64), 
 				MainController.foregroundColorThree, 19, false, null, 0); //Create check statistics button
 		buttonCheckStatistics.addMouseListener(new MouseAdapter() {
 			public void mouseEntered(MouseEvent e) {

@@ -73,7 +73,7 @@ public class FlightPreviewPanel extends JPanel {
 		addMouseListener(new MouseAdapter() {
 			//Mouse clicked
 			public void mouseClicked(MouseEvent e) {
-				//Change panel to the EditFlightPanel
+				//Change panel to the ViewFlightPanel
 				mainFrame.setContentPanelToViewFlightInfoPanel(v);
 			}
 			//Mouse entered
@@ -133,7 +133,9 @@ public class FlightPreviewPanel extends JPanel {
 	    //Draw flight info
 	    g2d.setFont(new Font(MainController.fontOne.getFontName(), Font.BOLD, 14));
 	    g2d.setColor(MainController.foregroundColorThree);
-	    g2d.drawString("ID: " + volo.getID(), 116, 65);
+	    g2d.drawString("ID: " + volo.getID(), 116, 55);
+	    //g2d.drawString("Volo per:", 116 + ((g2d.getFontMetrics(getFont()).stringWidth("Volo per:"))/2), 65);
+	    g2d.drawString("Per: " + volo.getDestinazione(), 116, 85);
 	    g2d.drawString("Compagnia: " + volo.getCompagnia().getNome(), 15, 130);
 	    g2d.drawString("Partenza: " + dateTimeFormat.format(volo.getOrarioDecollo()), 15, 152);
 	    g2d.drawString("Gate: " + volo.getGate().getNumeroGate(), 15, 174);

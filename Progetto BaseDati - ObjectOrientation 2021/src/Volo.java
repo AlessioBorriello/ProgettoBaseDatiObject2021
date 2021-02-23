@@ -13,6 +13,7 @@ public class Volo {
 	private boolean cancellato = false; //If the flight has been cancelled
 	private boolean inRitardo = false; //If the flight has taken off late
 	private String ID = null; //Flight if
+	private String destinazione; //Flight destination
 	
 	/**
 	 * Print the flight's info
@@ -107,6 +108,14 @@ public class Volo {
 	}
 	public void setInRitardo(boolean inRitardo) {
 		this.inRitardo = inRitardo;
+	}
+
+	public String getDestinazione() {
+		return destinazione;
+	}
+
+	public void setDestinazione(String destinazione) {
+		this.destinazione = destinazione;
 	}
 	
 }

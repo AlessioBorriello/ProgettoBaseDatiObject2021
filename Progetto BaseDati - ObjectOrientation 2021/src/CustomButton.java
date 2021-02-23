@@ -212,6 +212,9 @@ public class CustomButton extends JButton{
 		
 	}
 
+	public void setButtonBackgroundColor(Color c) {
+		this.backgroundColor = c;
+	}
 
 }
 

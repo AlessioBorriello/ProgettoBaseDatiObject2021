@@ -58,6 +58,7 @@ public class MainFrame extends JFrame {
 	private Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize(); //Screen dimensions
 	private JPanel contentPanel; //Panel that changes the content displayed
 	private JLayeredPane centerPanel; //Panel containing content panel and dash board
+	private ArrayList<CompagniaAerea> listaCompagnie = new ArrayList<CompagniaAerea>(); //Array containing the companies
 	private DashboardPanel dashboardPanel; //Dash board panel
 	
 	private SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss"); //Date format
@@ -84,6 +85,10 @@ public class MainFrame extends JFrame {
 	public MainFrame(MainController c) {
 		
 		mainController = c; //Link controller and frame
+		
+		//Get all the companies from the database
+		CompagniaAereaDAO dao = new CompagniaAereaDAO();
+		listaCompagnie = dao.getAllCompagniaAerea();
 		
 		//Frame properties
 		setResizable(false); //Not re sizable
@@ -114,7 +119,7 @@ public class MainFrame extends JFrame {
 				//AA
 			    g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-			   //Text AA
+			    //Text AA
 			    g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 			    
 			    //Draw background
@@ -158,9 +163,7 @@ public class MainFrame extends JFrame {
 		    }
 		});
 		
-		CustomButton buttonMinimize = new CustomButton("", null, new Color(MainController.foregroundColorThree.getRed(), 
-				MainController.foregroundColorThree.getGreen(), 
-				MainController.foregroundColorThree.getBlue(), 64), 
+		CustomButton buttonMinimize = new CustomButton("", null, mainController.getDifferentAlphaColor(MainController.foregroundColorThree, 64), 
 				MainController.foregroundColorThree, 21, true, MainController.foregroundColorThree, 2); //Create minimize button
 		buttonMinimize.setBounds(buttonMinimizeBounds); //Set the button position to the previously defined position
 		buttonMinimize.setName("buttonMinimize"); //Name component
@@ -181,9 +184,7 @@ public class MainFrame extends JFrame {
 			}
 		});
 		
-		CustomButton buttonClose = new CustomButton("", null, new Color(MainController.foregroundColorThree.getRed(), 
-				MainController.foregroundColorThree.getGreen(), 
-				MainController.foregroundColorThree.getBlue(), 64), 
+		CustomButton buttonClose = new CustomButton("", null, mainController.getDifferentAlphaColor(MainController.foregroundColorThree, 64), 
 				MainController.foregroundColorThree, 21, true, MainController.foregroundColorThree, 2); //Create close button
 		buttonClose.setBounds(buttonCloseBounds); //Set the button position to the previously defined position
 		buttonClose.setName("buttonClose"); //Name component
@@ -242,11 +243,11 @@ public class MainFrame extends JFrame {
 		centerPanel.add(contentPanel); //Add the content panel to the center panel
 		contentPanel.setLayout(new BorderLayout(0, 0)); //Set content panel's layout
 		
-		flightList = searchFlights("", -1, null, null, true, true, true, true, true, true, true); //Start a research to get all of the flights
+		flightList = searchFlights("", "", -1, null, null, true, true, true, true, true, true, true); //Start a research to get all of the flights
 		
 		setContentPanelToCheckFlightsPanel(false); //Set content panel at the start of the application to the CheckFlightsPanel
 		
-		//Check if the dash board has not closed correctly every 1000ms
+		//Check if the dash board has not closed correctly every 1000ms (if mouse exited event gets skipped)
 		checkDashboardStatus(1000);
 		
 	}
@@ -496,12 +497,13 @@ public class MainFrame extends JFrame {
 	 * @param inTime Include flights that took off on time
 	 * @return List of the flights that passed the generated query
 	 */
-	public ArrayList<Volo> searchFlights(String idField, int gateNumber, Date dateStart, Date dateEnd, boolean airFrance, boolean alitalia, boolean easyJet, boolean ryanair, boolean cancelled, boolean delayed, boolean inTime) {
+	public ArrayList<Volo> searchFlights(String idField, String destinationField, int gateNumber, Date dateStart, Date dateEnd, boolean airFrance, boolean alitalia, boolean easyJet, boolean ryanair, boolean cancelled, boolean delayed, boolean inTime) {
 		
 		//Query generation setup
 		boolean inArchive = lookingAtArchive; //If looking at the archive or not
 		
 		idField = (!idField.contentEquals(""))? idField : null; //If the field is empty, set it as null
+		destinationField = (!destinationField.contentEquals(""))? destinationField : null; //If the field is empty, set it as null
 		
 		String dateStartString = (dateStart != null)? dateTimeFormat.format(dateStart) : null; //If the date is not null get it's string version, set the string as null otherwise
 		String dateEndString = (dateEnd != null)? dateTimeFormat.format(dateEnd) : null; //If the date is not null get it's string version, set the string as null otherwise
@@ -514,6 +516,14 @@ public class MainFrame extends JFrame {
 			idQuery = "(id LIKE '%" + idField + "%' OR '" + idField + "' IS NULL)"; //If idField was not empty
 		}else{
 			idQuery = "(id LIKE '" + idField + "' OR " + idField + " IS NULL)"; //If idField was empty (this is always true)
+		}
+		
+		//Destination field
+		String destinationQuery;
+		if(destinationField != null){
+			destinationQuery = "(destinazione LIKE '%" + destinationField + "%' OR '" + destinationField + "' IS NULL)"; //If destinationField was not empty
+		}else{
+			destinationQuery = "(destinazione LIKE '" + destinationField + "' OR " + destinationField + " IS NULL)"; //If destinationField was empty (this is always true)
 		}
 		
 		//Gate number
@@ -551,7 +561,7 @@ public class MainFrame extends JFrame {
 		}
 		
 		//Add bits to the query
-		query += idQuery + " AND \n" + startTimeQuery + " AND \n" + endTimeQuery + " AND \n" + gateNumberQuery + " AND \n" + companyQuery + " AND \n" + archiveOnlyQuery + ")";
+		query += idQuery + " AND \n" + destinationQuery + " AND \n" + startTimeQuery + " AND \n" + endTimeQuery + " AND \n" + gateNumberQuery + " AND \n" + companyQuery + " AND \n" + archiveOnlyQuery + ")";
 		//System.out.println(query);
 		
 		//Execute query
@@ -602,6 +612,61 @@ public class MainFrame extends JFrame {
 		
 	}
 	
+	public CustomScrollBar createCustomScrollbar() {
+		
+		//Create the scroll bar with these default settings and return it
+		return new CustomScrollBar(13, 15, //Bar width and button height
+									MainController.backgroundColorOne, //Background color
+									MainController.foregroundColorThree, //Thumb color
+									true, //Rounded thumb
+									true, MainController.foregroundColorTwo, 1, //Thumb border boolean, color and thickness
+									false, null, //Highlight track boolean and color
+									MainController.backgroundColorOne, //Buttons background color
+									mainController.getDifferentAlphaColor(MainController.foregroundColorThree, 64), //hovering color
+									true, MainController.foregroundColorThree, 2); //Border boolean, border color and border thickness
+		
+	}
+	
+	public CustomComboBox createCustomComboBox() {
+		
+		//Create the combo box with these default settings and return it
+		return new CustomComboBox(MainController.foregroundColorThree, 2,
+				MainController.backgroundColorOne, mainController.getDifferentAlphaColor(MainController.foregroundColorThree, 64),
+				createCustomScrollbar(), MainController.backgroundColorOne, MainController.foregroundColorThree,
+				new Font(MainController.fontOne.getFontName(), Font.PLAIN, 14));
+		
+	}
+	
+	public ArrayList<String> subdivideString(Graphics2D g2d, String s, int maxWidth) {
+		
+		String[] singleWordsArray = s.split(" "); //Divide in the single words
+		
+		ArrayList<String> returnList = new ArrayList<String>(); //return list of sub strings
+		
+		String tempString = singleWordsArray[0]; //First word
+		int wordIndex = 1;
+		while(wordIndex < singleWordsArray.length) { //For all the letters
+			
+			//Add word by word
+			tempString += " " + singleWordsArray[wordIndex]; //Add the next word
+			
+			if(g2d.getFontMetrics(g2d.getFont()).stringWidth(tempString) > maxWidth) { //If it's too long
+				returnList.add(tempString); //Add temp string to the list
+				tempString = ""; //Reset temp string
+			}
+			
+			wordIndex++;
+			
+		}
+		
+		if(!tempString.equals("")) { //If there are leftover letters
+			returnList.add(tempString); //Add temp string to the list
+		}
+		
+		return returnList;
+		
+	}
+	
 	//Setters and getters
 	public ArrayList<Volo> getFlightList() {
 		return flightList;
@@ -614,6 +679,10 @@ public class MainFrame extends JFrame {
 	}
 	public DashboardPanel getDashboardPanel() {
 		return dashboardPanel;
+	}
+
+	public ArrayList<CompagniaAerea> getListaCompagnie() {
+		return listaCompagnie;
 	}
 	
 }

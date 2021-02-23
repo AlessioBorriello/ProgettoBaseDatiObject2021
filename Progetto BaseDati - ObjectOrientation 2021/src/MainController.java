@@ -37,9 +37,14 @@ public class MainController {
 	static Color darkForegroundColorTwo = new Color(50, 130, 184);
 	static Color darkForegroundColorThree = new Color(207, 245, 255);
 	
-	static Color darkHighlightColorOne = new Color(242, 163, 101);
-	static Color darkHighlightColorTwo = new Color(214, 90, 49);
-	static Color darkHighlightColorThree = new Color(255, 77, 0);
+	//Light palette
+	static Color lightBackgroundColorOne = new Color(15, 76, 117);
+	static Color lightBackgroundColorTwo = new Color(50, 130, 184);
+	static Color lightBackgroundColorThree = new Color(207, 245, 255);
+	
+	static Color lightForegroundColorOne = new Color(29, 35, 39);
+	static Color lightForegroundColorTwo = new Color(33, 51, 64);
+	static Color lightForegroundColorThree = new Color(32, 32, 54);
 
 	//Defined palette (numbers are from darker to brighter)
 	static Color backgroundColorOne;
@@ -61,7 +66,7 @@ public class MainController {
 	static Color ryanairColor = Color.blue;
 	
 	//Flight statuses color
-	static Color flightProgrammedColor = new Color(180, 180, 180, 150);
+	static Color flightProgrammedColor;
 	static Color flightTakenOffColor = new Color(0, 180, 0, 150);
 	static Color flightTakenOffLateColor = new Color(180, 180, 0, 150);
 	static Color flightCancelledColor = new Color(180, 0, 0, 150);
@@ -213,7 +218,18 @@ public class MainController {
 		
 	}
 	
+	public Color getDifferentAlphaColor(Color c, int newAlpha) {
+		
+		newAlpha = (newAlpha > 255)? 255 : newAlpha; //Clamp max
+		newAlpha = (newAlpha < 0)? 0 : newAlpha; //Clamp minimum
+		
+		return new Color(c.getRed(), c.getGreen(), c.getBlue(), newAlpha);
+		
+	}
+	
 	static public void setPaletteToDarkPalette() {
+		
+		flightProgrammedColor = darkForegroundColorThree;
 		
 		backgroundColorOne = darkBackgroundColorOne;
 		backgroundColorTwo = darkBackgroundColorTwo;
@@ -223,11 +239,20 @@ public class MainController {
 		foregroundColorTwo = darkForegroundColorTwo;
 		foregroundColorThree = darkForegroundColorThree;
 		
-		highlightColorOne = darkHighlightColorOne;
-		highlightColorTwo = darkHighlightColorTwo;
-		highlightColorThree = darkHighlightColorThree;
-		
 	}
 	
+	static public void setPaletteToLightPalette() {
+		
+		flightProgrammedColor = lightForegroundColorThree;
+		
+		backgroundColorOne = lightBackgroundColorOne;
+		backgroundColorTwo = lightBackgroundColorTwo;
+		backgroundColorThree = lightBackgroundColorThree;
+		
+		foregroundColorOne = lightForegroundColorOne;
+		foregroundColorTwo = lightForegroundColorTwo;
+		foregroundColorThree = lightForegroundColorThree;
+		
+	}
 	
 }

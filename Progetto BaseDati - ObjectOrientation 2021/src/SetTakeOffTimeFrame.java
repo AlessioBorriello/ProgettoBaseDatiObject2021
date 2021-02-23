@@ -11,7 +11,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
@@ -23,19 +24,22 @@ import javax.swing.GroupLayout.Alignment;
 import javax.swing.border.EtchedBorder;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.JComboBox;
+import javax.swing.JSpinner;
+import javax.swing.SpinnerDateModel;
 
-public class AddQueueFrame extends JDialog {
+public class SetTakeOffTimeFrame extends JDialog {
 	
 	private MainFrame mainFrame; //Link to the mainFrame
-	private String choice; //String containing the returned choice of the user
+	private Date time; //Date containing the returned date chosen by the user
 
 	/**
-	 * Frame where the user is prompted to choose a queue to add or undo the action
-	 * @param mf Link to the MainFrame
+	 * Frame where the user is prompted to choose a date to be returned
+	 * @param mf Link to the mainFrame
+	 * @param data Starting data that the spinner has to display
 	 */
-	public AddQueueFrame(MainFrame mf, ArrayList<String> queueList) {
+	public SetTakeOffTimeFrame(MainFrame mf, Date data) {
 		
-		mainFrame = mf; //Link this frame to the mainFrame
+		mainFrame = mf; //Link to the mainFrame
 		
 		setType(Type.POPUP); //Set frame type to pop-up
 		setAlwaysOnTop(true); //Set to stay always on top
@@ -73,28 +77,29 @@ public class AddQueueFrame extends JDialog {
 			    //Draw the string
 			    g2d.setFont(new Font(MainController.fontOne.getFontName(), Font.PLAIN, 22));
 			    g2d.setColor(MainController.foregroundColorThree);
-			    int length = g2d.getFontMetrics(g2d.getFont()).stringWidth("Seleziona la coda");
-			    g2d.drawString("Seleziona la coda", (getWidth()/2) - (length/2), 50);
-			    length = g2d.getFontMetrics(g2d.getFont()).stringWidth("da aggiungere");
-			    g2d.drawString("da aggiungere", (getWidth()/2) - (length/2), 80);
+			    int length = g2d.getFontMetrics(g2d.getFont()).stringWidth("Imposta orario");
+			    g2d.drawString("Imposta orario", (getWidth()/2) - (length/2), 50);
+			    length = g2d.getFontMetrics(g2d.getFont()).stringWidth("partenza");
+			    g2d.drawString("partenza", (getWidth()/2) - (length/2), 80);
 			    
 			}
 			
 		}); //Create contentPanel
 		add(contentPanel, BorderLayout.CENTER); //Add contentPanel to the frame
 		contentPanel.setLayout(null); //Set contentPanel's layout to absolute
-			
-		CustomComboBox cBoxAddQueue = mainFrame.createCustomComboBox(); //Create combo box
-		//Populate combo box
-		comboBoxAddItemIfNotPresent(cBoxAddQueue, "Famiglia", queueList);
-		comboBoxAddItemIfNotPresent(cBoxAddQueue, "Priority", queueList);
-		comboBoxAddItemIfNotPresent(cBoxAddQueue, "Diversamente abili", queueList);
-		comboBoxAddItemIfNotPresent(cBoxAddQueue, "Business Class", queueList);
-		comboBoxAddItemIfNotPresent(cBoxAddQueue, "Standard Class", queueList);
-		comboBoxAddItemIfNotPresent(cBoxAddQueue, "Economy Class", queueList);
-		
-		cBoxAddQueue.setBounds((getWidth()/2) - 100, 108, 200, 22); //Set combo box bounds
-		contentPanel.add(cBoxAddQueue); //Add combo box to the content panel
+	
+		CustomSpinner spinnerTakeOffDate = new CustomSpinner(MainController.backgroundColorOne, 
+				new Color(MainController.foregroundColorThree.getRed(), MainController.foregroundColorThree.getGreen(), MainController.foregroundColorThree.getBlue(), 64), 
+				MainController.foregroundColorThree, 2, true, MainController.foregroundColorThree, 1); //Create date spinner
+		spinnerTakeOffDate.setName("spinnerTakeOffDate"); //Set name
+		spinnerTakeOffDate.setModel(new SpinnerDateModel(new Date(1612134000000L), null, null, Calendar.DAY_OF_YEAR)); //Set spinner's model
+		spinnerTakeOffDate.setValue(data); //Set starting date of the spinner
+		spinnerTakeOffDate.setEditorBackgroundColor(MainController.backgroundColorOne);
+		spinnerTakeOffDate.setEditorForegroundColor(MainController.foregroundColorThree);
+		spinnerTakeOffDate.setEditorFont(new Font(MainController.fontOne.getFontName(), Font.PLAIN, 13));
+		spinnerTakeOffDate.setBounds((getWidth()/2) - 100, 108, 200, 22); //Set bounds
+		contentPanel.add(spinnerTakeOffDate); //Add spinner to the contentPanel
+	
 		
 		JPanel buttonPanel = (new JPanel() {
 			
@@ -124,27 +129,28 @@ public class AddQueueFrame extends JDialog {
 		}); //Create buttonPanel
 		add(buttonPanel, BorderLayout.SOUTH); //Add buttonPanel to the frame
 		
-		CustomButton addButton = new CustomButton("AGGIUNGI", null, 
+		CustomButton setButton = new CustomButton("CONFERMA", null, 
 				new Color(MainController.foregroundColorThree.getRed(), MainController.foregroundColorThree.getGreen(), MainController.foregroundColorThree.getBlue(), 64), 
-				MainController.foregroundColorThree, 18, true, MainController.foregroundColorThree, 1); //Create addButton
-		addButton.setFocusable(false); //Set as non focusable
-		addButton.addMouseListener(new MouseAdapter() {
+				MainController.foregroundColorThree, 18, true, MainController.foregroundColorThree, 1); //Create setButton
+		setButton.setFocusable(false); //Set as non focusable
+		setButton.addMouseListener(new MouseAdapter() {
 			public void mouseEntered(MouseEvent e) {
-				addButton.selectAnimation(8);
+				setButton.selectAnimation(8);
 			}
 
 			public void mouseExited(MouseEvent e) {
-				addButton.unselectAnimation(8);
+				setButton.unselectAnimation(8);
 			}
 		});
 		//Button's action listeners
-		addButton.addActionListener(new ActionListener() {
+		setButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				setVisible(false); //Set frame as invisible
-				choice = cBoxAddQueue.getSelectedItem().toString(); //Set choice string to the selected item in the combo box
+				time = (Date)spinnerTakeOffDate.getValue(); //Get return date from the spinner
 				dispose(); //Dispose frame
 			}
 		});
+
 		
 		CustomButton undoButton = new CustomButton("ANNULLA", null, 
 				new Color(MainController.foregroundColorThree.getRed(), MainController.foregroundColorThree.getGreen(), MainController.foregroundColorThree.getBlue(), 64), 
@@ -163,7 +169,7 @@ public class AddQueueFrame extends JDialog {
 		undoButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				setVisible(false); //Set frame as invisible
-				choice = "undo"; //Set choice string as "undo"
+				time = null; //Set return date as null
 				dispose(); //Dispose frame
 			}
 		});
@@ -177,7 +183,7 @@ public class AddQueueFrame extends JDialog {
 					.addGap(52)
 					.addComponent(undoButton, GroupLayout.PREFERRED_SIZE, 135, GroupLayout.PREFERRED_SIZE)
 					.addPreferredGap(ComponentPlacement.RELATED, 116, Short.MAX_VALUE)
-					.addComponent(addButton, GroupLayout.PREFERRED_SIZE, 135, GroupLayout.PREFERRED_SIZE)
+					.addComponent(setButton, GroupLayout.PREFERRED_SIZE, 135, GroupLayout.PREFERRED_SIZE)
 					.addGap(52))
 		);
 		//GroupLayout vertical properties
@@ -187,28 +193,16 @@ public class AddQueueFrame extends JDialog {
 					.addContainerGap(19, Short.MAX_VALUE)
 					.addGroup(gl_buttonPane.createParallelGroup(Alignment.LEADING)
 						.addComponent(undoButton, GroupLayout.PREFERRED_SIZE, 33, GroupLayout.PREFERRED_SIZE)
-						.addComponent(addButton, GroupLayout.PREFERRED_SIZE, 33, GroupLayout.PREFERRED_SIZE))
+						.addComponent(setButton, GroupLayout.PREFERRED_SIZE, 33, GroupLayout.PREFERRED_SIZE))
 					.addContainerGap())
 		);
 		buttonPanel.setLayout(gl_buttonPane); //Set buttonPanel's layout to the GroupLayout just created
 		
+		
 	}
 	
-	public String getChoice() {
-		return choice;
+	public Date getDate() {
+		return time;
 	}
 
-	public void comboBoxAddItemIfNotPresent(JComboBox c, String queue, ArrayList<String> queueList) {
-		
-		for(String q : queueList) {
-			if(queue.equals(q)) { //The queue to add is already contained in the queue list
-				return;
-			}
-		}
-		
-		//The queue to add is not already contained in the queue list
-		c.addItem(queue); //Add it
-		
-	}
-	
 }

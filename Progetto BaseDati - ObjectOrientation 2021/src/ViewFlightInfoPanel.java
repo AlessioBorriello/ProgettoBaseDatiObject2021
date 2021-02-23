@@ -1,3 +1,4 @@
+import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
@@ -18,12 +19,17 @@ import javax.swing.border.LineBorder;
 import javax.swing.text.DateFormatter;
 
 import java.awt.GridLayout;
+import java.awt.Image;
+
+import javax.imageio.ImageIO;
 import javax.swing.JButton;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
+import java.io.IOException;
 
 public class ViewFlightInfoPanel extends JPanel {
 
@@ -35,13 +41,14 @@ public class ViewFlightInfoPanel extends JPanel {
 	
 	private SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyy/MM/dd - HH:mm"); //Date format
 	
-	//Labels, declared here so that they can be accessed by the methods
-	private JLabel tempoEffettivoLabel;
-	private JLabel flightStatusLabel;
 	//Buttons, declared here so that they can be accessed by the methods
-	private JButton buttonFlightTakenOff;
-	private JButton buttonCancelFlight;
-	private JButton buttonEditFlight;
+	private CustomButton buttonFlightTakenOff;
+	private CustomButton buttonCancelFlight;
+	private CustomButton buttonEditFlight;
+	
+	private Image companyImage; //Company image
+	
+	private ArrayList<Coda> listaCode;
 
 	/**
 	 * Panel that shows the info of a given flight in detail
@@ -60,99 +67,28 @@ public class ViewFlightInfoPanel extends JPanel {
 		setBounds(72, 2, 1124, 666); //Debug to show in the design tab,  this row should be replaced with the one above
 		setLayout(null); //Set layout
 		
-		JLabel idLabel = new JLabel("ID: " + v.getID()); //Create label showing the flight's ID
-		idLabel.setName("idLabel"); //Set name
-		idLabel.setFont(new Font("Tahoma", Font.BOLD, 18)); //Set font
-		idLabel.setBounds(255, 70, 350, 22); //Set bounds
-		add(idLabel); //Add label
-		
-		JLabel companyLogoLabel = new JLabel(""); //Create label showing the flight's logo
-		companyLogoLabel.setBorder(new LineBorder(new Color(0, 0, 0), 2)); //Set border color to black
-		companyLogoLabel.setName("companyLogoLabel"); //Set name
-		companyLogoLabel.setBounds(45, 45, 200, 200); //Set bounds
-		add(companyLogoLabel); //Add label
-		
-		JLabel nomeCompagniaLabel = new JLabel("Compagnia: " + volo.getCompagnia().getNome()); //Create label showing the flight's name
-		nomeCompagniaLabel.setName("nomeCompagniaLabel"); //Set name
-		nomeCompagniaLabel.setFont(new Font("Tahoma", Font.BOLD, 18)); //Set font
-		nomeCompagniaLabel.setBounds(255, 103, 350, 22); //Set bounds
-		add(nomeCompagniaLabel); //Add label
-		
-		JLabel gateNumberLabel = new JLabel("Numero gate: " + volo.getGate().getNumeroGate()); //Create label showing the flight's gate number
-		gateNumberLabel.setName("gateNumberLabel"); //Set name
-		gateNumberLabel.setFont(new Font("Tahoma", Font.BOLD, 18)); //Set font
-		gateNumberLabel.setBounds(255, 136, 350, 22); //Set bounds
-		add(gateNumberLabel); //Add label
-		
-		JLabel numeroPrenotazioniLabel = new JLabel("Numero prenotazioni: " + volo.getNumeroPrenotazioni()); //Create label showing the flight's booking number
-		numeroPrenotazioniLabel.setName("numeroPrenotazioniLabel"); //Set name
-		numeroPrenotazioniLabel.setFont(new Font("Tahoma", Font.BOLD, 18)); //Set font
-		numeroPrenotazioniLabel.setBounds(255, 169, 350, 22); //Set bounds
-		add(numeroPrenotazioniLabel); //Add label
-		
-		JLabel orarioLabel = new JLabel("Partenza: " + dateTimeFormat.format(volo.getOrarioDecollo())); //Create label showing the flight's take off time
-		orarioLabel.setName("orarioLabel"); //Set name
-		orarioLabel.setFont(new Font("Tahoma", Font.BOLD, 18)); //Set font
-		orarioLabel.setBounds(255, 202, 350, 22); //Set bounds
-		add(orarioLabel); //Add label
-		
-		JPanel slotPanel = new JPanel(); //Create panel
-		slotPanel.setName("slotPanel"); //Set name
-		slotPanel.setBounds(45, 256, 560, 120); //Set bounds
-		add(slotPanel); //Add panel
-		slotPanel.setLayout(null); //Set layout to absolute
-		
-		JLabel slotLabel = new JLabel("Slot: "); //Create label
-		slotLabel.setName("slotLabel"); //Set name
-		slotLabel.setHorizontalAlignment(SwingConstants.CENTER); //Set text horizontal alignment
-		slotLabel.setFont(new Font("Tahoma", Font.BOLD, 15)); //Set font
-		slotLabel.setBounds(0, 0, 560, 26); //Set bounds
-		slotPanel.add(slotLabel); //Add label to the slot panel
-		
-		JLabel tempoStimatoLabel = new JLabel("Tempo stimato: " + dateTimeFormat.format(volo.getSlot().getInizioTempoStimato()) + " - - " + dateTimeFormat.format(volo.getSlot().getFineTempoStimato())); //Create a label showing the flight's estimated start and end time
-		tempoStimatoLabel.setName("tempoStimatoLabel"); //Set name
-		tempoStimatoLabel.setFont(new Font("Tahoma", Font.BOLD, 14)); //Set font
-		tempoStimatoLabel.setBounds(0, 37, 560, 26); //Set bounds
-		slotPanel.add(tempoStimatoLabel); //Add label to the slot panel
-		
-		//Check if the effective time has been inserted, otherwise set the string to "Non definito"
-		String inizioTempoEffettivo = (volo.getSlot().getInizioTempoEffettivo() == null)? "Non definito" : dateTimeFormat.format(volo.getSlot().getInizioTempoEffettivo());
-		String fineTempoEffettivo = (volo.getSlot().getFineTempoEffettivo() == null)? "Non definito" : dateTimeFormat.format(volo.getSlot().getFineTempoEffettivo());
-		
-		tempoEffettivoLabel = new JLabel("Tempo effettivo: " + inizioTempoEffettivo + " - - " + fineTempoEffettivo); //Create a label showing the flight's effective start and end time
-		tempoEffettivoLabel.setName("tempoEffettivoLabel"); //Set name
-		tempoEffettivoLabel.setFont(new Font("Tahoma", Font.BOLD, 14)); //Set font
-		tempoEffettivoLabel.setBounds(0, 74, 560, 26); //Set bounds
-		slotPanel.add(tempoEffettivoLabel); //Add label to the slot panel
-		
-		JPanel codePanel = new JPanel(); //Create panel
-		codePanel.setName("codePanel"); //Set name
-		codePanel.setBounds(45, 387, 560, 268); //Set bounds
-		add(codePanel); //Add panel
-		codePanel.setLayout(new GridLayout(7, 0, 0, 0)); //Set rows to the amount of queue types
-		
-		flightStatusLabel = new JLabel(); //Create label
-		flightStatusLabel.setName("flightStatusLabel"); //Set name
-		flightStatusLabel.setHorizontalAlignment(SwingConstants.CENTER); //Set text horizontal alignment
-		flightStatusLabel.setFont(new Font("Tahoma", Font.BOLD, 18)); //Set font
-		flightStatusLabel.setBounds(634, 45, 453, 64); //Set bounds
-		//Gather flight's status
-		if(volo.isPartito()) { //If the flight has taken off
-			if(volo.checkIfFlightTookOffLate()) { //Check if it did so late
-				flightStatusLabel.setText("Questo volo e' partito in ritardo");
-			}else { //Otherwise
-				flightStatusLabel.setText("Questo volo e' partito in orario");
-			}
-		}else { //The flight has not taken off
-			if(volo.isCancellato()) { //Check if it has been cancelled
-				flightStatusLabel.setText("Questo volo e' stato cancellato");
-			}else { //Otherwise
-				flightStatusLabel.setText("Questo volo non e' ancora partito");
-			}
+		//Get correct company image path
+		String imagePath;
+		switch(volo.getCompagnia().getNome()) {
+			case "AirFrance": imagePath = "imgs/company-logos/airfrance-logo.png"; break;
+			case "Alitalia": imagePath = "imgs/company-logos/alitalia-logo.png"; break;
+			case "EasyJet": imagePath = "imgs/company-logos/easyjet-logo.png"; break;
+			case "Ryanair": imagePath = "imgs/company-logos/ryanair-logo.png"; break;
+			default: imagePath = "imgs/company-logos/airfrance-logo.png";
 		}
-		add(flightStatusLabel); //Add label
 		
-		buttonFlightTakenOff = new JButton("Fai partire questo volo"); //Create button
+		//Load correct company image
+		try {                
+			companyImage = ImageIO.read(new File(imagePath));
+		} catch (IOException e) {
+			System.out.println(e);
+		}
+		
+		//Scale company image
+		companyImage = companyImage.getScaledInstance(250, 250, Image.SCALE_SMOOTH);
+		
+		buttonFlightTakenOff = new CustomButton("Fai partire volo", null, mainController.getDifferentAlphaColor(MainController.foregroundColorThree, 64), 
+				MainController.foregroundColorThree, 18, true, MainController.foregroundColorThree, 1); //Create button
 		buttonFlightTakenOff.setName("buttonFlightTakenOff"); //Set name
 		//Add action listener
 		buttonFlightTakenOff.addActionListener(new ActionListener() {
@@ -160,13 +96,22 @@ public class ViewFlightInfoPanel extends JPanel {
 				setFlightAsTakenOff();
 			}
 		});
-		buttonFlightTakenOff.setFont(new Font("Tahoma", Font.BOLD, 14)); //Set font
-		buttonFlightTakenOff.setBounds(765, 139, 191, 64); //Set bounds
+		buttonFlightTakenOff.setBounds(302, 420, 168, 60); //Set bounds
+		buttonFlightTakenOff.addMouseListener(new MouseAdapter() {
+			public void mouseEntered(MouseEvent e) {
+				buttonFlightTakenOff.selectAnimation(8);
+			}
+
+			public void mouseExited(MouseEvent e) {
+				buttonFlightTakenOff.unselectAnimation(8);
+			}
+		});
 		if(!volo.isPartito() && !volo.isCancellato()) { //If the flight has neither taken off or been cancelled
 			add(buttonFlightTakenOff); //Add button
 		}
 		
-		buttonCancelFlight = new JButton("Cancella questo volo"); //Create button
+		buttonCancelFlight = new CustomButton("Cancella volo", null, mainController.getDifferentAlphaColor(MainController.foregroundColorThree, 64), 
+				MainController.foregroundColorThree, 18, true, MainController.foregroundColorThree, 1); //Create button
 		buttonCancelFlight.setName("buttonCancelFlight"); //Set name
 		//Add action listener
 		buttonCancelFlight.addActionListener(new ActionListener() {
@@ -174,13 +119,22 @@ public class ViewFlightInfoPanel extends JPanel {
 				setFlightAsCancelled();
 			}
 		});
-		buttonCancelFlight.setFont(new Font("Tahoma", Font.BOLD, 14)); //Set font
-		buttonCancelFlight.setBounds(765, 214, 191, 64); //Set bound
+		buttonCancelFlight.setBounds(489, 420, 168, 60); //Set bound
+		buttonCancelFlight.addMouseListener(new MouseAdapter() {
+			public void mouseEntered(MouseEvent e) {
+				buttonCancelFlight.selectAnimation(8);
+			}
+
+			public void mouseExited(MouseEvent e) {
+				buttonCancelFlight.unselectAnimation(8);
+			}
+		});
 		if(!volo.isPartito() && !volo.isCancellato()) { //If the flight has neither taken off or been cancelled
 			add(buttonCancelFlight); //Add button
 		}
 		
-		buttonEditFlight = new JButton("Modifica volo"); //Create button
+		buttonEditFlight = new CustomButton("Modifica volo", null, mainController.getDifferentAlphaColor(MainController.foregroundColorThree, 64), 
+				MainController.foregroundColorThree, 22, true, MainController.foregroundColorThree, 1); //Create button
 		buttonEditFlight.setName("buttonEditFlight"); //Set name
 		//Add action listener
 		buttonEditFlight.addActionListener(new ActionListener() {
@@ -188,18 +142,21 @@ public class ViewFlightInfoPanel extends JPanel {
 				mainFrame.setContentPanelToEditFlightPanel(v);
 			}
 		});
-		buttonEditFlight.setFont(new Font("Tahoma", Font.BOLD, 14)); //Set font
-		buttonEditFlight.setBounds(765, 289, 191, 64); //Set bound
+		buttonEditFlight.setBounds(805, 548, 210, 74); //Set bound
+		buttonEditFlight.addMouseListener(new MouseAdapter() {
+			public void mouseEntered(MouseEvent e) {
+				buttonEditFlight.selectAnimation(8);
+			}
+
+			public void mouseExited(MouseEvent e) {
+				buttonEditFlight.unselectAnimation(8);
+			}
+		});
 		if(!volo.isPartito() && !volo.isCancellato()) { //If the flight has neither taken off or been cancelled
 			add(buttonEditFlight); //Add button
 		}
 		
-		ArrayList<Coda> listaCode = volo.getGate().getListaCode(); //Get all of the flight's queues
-		for(Coda coda : listaCode) {
-			JLabel lbl = new JLabel(); //Create label
-			lbl.setText("Tipo: " + coda.getTipo() + ", persone in coda: " + coda.getPersoneInCoda()); //Set text
-			codePanel.add(lbl); //Add label to the queue panel
-		}
+		listaCode = volo.getGate().getListaCode(); //Get all of the flight's queues
 		
 	}
 	
@@ -208,7 +165,7 @@ public class ViewFlightInfoPanel extends JPanel {
 	 */
 	public void setFlightAsTakenOff() {
 		
-		SetEffectiveTimeFrame frame = new SetEffectiveTimeFrame(mainFrame, volo.getSlot().getInizioTempoStimato()); //Create a popup panel
+		SetTakeOffTimeFrame frame = new SetTakeOffTimeFrame(mainFrame, volo.getSlot().getInizioTempoStimato()); //Create a popup panel
 		frame.setVisible(true); //Make it visible
 		Date data = frame.getDate(); //Get the date taken from the frame
 		
@@ -235,10 +192,6 @@ public class ViewFlightInfoPanel extends JPanel {
 					return;
 				}
 				
-				//Update date label text
-				SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyy/MM/dd - HH:mm");
-				tempoEffettivoLabel.setText("Tempo effettivo: " + dateTimeFormat.format(s.getInizioTempoEffettivo()) + " - - " + dateTimeFormat.format(s.getFineTempoEffettivo()));
-				
 				//Remove buttons
 				remove(buttonFlightTakenOff);
 				remove(buttonCancelFlight);
@@ -247,13 +200,6 @@ public class ViewFlightInfoPanel extends JPanel {
 				//Update flight in database
 				new VoloDAO().setFlightAsTakenOff(mainFrame, volo);
 				volo.setPartito(true);
-				
-				//Update status label text
-				if(!volo.checkIfFlightTookOffLate()) {
-					flightStatusLabel.setText("Questo volo e' partito in orario");
-				}else {
-					flightStatusLabel.setText("Questo volo e' partito in ritardo");
-				}
 				
 				//Repaint and re validate panel
 				repaint();
@@ -281,8 +227,6 @@ public class ViewFlightInfoPanel extends JPanel {
 			new VoloDAO().setFlightAsCancelled(mainFrame, volo);
 			volo.setCancellato(true);
 			
-			flightStatusLabel.setText("Questo volo e' stato cancellato");
-			
 			//Repaint and re validate panel
 			repaint();
 			revalidate();
@@ -292,4 +236,111 @@ public class ViewFlightInfoPanel extends JPanel {
 		
 	}
 
+	public Color getStatusColor() {
+		
+		if(volo.isPartito()) { //If the flight has taken off
+			if(volo.checkIfFlightTookOffLate()) { //Check if it did so late
+				return MainController.flightTakenOffLateColor;
+			}else { //Otherwise
+				return MainController.flightTakenOffColor;
+			}
+		}else { //The flight has not taken off
+			if(volo.isCancellato()) { //Check if it has been cancelled
+				return MainController.flightCancelledColor;
+			}else { //Otherwise
+				return MainController.flightProgrammedColor;
+			}
+		}
+		
+	}
+	
+	public void paintComponent(Graphics g) {
+		
+		super.paintComponent(g); //Paint the component normally first
+		
+		Graphics2D g2d = (Graphics2D)g;
+		
+		//AA
+	    g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+	    //Text AA
+	    g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+	    
+	    //Draw background
+	    g2d.setColor(MainController.backgroundColorOne);
+	    g2d.fillRect(0, 0, getWidth(), getHeight());
+	    
+	    //Draw company image
+	    g2d.drawImage(companyImage, 35, (getHeight()/2) - (companyImage.getHeight(null)/2) - 30, 285, (getHeight()/2) - (companyImage.getHeight(null)/2) + 250 - 30, 0, 0, companyImage.getWidth(null), companyImage.getHeight(null), this);
+	    g2d.setStroke(new BasicStroke(4));
+	    g2d.setColor(getStatusColor());
+	    g2d.drawRoundRect(35, (getHeight()/2) - (companyImage.getHeight(null)/2) - 30, 250, 250, 110, 110);
+	    
+	    //ID string
+	    g2d.setColor(MainController.foregroundColorThree);
+	    g2d.setFont(new Font(MainController.fontOne.getFontName(), Font.BOLD, 42));
+	    g2d.drawString("Volo ID: " + volo.getID(), 35, 110);
+	    
+	    //Company string
+	    g2d.setFont(new Font(MainController.fontOne.getFontName(), Font.BOLD, 21));
+	    String companyString = "Compagnia";
+	    int companyStringLenght = g2d.getFontMetrics(g2d.getFont()).stringWidth(companyString);
+	    g2d.drawString(companyString, 35 + (companyImage.getWidth(null)/2) - (companyStringLenght/2), 460);
+	    
+	    String companyNameString = volo.getCompagnia().getNome();
+	    int companyNameStringLenght = g2d.getFontMetrics(g2d.getFont()).stringWidth(companyNameString);
+	    g2d.drawString(companyNameString, 35 + (companyImage.getWidth(null)/2) - (companyNameStringLenght/2), 490);
+	    
+	    //Time, gate and destination strings
+	    g2d.drawString("Orario: " + dateTimeFormat.format(volo.getOrarioDecollo()), 310, 255);
+	    g2d.drawString("Gate: " + volo.getGate().getNumeroGate(), 310, 290);
+	    g2d.drawString("Destinazione: " + volo.getDestinazione(), 310, 325);
+	    g2d.drawString("Numero prenotazioni: " + volo.getNumeroPrenotazioni(), 310, 360);
+	    
+	    //Draw separator lines
+	    g2d.setStroke(new BasicStroke(4, BasicStroke.CAP_ROUND, BasicStroke.JOIN_MITER));
+	    g2d.drawLine(35, 514, 670, 514);
+	    g2d.drawLine(700, 100, 700, 484);
+	    g2d.drawLine(730, 514, 1100, 514);
+	    int circleWidth = 10;
+	    g2d.fillOval(700 - (circleWidth/2), 514 - (circleWidth/2), circleWidth, circleWidth);
+	    
+	    //Draw slots
+	    g2d.drawString("Slot:", 35, 555);
+	    g2d.setFont(new Font(MainController.fontOne.getFontName(), Font.BOLD, 18));
+	    g2d.drawString("Tempo stimato: " + dateTimeFormat.format(volo.getSlot().getInizioTempoStimato()) + " ||| " + dateTimeFormat.format(volo.getSlot().getFineTempoStimato()), 60, 585);
+	    //Check if the effective time has been inserted, otherwise set the string to "Non definito"
+  		String inizioTempoEffettivo = (volo.getSlot().getInizioTempoEffettivo() == null)? "Non definito" : dateTimeFormat.format(volo.getSlot().getInizioTempoEffettivo());
+  		String fineTempoEffettivo = (volo.getSlot().getFineTempoEffettivo() == null)? "Non definito" : dateTimeFormat.format(volo.getSlot().getFineTempoEffettivo());
+	    g2d.drawString("Tempo effettivo: " + inizioTempoEffettivo + " ||| " + fineTempoEffettivo, 60, 609);
+	    g2d.setStroke(new BasicStroke(2));
+	    circleWidth = 7;
+	    g2d.drawOval(50 - (circleWidth/2), 579 - (circleWidth/2), circleWidth, circleWidth);
+	    g2d.drawOval(50 - (circleWidth/2), 603 - (circleWidth/2), circleWidth, circleWidth);
+	    
+	    //Queues
+	    g2d.setFont(new Font(MainController.fontOne.getFontName(), Font.BOLD, 30));
+	    g2d.drawString("Lista code", 823, 100);
+	    g2d.setFont(new Font(MainController.fontOne.getFontName(), Font.BOLD, 18));
+	    int index = 0;
+	    for(Coda coda : listaCode) {
+	    	
+	    	//Draw rectangle on uneven queue's number
+	    	if(index%2 == 1) {
+	    		g2d.setColor(MainController.backgroundColorTwo);
+	    		g2d.fillRect(720, 116 + (index * 60), 390, 60);
+	    		
+	    	}
+	    	
+	    	//Draw queue string
+	    	g2d.setColor(MainController.foregroundColorThree);
+	    	String s = coda.getTipo() + ", persone in coda: " + coda.getPersoneInCoda();
+	    	int queueStringLenght = g2d.getFontMetrics(g2d.getFont()).stringWidth(s);
+	    	g2d.drawString(s, 908 - (queueStringLenght/2), 152 + (index * 60));
+			
+			index++;
+		}
+	    
+	}
+	
 }

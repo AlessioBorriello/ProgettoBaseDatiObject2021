@@ -69,7 +69,8 @@ public class CheckFlightsPanel extends JPanel {
 		setLayout(new BorderLayout(0, 0)); //Set layout
 		
 		JScrollPane scrollPanel = new JScrollPane(); //Create scroll panel
-		scrollPanel.setBorder(null);
+		scrollPanel.setBorder(null); //Set border
+		scrollPanel.setVerticalScrollBar(mainFrame.createCustomScrollbar());//Create and set the custom scroll bar
 		scrollPanel.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER); //Don't show horizontal scroll bar
 		scrollPanel.getVerticalScrollBar().setUnitIncrement(14); //Set scroll bar speed
 		add(scrollPanel, BorderLayout.CENTER); //Add scroll panel

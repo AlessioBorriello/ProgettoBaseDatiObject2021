@@ -23,8 +23,8 @@ public class VoloDAO {
 		//Gather info
 		String compagnia = v.getCompagnia().getNome();
 		Date orarioDecollo = v.getOrarioDecollo();
-		int numeroPrenotazioni = v.getNumeroPrenotazioni();
 		String id = v.getID();
+		String destinazione = v.getDestinazione();
 		
 		//Convert date format to a usable format in the database
 		String dataString = dateTimeFormat.format(orarioDecollo);
@@ -32,8 +32,8 @@ public class VoloDAO {
 		try {
 			
 			Class.forName("com.mysql.jdbc.Driver");
-			String q = "INSERT INTO volo(id, nomeCompagnia, dataPartenza, numeroPrenotazioni, partito, cancellato)\r\n" + 
-					"VALUES ('" + id + "','" + compagnia + "','"+ dataString + "', '" + numeroPrenotazioni + "','" +  0 + "','" + 0 + "');"; //Initialize query
+			String q = "INSERT INTO volo(id, nomeCompagnia, dataPartenza, destinazione, partito, cancellato)\r\n" + 
+					"VALUES ('" + id + "','" + compagnia + "','"+ dataString + "', '" + destinazione + "','" +  0 + "','" + 0 + "');"; //Initialize query
 			String connectionURL = MainController.URL; //Connection URL
 	
 	        Connection con = DriverManager.getConnection(connectionURL, MainController.USER, MainController.PASSWORD);  //Create connection
@@ -92,6 +92,7 @@ public class VoloDAO {
 		String compagnia = newFlight.getCompagnia().getNome();
 		Date orarioDecollo = newFlight.getOrarioDecollo();
 		String id = oldFlight.getID();
+		String destinazione = newFlight.getDestinazione();
 		
 		//Convert date format to a usable format in the database
 		String dataString = dateTimeFormat.format(orarioDecollo);
@@ -99,7 +100,7 @@ public class VoloDAO {
 		try {
 			
 			Class.forName("com.mysql.jdbc.Driver");
-			String q = "UPDATE volo SET nomeCompagnia = '" + compagnia + "', dataPartenza = '" + dataString + "' WHERE id = '" + id + "'"; //Initialize query
+			String q = "UPDATE volo SET nomeCompagnia = '" + compagnia + "', dataPartenza = '" + dataString + "', destinazione = '" + destinazione + "' WHERE id = '" + id + "'"; //Initialize query
 			String connectionURL = MainController.URL; //Connection URL
 	
 	        Connection con = DriverManager.getConnection(connectionURL, MainController.USER, MainController.PASSWORD);  //Create connection
@@ -184,13 +185,20 @@ public class VoloDAO {
 				v.setCompagnia(new CompagniaAereaDAO().getCompagniaAereaByNome(rs.getString("nomeCompagnia"))); //Get the company by its name
 				v.setGate(new GateDAO().getGateByID(ID)); //Get the gate by the ID
 				v.setID(ID);
-				v.setNumeroPrenotazioni(rs.getInt("numeroPrenotazioni"));
+				v.setDestinazione(rs.getString("destinazione"));
 				v.setOrarioDecollo(rs.getTimestamp("dataPartenza"));
 				boolean partito = (rs.getInt("partito") != 0)? true : false; //Set partito to true if the database has a different value than 0, otherwise set it to false
 				v.setPartito(partito);
 				boolean cancellato = (rs.getInt("cancellato") != 0)? true : false; //Set cancellato to true if the database has a different value than 0, otherwise set it to false
 				v.setCancellato(cancellato);
 				v.setSlot(new SlotDAO().getSlotByID(ID)); //Get the slot by the ID
+				
+				//Calculate number of bookings
+				int sum = 0;
+				for(Coda c : v.getGate().getListaCode()) {
+					sum += c.getPersoneInCoda();
+				}
+				v.setNumeroPrenotazioni(sum);
 				
 				return v;
 				
@@ -234,13 +242,21 @@ public class VoloDAO {
 				v.setCompagnia(new CompagniaAereaDAO().getCompagniaAereaByNome(rs.getString("nomeCompagnia"))); //Get the company by its name
 				v.setGate(new GateDAO().getGateByID(rs.getString("id"))); //Get the gate by the ID
 				v.setID(rs.getString("id"));
-				v.setNumeroPrenotazioni(rs.getInt("numeroPrenotazioni"));
+				v.setDestinazione(rs.getString("destinazione"));
 				v.setOrarioDecollo(rs.getTimestamp("dataPartenza"));
 				boolean partito = (rs.getInt("partito") != 0)? true : false; //Set partito to true if the database has a different value than 0, otherwise set it to false
 				v.setPartito(partito);
 				boolean cancellato = (rs.getInt("cancellato") != 0)? true : false; //Set cancellato to true if the database has a different value than 0, otherwise set it to false
 				v.setCancellato(cancellato);
 				v.setSlot(new SlotDAO().getSlotByID(rs.getString("id"))); //Get the slot by the ID
+				
+				//Calculate number of bookings
+				int sum = 0;
+				for(Coda c : v.getGate().getListaCode()) {
+					sum += c.getPersoneInCoda();
+				}
+				v.setNumeroPrenotazioni(sum);
+				
 				list.add(v);
 				
 			}
@@ -281,7 +297,7 @@ public class VoloDAO {
 				v.setCompagnia(new CompagniaAereaDAO().getCompagniaAereaByNome(rs.getString("nomeCompagnia"))); //Get the company by its name
 				v.setGate(new GateDAO().getGateByID(rs.getString("id"))); //Get the gate by the ID
 				v.setID(rs.getString("id"));
-				v.setNumeroPrenotazioni(rs.getInt("numeroPrenotazioni"));
+				v.setDestinazione(rs.getString("destinazione"));
 				v.setOrarioDecollo(rs.getTimestamp("dataPartenza"));
 				boolean partito = (rs.getInt("partito") != 0)? true : false; //Set partito to true if the database has a different value than 0, otherwise set it to false
 				v.setPartito(partito);
@@ -292,6 +308,14 @@ public class VoloDAO {
 				if(partito) {
 					v.setInRitardo(v.checkIfFlightTookOffLate());
 				}
+				
+				//Calculate number of bookings
+				int sum = 0;
+				for(Coda c : v.getGate().getListaCode()) {
+					sum += c.getPersoneInCoda();
+				}
+				v.setNumeroPrenotazioni(sum);
+				
 				list.add(v);
 				
 			}
@@ -401,13 +425,21 @@ public class VoloDAO {
 				v.setCompagnia(new CompagniaAereaDAO().getCompagniaAereaByNome(rs.getString("nomeCompagnia"))); //Get the company by its name
 				v.setGate(new GateDAO().getGateByID(rs.getString("id"))); //Get the gate by the ID
 				v.setID(rs.getString("id"));
-				v.setNumeroPrenotazioni(rs.getInt("numeroPrenotazioni"));
+				v.setDestinazione(rs.getString("destinazione"));
 				v.setOrarioDecollo(rs.getTimestamp("dataPartenza"));
 				boolean partito = (rs.getInt("partito") != 0)? true : false; //Set partito to true if the database has a different value than 0, otherwise set it to false
 				v.setPartito(partito);
 				boolean cancellato = (rs.getInt("cancellato") != 0)? true : false; //Set cancellato to true if the database has a different value than 0, otherwise set it to false
 				v.setCancellato(cancellato);
 				v.setSlot(new SlotDAO().getSlotByID(rs.getString("id"))); //Get the slot by the ID
+				
+				//Calculate number of bookings
+				int sum = 0;
+				for(Coda c : v.getGate().getListaCode()) {
+					sum += c.getPersoneInCoda();
+				}
+				v.setNumeroPrenotazioni(sum);
+				
 				list.add(v);
 				
 			}
@@ -449,13 +481,21 @@ public class VoloDAO {
 				v.setCompagnia(new CompagniaAereaDAO().getCompagniaAereaByNome(rs.getString("nomeCompagnia"))); //Get the company by its name
 				v.setGate(new GateDAO().getGateByID(rs.getString("id"))); //Get the gate by the ID
 				v.setID(rs.getString("id"));
-				v.setNumeroPrenotazioni(rs.getInt("numeroPrenotazioni"));
+				v.setDestinazione(rs.getString("destinazione"));
 				v.setOrarioDecollo(rs.getTimestamp("dataPartenza"));
 				boolean partito = (rs.getInt("partito") != 0)? true : false; //Set partito to true if the database has a different value than 0, otherwise set it to false
 				v.setPartito(partito);
 				boolean cancellato = (rs.getInt("cancellato") != 0)? true : false; //Set cancellato to true if the database has a different value than 0, otherwise set it to false
 				v.setCancellato(cancellato);
 				v.setSlot(new SlotDAO().getSlotByID(rs.getString("id"))); //Get the slot by the ID
+				
+				//Calculate number of bookings
+				int sum = 0;
+				for(Coda c : v.getGate().getListaCode()) {
+					sum += c.getPersoneInCoda();
+				}
+				v.setNumeroPrenotazioni(sum);
+				
 				list.add(v);
 				
 			}

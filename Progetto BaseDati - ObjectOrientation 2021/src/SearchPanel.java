@@ -42,13 +42,14 @@ public class SearchPanel extends JPanel {
 	
 	//Research elements
 	private JTextField idField;
-	private JSpinner spinnerGate;
+	private JTextField destinationField;
+	private CustomSpinner spinnerGate;
 	private CustomCheckBox chckbxAirFrance;
 	private CustomCheckBox chckbxAlitalia;
 	private CustomCheckBox chckbxEasyJet;
 	private CustomCheckBox chckbxRyanair;
-	private JSpinner spinnerTimeLower;
-	private JSpinner spinnerTimeHigher;
+	private CustomSpinner spinnerTimeLower;
+	private CustomSpinner spinnerTimeHigher;
 	private CustomCheckBox chckbxCancelled;
 	private CustomCheckBox chckbxDelayed;
 	private CustomCheckBox chckbxInTime;
@@ -73,7 +74,7 @@ public class SearchPanel extends JPanel {
 		idField.setHorizontalAlignment(JTextField.TRAILING);
 		idField.setForeground(MainController.foregroundColorThree);
 		idField.setName("idField"); //Set name
-		idField.setBounds(40, 70, 122, 20); //Set bounds
+		idField.setBounds(38, 53, 122, 20); //Set bounds
 		//Limit text length to 8
 		idField.addKeyListener(new KeyAdapter() {
 	        //When a key is typed
@@ -85,11 +86,25 @@ public class SearchPanel extends JPanel {
 	    });
 		add(idField); //Add text field
 		
-		spinnerGate = new JSpinner(); //Create spinner
+		destinationField = new JTextField(); //Create text field
+		destinationField.setBackground(MainController.backgroundColorOne);
+		destinationField.setBorder(new LineBorder(MainController.foregroundColorThree, 2));
+		destinationField.setFont(new Font(MainController.fontOne.getFontName(), Font.PLAIN, 12));
+		destinationField.setHorizontalAlignment(JTextField.TRAILING);
+		destinationField.setForeground(MainController.foregroundColorThree);
+		destinationField.setName("destinationField"); //Set name
+		destinationField.setBounds(115, 98, 122, 20); //Set bounds
+		add(destinationField); //Add text field
+		
+		spinnerGate = new CustomSpinner(MainController.backgroundColorOne, mainController.getDifferentAlphaColor(MainController.foregroundColorThree, 64), 
+				MainController.foregroundColorThree, 2, true, MainController.foregroundColorThree, 1); //Create spinner
 		spinnerGate.setName("spinnerGate"); //Set name
-		spinnerGate.setModel(new SpinnerNumberModel(new Integer(1), new Integer(1), null, new Integer(1))); //Set spinner name
+		spinnerGate.setModel(new SpinnerNumberModel(new Integer(1), new Integer(1), new Integer(12), new Integer(1))); //Set spinner name
 		spinnerGate.setEnabled(false); //Set enabled to false (not activated)
-		spinnerGate.setBounds(73, 115, 49, 24); //Set bounds
+		spinnerGate.setBounds(73, 145, 49, 24); //Set bounds
+		spinnerGate.setEditorBackgroundColor(MainController.backgroundColorOne);
+		spinnerGate.setEditorForegroundColor(MainController.foregroundColorThree);
+		spinnerGate.setEditorFont(new Font(MainController.fontOne.getFontName(), Font.PLAIN, 12));
 		add(spinnerGate); //Add spinner
 		
 		CustomCheckBox chckbxGate = new CustomCheckBox("Gate", null, 14, MainController.foregroundColorThree, false, null, 0); //Create check box
@@ -100,45 +115,53 @@ public class SearchPanel extends JPanel {
 				spinnerGate.setEnabled(!chckbxGate.isSelected()); //Set the spinner gate as enabled (not(!) because this happens before the action listener inside the CustomCheckBox gets called)
 			}
 		});
-		chckbxGate.setBounds(10, 116, 60, 23); //Set bounds
+		chckbxGate.setBounds(10, 145, 60, 23); //Set bounds
 		add(chckbxGate); //Add the check box
 		
 		chckbxAirFrance = new CustomCheckBox("AirFrance", null, 14, MainController.foregroundColorThree, false, null, 0); //Create check box
 		chckbxAirFrance.setName("chckbxAirFrance"); //Set name
 		chckbxAirFrance.setSelected(true); //Set selected to true
-		chckbxAirFrance.setBounds(10, 240, 120, 23); //Set bounds
+		chckbxAirFrance.setBounds(10, 255, 120, 23); //Set bounds
 		add(chckbxAirFrance); //Add check box
 		
 		chckbxAlitalia = new CustomCheckBox("Alitalia", null, 14, MainController.foregroundColorThree, false, null, 0); //Create check box
 		chckbxAlitalia.setName("chckbxAlitalia"); //Set name
 		chckbxAlitalia.setSelected(true); //Set selected to true
-		chckbxAlitalia.setBounds(10, 262, 120, 23); //Set bounds
+		chckbxAlitalia.setBounds(10, 277, 120, 23); //Set bounds
 		add(chckbxAlitalia); //Add check box
 		
 		chckbxEasyJet = new CustomCheckBox("EasyJet", null, 14, MainController.foregroundColorThree, false, null, 0); //Create check box
 		chckbxEasyJet.setName("chckbxEasyJet"); //Set name
 		chckbxEasyJet.setSelected(true); //Set selected to true
-		chckbxEasyJet.setBounds(10, 284, 120, 23); //Set bounds
+		chckbxEasyJet.setBounds(10, 299, 120, 23); //Set bounds
 		add(chckbxEasyJet); //Add check box
 		
 		chckbxRyanair = new CustomCheckBox("Ryanair", null, 14, MainController.foregroundColorThree, false, null, 0); //Create check box
 		chckbxRyanair.setName("chckbxRyanair"); //Set name
 		chckbxRyanair.setSelected(true); //Set selected to true
-		chckbxRyanair.setBounds(10, 306, 120, 23); //Set bounds
+		chckbxRyanair.setBounds(10, 321, 120, 23); //Set bounds
 		add(chckbxRyanair); //Add check box
 		
-		spinnerTimeLower = new JSpinner(); //Create spinner
+		spinnerTimeLower = new CustomSpinner(MainController.backgroundColorOne, mainController.getDifferentAlphaColor(MainController.foregroundColorThree, 64), 
+				MainController.foregroundColorThree, 2, true, MainController.foregroundColorThree, 1); //Create spinner
 		spinnerTimeLower.setName("spinnerTimeLower"); //Set name
 		spinnerTimeLower.setEnabled(false); //Set enabled to false (not activated)
-		spinnerTimeLower.setBounds(37, 167, 104, 20); //Set bounds
+		spinnerTimeLower.setBounds(37, 192, 104, 24); //Set bounds
 		spinnerTimeLower.setModel(new SpinnerDateModel(new Date(1612134000000L), null, null, Calendar.DAY_OF_YEAR)); //Set spinner model
+		spinnerTimeLower.setEditorBackgroundColor(MainController.backgroundColorOne);
+		spinnerTimeLower.setEditorForegroundColor(MainController.foregroundColorThree);
+		spinnerTimeLower.setEditorFont(new Font(MainController.fontOne.getFontName(), Font.PLAIN, 10));
 		add(spinnerTimeLower); //Add spinner
 		
-		spinnerTimeHigher = new JSpinner(); //Create spinner
+		spinnerTimeHigher = new CustomSpinner(MainController.backgroundColorOne, mainController.getDifferentAlphaColor(MainController.foregroundColorThree, 64), 
+				MainController.foregroundColorThree, 2, true, MainController.foregroundColorThree, 1); //Create spinner
 		spinnerTimeHigher.setName("spinnerTimeHigher"); //Set name
 		spinnerTimeHigher.setEnabled(false); //Set enabled to false (not activated)
-		spinnerTimeHigher.setBounds(167, 167, 104, 20); //Set bounds
+		spinnerTimeHigher.setBounds(167, 192, 104, 24); //Set bounds
 		spinnerTimeHigher.setModel(new SpinnerDateModel(new Date(1612134000000L), null, null, Calendar.DAY_OF_YEAR)); //Set spinner model
+		spinnerTimeHigher.setEditorBackgroundColor(MainController.backgroundColorOne);
+		spinnerTimeHigher.setEditorForegroundColor(MainController.foregroundColorThree);
+		spinnerTimeHigher.setEditorFont(new Font(MainController.fontOne.getFontName(), Font.PLAIN, 10));
 		add(spinnerTimeHigher); //Add spinner
 		
 		CustomCheckBox chckbxTime = new CustomCheckBox("", null, 14, MainController.foregroundColorThree, false, null, 0); //Create check box
@@ -151,12 +174,10 @@ public class SearchPanel extends JPanel {
 				spinnerTimeHigher.setEnabled(selected); ////Set the spinnerTimeLower as enabled
 			}
 		});
-		chckbxTime.setBounds(10, 167, 21, 23); //Set bounds
+		chckbxTime.setBounds(10, 192, 21, 23); //Set bounds
 		add(chckbxTime); //Add check box
 		
-		CustomButton buttonSearch = new CustomButton("Cerca", null, new Color(MainController.foregroundColorThree.getRed(), 
-				MainController.foregroundColorThree.getGreen(), 
-				MainController.foregroundColorThree.getBlue(), 64), 
+		CustomButton buttonSearch = new CustomButton("Cerca", null, mainController.getDifferentAlphaColor(MainController.foregroundColorThree, 64), 
 				MainController.foregroundColorThree, 21, true, MainController.foregroundColorThree, 2); //Create search button
 		buttonSearch.addMouseListener(new MouseAdapter() {
 			public void mouseEntered(MouseEvent e) {
@@ -174,19 +195,19 @@ public class SearchPanel extends JPanel {
 		chckbxCancelled = new CustomCheckBox("Voli cancellati", null, 13, MainController.foregroundColorThree, false, null, 0); //Create check box
 		chckbxCancelled.setName("chckbxCancelled"); //Set name
 		chckbxCancelled.setSelected(true); //Set selected to true
-		chckbxCancelled.setBounds(132, 240, 145, 21); //Set bounds
+		chckbxCancelled.setBounds(132, 255, 145, 21); //Set bounds
 		add(chckbxCancelled); //Add check box to the archiveOnlyPanel
 		
 		chckbxDelayed = new CustomCheckBox("Voli partiti in ritardo", null, 12, MainController.foregroundColorThree, false, null, 0); //Create check box
 		chckbxDelayed.setName("chckbxDelayed"); //Set name
 		chckbxDelayed.setSelected(true); //Set selected to true
-		chckbxDelayed.setBounds(132, 262, 145, 21); //Set bounds
+		chckbxDelayed.setBounds(132, 277, 145, 21); //Set bounds
 		add(chckbxDelayed); //Add check box to the archiveOnlyPanel
 		
 		chckbxInTime = new CustomCheckBox("Voli partiti in orario", null, 13, MainController.foregroundColorThree, false, null, 0); //Create check box
 		chckbxInTime.setName("chckbxInTime"); //Set name
 		chckbxInTime.setSelected(true); //Set selected to true
-		chckbxInTime.setBounds(132, 284, 145, 21); //Set bounds
+		chckbxInTime.setBounds(132, 299, 145, 21); //Set bounds
 		add(chckbxInTime); //Add check box to the archiveOnlyPanel
 		
 		toggleArchiveOnlyCheckBoxes(mainFrame.isLookingAtArchive()); //Check (based on mainFrame's lookingAtArchive booleans) if the archive only check boxes have to be shown
@@ -209,7 +230,7 @@ public class SearchPanel extends JPanel {
 		//AA
 	    g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-	   //Text AA
+	    //Text AA
 	    g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 	    
 	    //Draw background
@@ -222,22 +243,23 @@ public class SearchPanel extends JPanel {
 	    g2d.setFont(new Font(MainController.fontOne.getFontName(), Font.BOLD, 24));
 	    String s = "Ricerca voli";
 	    int sLength = g2d.getFontMetrics().stringWidth(s);
-	    g2d.drawString(s, (getWidth()/2) - (sLength/2), 40);
+	    g2d.drawString(s, (getWidth()/2) - (sLength/2), 28);
 	    
 	    //Draw time separator
 	    g2d.setStroke(new BasicStroke(2));
-		g2d.drawLine(148, 177, 159, 177);
+		g2d.drawLine(148, 202, 159, 202);
 	    
 	    //Draw labels
 	    g2d.setFont(new Font(MainController.fontOne.getFontName(), Font.BOLD, 14));
-	    g2d.drawString("ID:", 15, 85);
+	    g2d.drawString("ID", 15, 68);
+	    g2d.drawString("Destinazione", 15, 113);
 	    g2d.setFont(new Font(MainController.fontOne.getFontName(), Font.BOLD, 18));
-	    g2d.drawString("Compagnie", 15, 228);
+	    g2d.drawString("Compagnie", 15, 250);
     	if(mainFrame.isLookingAtArchive()) {
-    		g2d.drawString("Includi", 135, 228);
+    		g2d.drawString("Includi", 135, 250);
     		//Draw line separating archive only check boxes
     		g2d.setStroke(new BasicStroke(2));
-    		g2d.drawLine(125, 212, 125, 328);
+    		g2d.drawLine(125, 237, 125, 345);
     	}
 	    
 	}
@@ -249,6 +271,7 @@ public class SearchPanel extends JPanel {
 		
 		//Gather data
 		String idFieldString = idField.getText();
+		String destinationFieldString = destinationField.getText();
 		int gateNumber = (spinnerGate.isEnabled())? (int)spinnerGate.getValue() : -1; //If the spinner is enabled get it's value, otherwise set gateNumber as -1
 		Date dateStart = (spinnerTimeLower.isEnabled())? (Date)spinnerTimeLower.getValue() : null; //If the spinner is enabled get it's value, otherwise set dateStart as null
 		Date dateEnd = (spinnerTimeHigher.isEnabled())? (Date)spinnerTimeHigher.getValue() : null; //If the spinner is enabled get it's value, otherwise set dateEnd as null
@@ -261,7 +284,7 @@ public class SearchPanel extends JPanel {
 		boolean inTime = chckbxInTime.isSelected();
 		
 		//Update flight list in the main frame
-		mainFrame.setFlightList(mainFrame.searchFlights(idFieldString, gateNumber, dateStart, dateEnd, airFrance, alitalia, easyJet, ryanair, cancelled, delayed, inTime));
+		mainFrame.setFlightList(mainFrame.searchFlights(idFieldString, destinationFieldString, gateNumber, dateStart, dateEnd, airFrance, alitalia, easyJet, ryanair, cancelled, delayed, inTime));
 		//Update the panel
 		mainFrame.redrawCheckFlightsPanel();
 		
