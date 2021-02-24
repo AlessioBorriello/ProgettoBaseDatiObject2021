@@ -353,9 +353,6 @@ public class VoloDAO {
 			con.close(); //Close connection
 			st.close(); //Close statement
 			
-			//Update flight count
-			new CompagniaAereaDAO().decreaseCompagniaAereaFlightCount(mainFrame, v.getCompagnia().getNome());
-			
 			return true; //Operation successful
 			
 		}catch(Exception e) { //Error catching

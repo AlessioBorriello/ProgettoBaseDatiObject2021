@@ -329,6 +329,10 @@ public class MainFrame extends JFrame {
 	 */
 	public boolean setContentPanelToEditFlightPanel(Volo flightToUpdate) {
 		
+		if(flightToUpdate == null) {
+			return false;
+		}
+		
 		//Check if the current panel is already in place in the content panel (They have the same class name)
 		if(currentPanel != null && currentPanel.getClass().getName().equals("EditFlightPanel")) {
 			System.out.println("Already on this panel!");
@@ -361,6 +365,10 @@ public class MainFrame extends JFrame {
 	 * @return If the panel got changed
 	 */
 	public boolean setContentPanelToViewFlightInfoPanel(Volo volo) {
+		
+		if(volo == null) {
+			return false;
+		}
 		
 		//Check if the current panel is already in place in the content panel (They have the same class name)
 		if(currentPanel != null && currentPanel.getClass().getName().equals("ViewFlightInfoPanel")) {
@@ -684,6 +692,15 @@ public class MainFrame extends JFrame {
 	public ArrayList<CompagniaAerea> getListaCompagnie() {
 		return listaCompagnie;
 	}
+	
+}
+
+enum hoveringAnimationStatus {
+	
+	selected, //Mouse hovering on panel, animation finished
+	selecting, //Mouse hovering on panel, animation in progress
+	unselected, //Mouse not hovering on panel, animation finished
+	unselecting //Mouse not hovering on panel, animation in progress
 	
 }
 

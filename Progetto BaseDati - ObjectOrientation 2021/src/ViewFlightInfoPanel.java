@@ -165,7 +165,7 @@ public class ViewFlightInfoPanel extends JPanel {
 	 */
 	public void setFlightAsTakenOff() {
 		
-		SetTakeOffTimeFrame frame = new SetTakeOffTimeFrame(mainFrame, volo.getSlot().getInizioTempoStimato()); //Create a popup panel
+		SetTakeOffTimeFrame frame = new SetTakeOffTimeFrame(mainFrame, volo.getOrarioDecollo()); //Create a pop up panel
 		frame.setVisible(true); //Make it visible
 		Date data = frame.getDate(); //Get the date taken from the frame
 		

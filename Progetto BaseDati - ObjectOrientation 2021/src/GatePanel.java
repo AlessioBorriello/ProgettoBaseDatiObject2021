@@ -1,92 +1,60 @@
 import java.awt.BasicStroke;
 import java.awt.Color;
-import java.awt.Cursor;
 import java.awt.Font;
+import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import javax.swing.JButton;
+import javax.swing.JPanel;
 
-public class CustomButton extends JButton{
+public class GatePanel extends JPanel{
 	
-	private String s;
+	private int gateNumber;
+	private MainController mainController;
+	private MainFrame mainFrame;
 	
-	private Color backgroundColor;
+	private ArrayList<Volo> flightList; //Flight with this gate
 	
-	private Color hoveringColor;
-	private int hoveringAlpha;
-	
-	private Color fontColor;
-	private int fontSize;
-	private int finalFontSize;
-	
-	private boolean border = false;
 	private Color borderColor;
-	private int borderThickness;
 	
 	//Animation
 	private hoveringAnimationStatus animationStatus = hoveringAnimationStatus.unselected;
 	private int animationHeight = 0;
+	private Color hoveringColor = new Color(MainController.foregroundColorThree.getRed(), MainController.foregroundColorThree.getGreen(), MainController.foregroundColorThree.getBlue(), 42);
+	private int hoveringAlpha = hoveringColor.getAlpha();
 	private int animationAlpha = 0;
-	private float animationFontSize = 0;
 	
-	public CustomButton(String s, Color backgroundColor, Color hoveringColor, Color fontColor, int fontSize, boolean border, Color borderColor, int borderThickness) {
+	public GatePanel(MainController mainController, MainFrame mainFrame, int gateNumber) {
 		
-		this.s = s;
+		this.mainController = mainController;
+		this.mainFrame = mainFrame;
+		this.gateNumber = gateNumber;
 		
-		this.backgroundColor = backgroundColor;
+		flightList = (new VoloDAO().getFlightsByGate(gateNumber));
 		
-		this.hoveringColor = hoveringColor;
-		hoveringAlpha =  hoveringColor.getAlpha();
-		
-		this.fontColor = fontColor;
-		this.fontSize = fontSize;
-		this.finalFontSize = (int)(fontSize * 1.2);
-		
-		this.border = border;
-		this.borderColor = borderColor;
-		this.borderThickness = borderThickness;
-		
-		setFocusable(false);
-		setContentAreaFilled(false);
-		setBorder(null);
-		setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		
-	}
-	
-	public void paint(Graphics g) {
-		
-		Graphics2D g2d = (Graphics2D)g;
-		
-		//Background
-		if(backgroundColor != null) {
-			g2d.setColor(backgroundColor);
-			g2d.fillRect(0, 0, getWidth(), getHeight());
+		//There are no flight with this gate
+		if(flightList.size() == 0) {
+			borderColor = MainController.flightCancelledColor;
+		}else {
+			borderColor = MainController.foregroundColorThree;
 		}
 		
-		//String
-		g2d.setColor(fontColor);
-		g2d.setFont(new Font(MainController.fontOne.getFontName(), Font.BOLD, fontSize + (int)animationFontSize));
-		int sLenght = g2d.getFontMetrics().stringWidth(s);
-		g2d.drawString(s, (getWidth()/2) - (sLenght/2), (getHeight()/2) + ((fontSize + animationFontSize)/2) - 4);
-		
-		//Hovering animation rectangle
-		animationAlpha = (animationAlpha > 255)? 255 : animationAlpha; //Clamp max
-		animationAlpha = (animationAlpha < 0)? 0 : animationAlpha; //Clamp minimum
-		g2d.setColor(new Color(hoveringColor.getRed(), hoveringColor.getGreen(), hoveringColor.getBlue(), animationAlpha));
-		g2d.fillRect(0, (getHeight()/2) - (animationHeight/2), getWidth(), animationHeight);
-		
-		//Border
-		if(border) {
-			
-			g2d.setColor(borderColor);
-			g2d.setStroke(new BasicStroke(borderThickness));
-			g2d.drawRect(0, 0, getWidth()-1, getHeight()-1);
-			
-		}
+		addMouseListener(new MouseAdapter() {
+			//When mouse clicked
+			public void mouseClicked(MouseEvent e) {
+				if(flightList.size() > 0) {
+					mainFrame.setContentPanelToCheckGatePanel(flightList, gateNumber);
+				}else {
+					mainFrame.createNotificationFrame("Non ci sono voli che utilizzano questo gate!");
+				}
+			}
+		});
 		
 	}
 	
@@ -107,6 +75,7 @@ public class CustomButton extends JButton{
 						heightAmount = 1;
 					}
 					animationHeight += heightAmount; //Increase animation height
+					animationHeight = (animationHeight > getHeight())? getHeight() : animationHeight; //Clamp to height max
 					
 					//Animate alpha
 					int alphaAmount = hoveringAlpha/frames; //How much to increase alpha each pass
@@ -116,14 +85,7 @@ public class CustomButton extends JButton{
 					animationAlpha = (animationAlpha > 255)? 255 : animationAlpha; //Clamp to 255 max
 					animationAlpha += alphaAmount;
 					
-					//Animate font size
-					float fontSizeAmount = (float)(finalFontSize - fontSize)/frames; //How much to increase font size each pass
-					if(fontSizeAmount < .1f) {
-						fontSizeAmount = .1f;
-					}
-					animationFontSize += fontSizeAmount; //Increase animation font size
-					
-					repaint();
+					mainFrame.repaint();
 					
 					//If animation is interrupted (it's status is no longer selecting)
 					if(animationStatus != hoveringAnimationStatus.selecting) {
@@ -133,7 +95,6 @@ public class CustomButton extends JButton{
 					}else if(animationHeight >= getHeight()) { //If the animation height gets to the button height
 						
 						animationHeight = getHeight(); //Set the animation height to the button height
-						animationFontSize = (finalFontSize - fontSize); //Set animation font size to it's final value
 						animationStatus = hoveringAnimationStatus.selected; //Set status to extended status (animation complete)
 						this.cancel(); //Stop animation
 						
@@ -177,14 +138,7 @@ public class CustomButton extends JButton{
 					animationAlpha = (animationAlpha < 0)? 0 : animationAlpha; //Clamp to 0 minimum
 					animationAlpha -= alphaAmount;
 					
-					//Animate font size
-					float fontSizeAmount = (float)(finalFontSize - fontSize)/frames; //How much to decrease font size each pass
-					if(fontSizeAmount < .1f) {
-						fontSizeAmount = .1f;
-					}
-					animationFontSize -= fontSizeAmount; //Decrease animation font size
-					
-					repaint();
+					mainFrame.repaint();
 					
 					//If animation is interrupted (it's status is no longer selecting)
 					if(animationStatus != hoveringAnimationStatus.unselecting) {
@@ -194,7 +148,6 @@ public class CustomButton extends JButton{
 					}else if(animationHeight <= 0) { //If the animation height gets to 0
 						
 						animationHeight = 0; //Set the animation height to 0
-						animationFontSize = 0; //Set animation font size to 0
 						animationStatus = hoveringAnimationStatus.unselected; //Set status to extended status (animation complete)
 						this.cancel(); //Stop animation
 						
@@ -211,9 +164,44 @@ public class CustomButton extends JButton{
 		}
 		
 	}
+	
+	public void paintComponent(Graphics g) {
+		
+		Graphics2D g2d = (Graphics2D)g;
+		int roundCornerAmount = 45;
+		
+		//AA
+	    g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-	public void setButtonBackgroundColor(Color c) {
-		this.backgroundColor = c;
+	    //Text AA
+	    g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+	    
+		//Draw background
+	    GradientPaint gPaint = new GradientPaint(getWidth()/2, 0, MainController.backgroundColorTwo, getWidth()/2, getHeight() + 200, MainController.backgroundColorThree);
+	    g2d.setPaint(gPaint);
+	    g2d.fillRoundRect(0, 0, getWidth(), getHeight(), roundCornerAmount, roundCornerAmount);
+	    
+	    //Draw border effect
+	    g2d.setColor(borderColor);
+	    g2d.setStroke(new BasicStroke(3));
+	    g2d.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, roundCornerAmount, roundCornerAmount);
+		
+		//Draw gate number
+		g2d.setFont(new Font(MainController.fontOne.getFontName(), Font.BOLD, 32));
+	    String s = "G" + String.valueOf(gateNumber);
+	    g2d.drawString(s, (getWidth()/2) - (g2d.getFontMetrics().stringWidth(s)/2), (getHeight()/2)); //Draw string in the middle of the panel
+	    
+	    //Draw flights amount
+	    g2d.setFont(new Font(MainController.fontOne.getFontName(), Font.BOLD, 16));
+	    s = "Voli: " + flightList.size();
+	    g2d.drawString(s, (getWidth()/2) - (g2d.getFontMetrics().stringWidth(s)/2), (getHeight()/2) + 30);
+	    
+	    //Hovering animation rectangle
+	    animationAlpha = (animationAlpha > 255)? 255 : animationAlpha; //Clamp max
+		animationAlpha = (animationAlpha < 0)? 0 : animationAlpha; //Clamp minimum
+		g2d.setColor(new Color(hoveringColor.getRed(), hoveringColor.getGreen(), hoveringColor.getBlue(), animationAlpha));
+		g2d.fillRoundRect(0, (getHeight()/2) - (animationHeight/2), getWidth(), animationHeight, roundCornerAmount, roundCornerAmount);
+		
 	}
-
+	
 }

@@ -44,7 +44,7 @@ public class FlightPreviewPanel extends JPanel {
 	private Image companyLogoImage;
 	
 	//Animation
-	private flightPreviewAnimationStatus animationStatus = flightPreviewAnimationStatus.unselected;
+	private hoveringAnimationStatus animationStatus = hoveringAnimationStatus.unselected;
 	private int animationHeight = 0;
 	private Color hoveringColor = new Color(MainController.foregroundColorThree.getRed(), MainController.foregroundColorThree.getGreen(), MainController.foregroundColorThree.getBlue(), 42);
 	private int hoveringAlpha = hoveringColor.getAlpha();
@@ -191,9 +191,9 @@ public class FlightPreviewPanel extends JPanel {
 	public void selectAnimation(int frames) {
 
 		//If not already selected
-		if(animationStatus != flightPreviewAnimationStatus.selected) {
+		if(animationStatus != hoveringAnimationStatus.selected) {
 			
-			animationStatus = flightPreviewAnimationStatus.selecting;
+			animationStatus = hoveringAnimationStatus.selecting;
 			class animationSelecting extends TimerTask { //Create animation class
 				
 				//Override run method
@@ -218,14 +218,14 @@ public class FlightPreviewPanel extends JPanel {
 					mainFrame.repaint();
 					
 					//If animation is interrupted (it's status is no longer selecting)
-					if(animationStatus != flightPreviewAnimationStatus.selecting) {
+					if(animationStatus != hoveringAnimationStatus.selecting) {
 						
 						this.cancel(); //Stop animation
 						
 					}else if(animationHeight >= getHeight()) { //If the animation height gets to the button height
 						
 						animationHeight = getHeight(); //Set the animation height to the button height
-						animationStatus = flightPreviewAnimationStatus.selected; //Set status to extended status (animation complete)
+						animationStatus = hoveringAnimationStatus.selected; //Set status to extended status (animation complete)
 						this.cancel(); //Stop animation
 						
 					}
@@ -245,9 +245,9 @@ public class FlightPreviewPanel extends JPanel {
 	public void unselectAnimation(int frames) {
 		
 		//If not already selected
-		if(animationStatus != flightPreviewAnimationStatus.unselected) {
+		if(animationStatus != hoveringAnimationStatus.unselected) {
 			
-			animationStatus = flightPreviewAnimationStatus.unselecting;
+			animationStatus = hoveringAnimationStatus.unselecting;
 			class animationUnselecting extends TimerTask { //Create animation class
 				
 				//Override run method
@@ -271,14 +271,14 @@ public class FlightPreviewPanel extends JPanel {
 					mainFrame.repaint();
 					
 					//If animation is interrupted (it's status is no longer selecting)
-					if(animationStatus != flightPreviewAnimationStatus.unselecting) {
+					if(animationStatus != hoveringAnimationStatus.unselecting) {
 						
 						this.cancel(); //Stop animation
 						
 					}else if(animationHeight <= 0) { //If the animation height gets to 0
 						
 						animationHeight = 0; //Set the animation height to 0
-						animationStatus = flightPreviewAnimationStatus.unselected; //Set status to extended status (animation complete)
+						animationStatus = hoveringAnimationStatus.unselected; //Set status to extended status (animation complete)
 						this.cancel(); //Stop animation
 						
 					}
@@ -296,13 +296,4 @@ public class FlightPreviewPanel extends JPanel {
 	}
 
 
-}
-
-enum flightPreviewAnimationStatus {
-	
-	selected, //Mouse hovering on panel, animation finished
-	selecting, //Mouse hovering on panel, animation in progress
-	unselected, //Mouse not hovering on panel, animation finished
-	unselecting //Mouse not hovering on panel, animation in progress
-	
 }

@@ -60,10 +60,10 @@ public class MainController {
 	static Color highlightColorThree;
 	
 	//Companies color
-	static Color airfranceColor = Color.red;
-	static Color alitaliaColor = Color.green;
-	static Color easyjetColor = Color.orange;
-	static Color ryanairColor = Color.blue;
+	static Color airfranceColor = new Color(180, 0, 0);
+	static Color alitaliaColor = new Color(0, 180, 0);
+	static Color easyjetColor = new Color(255, 140, 0);
+	static Color ryanairColor = new Color(0, 0, 180);
 	
 	//Flight statuses color
 	static Color flightProgrammedColor;

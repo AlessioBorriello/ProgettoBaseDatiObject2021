@@ -12,8 +12,11 @@ import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.geom.AffineTransform;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
@@ -31,8 +34,8 @@ public class StatisticsPanel extends JPanel {
 	private MainFrame mainFrame; //Main panel
 	private MainController mainController; //Main controller
 	
-	private JPanel gatesGridPanel; //Grid panel instance
 	private int gatesNumber = 12; //How many gate there are in the airport
+	private int flightTotal = 0;
 	
 	private class Pie {
 		
@@ -74,69 +77,28 @@ public class StatisticsPanel extends JPanel {
 		mainFrame = mf; //Link main frame
 		mainController = c; //Link main controller
 		
+		//Get flight's number
+		for(int i = 0; i < 4; i++) {
+			flightTotal += mainFrame.getListaCompagnie().get(i).getNumeroVoli();
+		}
+		
 		//setBounds(bounds);
 		setBounds(72, 2, 1124, 666); //Debug to show in the design tab,  this row should be replaced with the one above
-		setLayout(null); //Set layout
+		setLayout(null);
 		
-		JPanel panelGeneralInfo = (new JPanel() {
-			
-			public void paintComponent(Graphics g) {
-				
-				super.paintComponent(g);
-				
-				Graphics2D g2d = (Graphics2D)g; //Cast to Graphics2dD
-				
-				//AA
-			    g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-			   //Text AA
-			    g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-				
-				ArrayList<Pie> pies = new ArrayList<Pie>();
-				
-				pies.add(new Pie("AirFrance", (new CompagniaAereaDAO().getCompagniaAereaByNome("AirFrance").getNumeroVoli()), Color.red));
-				pies.add(new Pie("Alitalia", (new CompagniaAereaDAO().getCompagniaAereaByNome("Alitalia").getNumeroVoli()), Color.green));
-				pies.add(new Pie("EasyJet", (new CompagniaAereaDAO().getCompagniaAereaByNome("EasyJet")).getNumeroVoli(), Color.orange));
-				pies.add(new Pie("RyanAir", (new CompagniaAereaDAO().getCompagniaAereaByNome("Ryanair")).getNumeroVoli(), Color.blue));
-				
-				drawPhiChart(g2d, 15, getWidth()/2 + 100, getHeight()/2, 150, 75, pies, true, true, 25, true, new Font("Serif", Font.BOLD, 15));
-
-			}
-			
-		});
-		panelGeneralInfo.setBounds(10, 11, 1104, 202);
-		add(panelGeneralInfo);
-		panelGeneralInfo.setLayout(null);
-		
-		JScrollPane scrollPanel = new JScrollPane();
-		scrollPanel.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-		scrollPanel.getVerticalScrollBar().setUnitIncrement(14); //Set scroll bar speed
-		scrollPanel.setBounds(10, 224, 1104, 431);
-		add(scrollPanel);
-		
-		gatesGridPanel = new JPanel();
-		scrollPanel.setViewportView(gatesGridPanel);
-		populateGatesGrid(gatesNumber, 5, 15, 15, 55, 45);
-		
-		JLabel lblGates = new JLabel("Gates:");
-		lblGates.setBounds(55, 12, 120, 24);
-		lblGates.setFont(new Font("Tahoma", Font.BOLD, 28));
-		gatesGridPanel.add(lblGates);
+		populateGatesGrid(gatesNumber, 6, 15, 15, 125, (getBounds().height/2) - 10);
 		
 	}
 
 	public void populateGatesGrid(int gatesNumber, int columns, int hgap, int vgap, int xStartOffset, int yStartOffset) {
-		
-		//Clear grid before anything
-		gatesGridPanel.removeAll();
 		
 		//Position in the grid
 		int xPosition = 0;
 		int yPosition = 0;
 		
 		//Width and height of the panels
-		int width = 180;
-		int height = 180;
+		int width = 150;
+		int height = 150;
 		
 		int panelNumber = gatesNumber; //Get the number of panels to create
 		
@@ -147,58 +109,23 @@ public class StatisticsPanel extends JPanel {
 			yPosition = i / columns;
 			
 			int gateIndex = i + 1;
-			JPanel p = (new JPanel() {
-				
-				public void paintComponent(Graphics g) {
-					
-					Graphics2D g2d = (Graphics2D)g;
-					
-					g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON); //Text AA
-				    
-				    //Set color
-				    g2d.setColor(Color.black);
-					
-				    //Draw border
-					g2d.setStroke(new BasicStroke(6));
-					g2d.drawRect(0, 0, width, height);
-					
-					//Draw gate number
-					g2d.setFont(new Font("Tahoma", Font.BOLD, 32));
-				    String s = "G" + String.valueOf(gateIndex);
-				    g2d.drawString(s, (getWidth()/2) - (g2d.getFontMetrics().stringWidth(s)/2), (getHeight()/2) + 16); //Draw string in the middle of the panel
-					
-				}
-				
-			});
-			
+			GatePanel p = new GatePanel(mainController, mainFrame, gateIndex);
 			//Position the new panel
 			p.setBounds(new Rectangle(xStartOffset + (width * xPosition) + (hgap * xPosition), yStartOffset + (height * yPosition) + (vgap * yPosition), width, height));
 			p.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 			p.addMouseListener(new MouseAdapter() {
-				//When mouse clicked
-				public void mouseClicked(MouseEvent e) {
-					ArrayList<Volo> flightList = (new VoloDAO().getFlightsByGate(gateIndex)); //Get all the flights with that gate
-					mainFrame.setContentPanelToCheckGatePanel(flightList, gateIndex);
+				//Mouse entered
+				public void mouseEntered(MouseEvent e) {
+					p.selectAnimation(12);
+				}
+				//Mouse exited
+				public void mouseExited(MouseEvent e) {
+					p.unselectAnimation(12);
 				}
 			});
-			gatesGridPanel.add(p); //Add panel to the grid panel
+			add(p); //Add panel to the grid panel
 			
 		}
-		
-		//Calculate new height of the grid panel (after the panels have been added)
-		int newGridPanelHeight = yStartOffset + (height * (yPosition + 1)) + (vgap * (yPosition + 1));
-		
-		//Create group layout
-		GroupLayout gl_gridPanel = new GroupLayout(gatesGridPanel);
-		gl_gridPanel.setHorizontalGroup(
-			gl_gridPanel.createParallelGroup(Alignment.LEADING)
-				.addGap(0, getBounds().width, Short.MAX_VALUE)
-		);
-		gl_gridPanel.setVerticalGroup(
-			gl_gridPanel.createParallelGroup(Alignment.LEADING)
-				.addGap(0, newGridPanelHeight, Short.MAX_VALUE)
-		);
-		gatesGridPanel.setLayout(gl_gridPanel); //Set layout to the grid panel
 	
 	}
 
@@ -217,11 +144,11 @@ public class StatisticsPanel extends JPanel {
 	 * @param drawNames If the pie should show the names of the singular pie slice
 	 * @param f Font to draw the names with
 	 */
-	public void drawPhiChart(Graphics2D g2d, int angleOffset, int centerX, int centerY, int width, int height,  ArrayList<Pie> pies, boolean drawOutline, boolean draw3D, int depth, boolean drawNames, Font f) {
+	public void drawPieChart(Graphics2D g2d, int angleOffset, int centerX, int centerY, int width, int height,  ArrayList<Pie> pies, boolean drawOutline, boolean draw3D, int depth, boolean drawNames, Font f) {
 		
 		angleOffset %= 360; //Modulate angleOffset to 360
 		angleOffset = (angleOffset < 0)? (360 + angleOffset) : angleOffset; //If the angleOffset is negative add 360 to it (same resulting angle, but positive)
-		Color outlineColor = Color.black;
+		Color outlineColor = MainController.foregroundColorThree;
 		
 		int startAngle = angleOffset;
 		int total = 0; //Total of the values
@@ -233,6 +160,11 @@ public class StatisticsPanel extends JPanel {
 		//Get sum of values
 		for(Pie p : pies) {
 			total += p.getValue();
+		}
+		
+		//If the total is 0
+		if(total == 0) {
+			return; //Don't do anything
 		}
 		
 		//Set stroke
@@ -324,12 +256,12 @@ public class StatisticsPanel extends JPanel {
 				
 				//Draw name lines
 				g2d.setColor(outlineColor);
-				float lenghtMultiplier = 2.0f;
+				float lenghtMultiplier = 1.1f + (.6f * ((float)Math.sin(Math.toRadians((startAngle + (pieAngle/2))%180))));
 				g2d.drawLine(centerX + x1, centerY - y1 + depth/2, (int)(centerX + x1*lenghtMultiplier), (int)(centerY - y1*lenghtMultiplier + depth/2));
 				g2d.drawLine((int)(centerX + x1*lenghtMultiplier), (int)(centerY - y1*lenghtMultiplier + depth/2), (int)(centerX + x1*lenghtMultiplier) + stringLenght * (((int)Math.signum(x1) != 0)? (int)Math.signum(x1) : (int)Math.signum(y1)), (int)(centerY - y1*lenghtMultiplier + depth/2));
 				
 				//Draw names
-				g2d.setPaint(p.getColor());
+				g2d.setPaint(outlineColor);
 				g2d.drawString(name, (int)(centerX + x1*lenghtMultiplier) - (((int)Math.signum(x1) < 0)? stringLenght : 0) - (((int)Math.signum(x1) == 0 && (int)Math.signum(y1) < 0)? stringLenght : 0), (int)(centerY - y1*lenghtMultiplier + depth/2) - 3);
 				
 				startAngle += pieAngle; //Next pie will start at the end of this one
@@ -381,4 +313,57 @@ public class StatisticsPanel extends JPanel {
 		
 	}
 
+	public void paintComponent(Graphics g) {
+		
+		super.paintComponent(g); //Paint the component normally first
+		
+		Graphics2D g2d = (Graphics2D)g;
+		
+		//AA
+	    g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+	   //Text AA
+	    g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+	    
+	    //Draw background
+	    g2d.setColor(MainController.backgroundColorOne);
+	    g2d.fillRect(0, 0, getWidth(), getHeight());
+	    
+	    //Draw gate string
+		g2d.setColor(MainController.foregroundColorThree);
+		g2d.setFont(new Font(MainController.fontOne.getFontName(), Font.BOLD, 34));
+		
+		String s = "Seleziona un gate";
+		
+		int angle = -90;
+		g2d.rotate(Math.toRadians(angle)); //Rotate
+		g2d.drawString(s, -655, 70);
+		g2d.rotate(Math.toRadians(-angle)); //Rotate back
+		
+		//Draw lines
+		g2d.setStroke(new BasicStroke(4, BasicStroke.CAP_ROUND, BasicStroke.JOIN_MITER));
+		g2d.drawLine(120, (getHeight()/2) - 40, getWidth() - 25, (getHeight()/2) - 40);
+		
+		//Draw pie chart
+		ArrayList<Pie> companyData = new ArrayList<Pie>();
+		
+		companyData.add(new Pie("AirFrance", mainFrame.getListaCompagnie().get(0).getNumeroVoli(), MainController.airfranceColor));
+		companyData.add(new Pie("Alitalia", mainFrame.getListaCompagnie().get(1).getNumeroVoli(), MainController.alitaliaColor));
+		companyData.add(new Pie("EasyJet", mainFrame.getListaCompagnie().get(2).getNumeroVoli(), MainController.easyjetColor));
+		companyData.add(new Pie("RyanAir", mainFrame.getListaCompagnie().get(3).getNumeroVoli(), MainController.ryanairColor));
+		
+		drawPieChart(g2d, 45, 840, 150, 200, 100, companyData, false, true, 25, true, new Font(MainController.fontOne.getFontName(), Font.BOLD, 16));
+		
+		//Draw flight total number
+		g2d.setColor(MainController.foregroundColorThree);
+		g2d.setFont(new Font(MainController.fontOne.getFontName(), Font.BOLD, 40));
+		s = "Numero di voli presenti";
+		g2d.drawString(s, 70, 130);
+		int sLength = g2d.getFontMetrics(g2d.getFont()).stringWidth(s);
+		g2d.drawString(String.valueOf(flightTotal), 70 + (sLength/2) - (g2d.getFontMetrics(g2d.getFont()).stringWidth(String.valueOf(flightTotal))/2), 190);
+	
+	}
+
+
 }
+
