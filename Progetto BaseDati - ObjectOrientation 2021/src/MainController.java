@@ -20,6 +20,7 @@ import java.util.Random;
 
 public class MainController {
 	
+	//PG URL: jdbc:postgresql://host:port/database
 	static String URL = "jdbc:mysql://localhost:3306/aereoporto?autoReconnect=true&useSSL=false"; //Database URL
 	static String PASSWORD = "password"; //Password
 	static String USER = "root"; //User name
@@ -176,7 +177,6 @@ public class MainController {
 	public boolean checkIfSlotIsTaken(Slot s, int gateNumber, Volo volo) {
 		
 		ArrayList<String> idList = (new GateDAO().getFlightIdByGateNumber(gateNumber));
-		System.out.println(idList);
 		
 		//If an id has been passed then we are updating a flight, therefore remove it from the array of IDs (If the gate of the new flight (gateNumber) is the same as the old one (volo.getGate().getNumeroGate()))
 		if(volo != null && volo.getGate().getNumeroGate() == gateNumber) {

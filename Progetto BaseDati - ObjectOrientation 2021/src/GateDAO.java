@@ -20,7 +20,6 @@ public class GateDAO {
 		
 		try {
 			
-			Class.forName("com.mysql.jdbc.Driver");
 			String q = "INSERT INTO gate(IDVolo, numeroGate)\r\n" + 
 					"VALUES ('" + id + "','" + numeroGate + "');"; //Initialize query
 			String connectionURL = MainController.URL; //Connection URL
@@ -63,7 +62,6 @@ public class GateDAO {
 		
 		try {
 			
-			Class.forName("com.mysql.jdbc.Driver");
 			String q = "UPDATE gate SET numeroGate = '" + numeroGate + "' WHERE IDVolo = '" + id + "'"; //Initialize query
 			String connectionURL = MainController.URL; //Connection URL
 	
@@ -102,7 +100,6 @@ public class GateDAO {
 		
 		try {
 			
-			Class.forName("com.mysql.jdbc.Driver");
 			String q = "Select * from gate where IDVolo = '" + ID + "'"; //Initialize query
 			
 			String connectionURL = MainController.URL; //Connection URL
@@ -143,7 +140,6 @@ public class GateDAO {
 		
 		try {
 			
-			Class.forName("com.mysql.jdbc.Driver");
 			String q = "Select * from gate where numeroGate = " + gateNumber + ""; //Initialize query
 			String connectionURL = MainController.URL; //Connection URL
 
@@ -183,7 +179,6 @@ public class GateDAO {
 		
 		try {
 			
-			Class.forName("com.mysql.jdbc.Driver");
 			String q = "Select IDVolo, partito, cancellato from gate inner join volo on gate.IDVolo = volo.id where numeroGate = " + gateNumber + " AND partito = 0 and cancellato = 0"; //Initialize query
 			String connectionURL = MainController.URL; //Connection URL
 
@@ -207,6 +202,32 @@ public class GateDAO {
 		}catch(Exception e) { //Error catching
 			System.out.println(e);
 			return null; //Return null
+		}
+		
+	}
+
+	public int getFlightAmountByGateNumber(int gateNumber) {
+		
+		try {
+			
+			String q = "SELECT COUNT(IDVolo) AS amount FROM gate INNER JOIN volo ON volo.id = gate.IDVolo WHERE cancellato = 0 AND numeroGate = " + gateNumber; //Initialize query
+			String connectionURL = MainController.URL; //Connection URL
+
+	        Connection con = DriverManager.getConnection(connectionURL, MainController.USER, MainController.PASSWORD); //Create connection
+			Statement st = con.createStatement(); //Create statement
+			ResultSet rs = st.executeQuery(q); //Execute query
+			
+			rs.next();
+			
+			int count = rs.getInt("amount");
+			
+			con.close(); //Close connection
+			st.close(); //Close statement
+			return count; //Return list
+			
+		}catch(Exception e) { //Error catching
+			System.out.println(e);
+			return 0; //Return null
 		}
 		
 	}

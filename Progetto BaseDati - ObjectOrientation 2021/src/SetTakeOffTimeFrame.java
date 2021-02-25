@@ -41,6 +41,15 @@ public class SetTakeOffTimeFrame extends JDialog {
 		
 		mainFrame = mf; //Link to the mainFrame
 		
+		//Calculate minimum date for the spinner (5 minutes before the passed date)
+		Calendar c = Calendar.getInstance(); //Create a calendar instance
+		c.setTime(data); //Set the calendar time to the passed date
+		
+		//Get lower range
+		c.add(Calendar.MINUTE, -5);
+		Date minimumDate = new Date();
+		minimumDate = c.getTime();
+		
 		setType(Type.POPUP); //Set frame type to pop-up
 		setAlwaysOnTop(true); //Set to stay always on top
 		setUndecorated(true); //Set undecorated
@@ -92,8 +101,7 @@ public class SetTakeOffTimeFrame extends JDialog {
 				new Color(MainController.foregroundColorThree.getRed(), MainController.foregroundColorThree.getGreen(), MainController.foregroundColorThree.getBlue(), 64), 
 				MainController.foregroundColorThree, 2, true, MainController.foregroundColorThree, 1); //Create date spinner
 		spinnerTakeOffDate.setName("spinnerTakeOffDate"); //Set name
-		spinnerTakeOffDate.setModel(new SpinnerDateModel(new Date(1612134000000L), null, null, Calendar.DAY_OF_YEAR)); //Set spinner's model
-		spinnerTakeOffDate.setValue(data); //Set starting date of the spinner
+		spinnerTakeOffDate.setModel(new SpinnerDateModel(data, minimumDate, null, Calendar.DAY_OF_YEAR)); //Set spinner's model
 		spinnerTakeOffDate.setEditorBackgroundColor(MainController.backgroundColorOne);
 		spinnerTakeOffDate.setEditorForegroundColor(MainController.foregroundColorThree);
 		spinnerTakeOffDate.setEditorFont(new Font(MainController.fontOne.getFontName(), Font.PLAIN, 13));

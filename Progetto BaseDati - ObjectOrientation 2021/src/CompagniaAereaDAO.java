@@ -15,7 +15,6 @@ public class CompagniaAereaDAO {
 		
 		try {
 			
-			Class.forName("com.mysql.jdbc.Driver");
 			String q = "Select * from compagniaaerea order by nomeCompagnia ASC" ; //Initialize query
 			String connectionURL = MainController.URL; //Connection URL
 
@@ -57,7 +56,6 @@ public class CompagniaAereaDAO {
 		
 		try {
 			
-			Class.forName("com.mysql.jdbc.Driver");
 			String q = "Select * from compagniaaerea where nomeCompagnia = '" + name + "'" ; //Initialize query
 			
 			String connectionURL = MainController.URL; //Connection URL
@@ -102,7 +100,6 @@ public class CompagniaAereaDAO {
 		
 		try {
 			
-			Class.forName("com.mysql.jdbc.Driver");
 			String q = "UPDATE compagniaaerea SET numeroVoli = '" + (numeroVoli + 1) + "' WHERE nomeCompagnia = '" + name + "'"; //Initialize query
 			String connectionURL = MainController.URL; //Connection URL
 	
@@ -135,7 +132,6 @@ public class CompagniaAereaDAO {
 		
 		try {
 			
-			Class.forName("com.mysql.jdbc.Driver");
 			String q = "UPDATE compagniaaerea SET numeroVoli = '" + (numeroVoli - 1) + "' WHERE nomeCompagnia = '" + name + "'"; //Initialize query
 			String connectionURL = MainController.URL; //Connection URL
 	

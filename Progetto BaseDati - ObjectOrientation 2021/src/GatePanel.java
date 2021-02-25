@@ -19,7 +19,7 @@ public class GatePanel extends JPanel{
 	private MainController mainController;
 	private MainFrame mainFrame;
 	
-	private ArrayList<Volo> flightList; //Flight with this gate
+	private int flightCount; //Number of flights in this gate
 	
 	private Color borderColor;
 	
@@ -36,10 +36,10 @@ public class GatePanel extends JPanel{
 		this.mainFrame = mainFrame;
 		this.gateNumber = gateNumber;
 		
-		flightList = (new VoloDAO().getFlightsByGate(gateNumber));
+		flightCount = (new GateDAO().getFlightAmountByGateNumber(gateNumber)); //Get number of flights in this gate
 		
 		//There are no flight with this gate
-		if(flightList.size() == 0) {
+		if(flightCount == 0) {
 			borderColor = MainController.flightCancelledColor;
 		}else {
 			borderColor = MainController.foregroundColorThree;
@@ -48,7 +48,8 @@ public class GatePanel extends JPanel{
 		addMouseListener(new MouseAdapter() {
 			//When mouse clicked
 			public void mouseClicked(MouseEvent e) {
-				if(flightList.size() > 0) {
+				if(flightCount > 0) {
+					ArrayList<Volo> flightList = new VoloDAO().getFlightsByGate(gateNumber); //Get flights for this gate
 					mainFrame.setContentPanelToCheckGatePanel(flightList, gateNumber);
 				}else {
 					mainFrame.createNotificationFrame("Non ci sono voli che utilizzano questo gate!");
@@ -193,7 +194,7 @@ public class GatePanel extends JPanel{
 	    
 	    //Draw flights amount
 	    g2d.setFont(new Font(MainController.fontOne.getFontName(), Font.BOLD, 16));
-	    s = "Voli: " + flightList.size();
+	    s = "Voli: " + flightCount;
 	    g2d.drawString(s, (getWidth()/2) - (g2d.getFontMetrics().stringWidth(s)/2), (getHeight()/2) + 30);
 	    
 	    //Hovering animation rectangle

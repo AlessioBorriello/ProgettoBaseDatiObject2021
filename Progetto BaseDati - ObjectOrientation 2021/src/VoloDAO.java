@@ -31,7 +31,6 @@ public class VoloDAO {
 		
 		try {
 			
-			Class.forName("com.mysql.jdbc.Driver");
 			String q = "INSERT INTO volo(id, nomeCompagnia, dataPartenza, destinazione, partito, cancellato)\r\n" + 
 					"VALUES ('" + id + "','" + compagnia + "','"+ dataString + "', '" + destinazione + "','" +  0 + "','" + 0 + "');"; //Initialize query
 			String connectionURL = MainController.URL; //Connection URL
@@ -99,7 +98,6 @@ public class VoloDAO {
 		
 		try {
 			
-			Class.forName("com.mysql.jdbc.Driver");
 			String q = "UPDATE volo SET nomeCompagnia = '" + compagnia + "', dataPartenza = '" + dataString + "', destinazione = '" + destinazione + "' WHERE id = '" + id + "'"; //Initialize query
 			String connectionURL = MainController.URL; //Connection URL
 	
@@ -140,7 +138,6 @@ public class VoloDAO {
 		
 		try {
 			
-			Class.forName("com.mysql.jdbc.Driver");
 			String q = "DELETE FROM volo WHERE id = " + v.getID(); //Initialize query
 			
 			String connectionURL = MainController.URL; //Connection URL
@@ -170,7 +167,6 @@ public class VoloDAO {
 		
 		try {
 			
-			Class.forName("com.mysql.jdbc.Driver");
 			String q = "Select * from volo where id = '" + ID + "'" ; //Initialize query
 			
 			String connectionURL = MainController.URL; //Connection URL
@@ -225,7 +221,6 @@ public class VoloDAO {
 		
 		try {
 			
-			Class.forName("com.mysql.jdbc.Driver");
 			String q = "Select * from volo where partito = " + false + " and cancellato = " + false + ""; //Initialize query
 			String connectionURL = MainController.URL; //Connection URL
 
@@ -280,7 +275,6 @@ public class VoloDAO {
 		
 		try {
 			
-			Class.forName("com.mysql.jdbc.Driver");
 			String q = "Select * from volo where partito = " + true + " or cancellato = " + true + ""; //Initialize query
 			String connectionURL = MainController.URL; //Connection URL
 
@@ -341,7 +335,6 @@ public class VoloDAO {
 		
 		try {
 			
-			Class.forName("com.mysql.jdbc.Driver");
 			String q = "UPDATE volo SET partito = '1' where id = '" + v.getID() + "'"; //Initialize query
 			
 			String connectionURL = MainController.URL; //Connection URL
@@ -372,7 +365,6 @@ public class VoloDAO {
 		
 		try {
 			
-			Class.forName("com.mysql.jdbc.Driver");
 			String q = "UPDATE volo SET cancellato = '1' where id = '" + v.getID() + "'"; //Initialize query
 			
 			String connectionURL = MainController.URL; //Connection URL
@@ -405,7 +397,6 @@ public class VoloDAO {
 		
 		try {
 			
-			Class.forName("com.mysql.jdbc.Driver");
 			String q = query; //Initialize query
 			String connectionURL = MainController.URL; //Connection URL
 
@@ -461,7 +452,6 @@ public class VoloDAO {
 		
 		try {
 			
-			Class.forName("com.mysql.jdbc.Driver");
 			String q = "SELECT * FROM volo INNER JOIN gate ON volo.id = gate.IDVolo WHERE numeroGate = " + gateNumber + " ORDER BY dataPartenza ASC"; //Initialize query
 			String connectionURL = MainController.URL; //Connection URL
 

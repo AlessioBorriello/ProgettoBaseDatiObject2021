@@ -398,6 +398,7 @@ public class CreateFlightPanel extends JPanel {
 		Volo v = new Volo();
 		v.setID(id);
 		v.setCompagnia(compagnia);
+		compagnia.setNumeroVoli(compagnia.getNumeroVoli() + 1);
 		v.setGate(g);
 		v.setDestinazione(destinazione);
 		v.setOrarioDecollo(data);

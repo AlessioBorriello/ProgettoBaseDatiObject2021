@@ -352,7 +352,7 @@ public class StatisticsPanel extends JPanel {
 		companyData.add(new Pie("EasyJet", mainFrame.getListaCompagnie().get(2).getNumeroVoli(), MainController.easyjetColor));
 		companyData.add(new Pie("RyanAir", mainFrame.getListaCompagnie().get(3).getNumeroVoli(), MainController.ryanairColor));
 		
-		drawPieChart(g2d, 45, 840, 150, 200, 100, companyData, false, true, 25, true, new Font(MainController.fontOne.getFontName(), Font.BOLD, 16));
+		drawPieChart(g2d, 45, 840, 150, 200, 100, companyData, true, true, 25, true, new Font(MainController.fontOne.getFontName(), Font.BOLD, 16));
 		
 		//Draw flight total number
 		g2d.setColor(MainController.foregroundColorThree);
@@ -363,7 +363,6 @@ public class StatisticsPanel extends JPanel {
 		g2d.drawString(String.valueOf(flightTotal), 70 + (sLength/2) - (g2d.getFontMetrics(g2d.getFont()).stringWidth(String.valueOf(flightTotal))/2), 190);
 	
 	}
-
 
 }
 

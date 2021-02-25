@@ -20,7 +20,6 @@ public class CodaDAO {
 		
 		try {
 			
-			Class.forName("com.mysql.jdbc.Driver");
 			String q = "INSERT INTO coda(tipo, lunghezza, IDVolo)\r\n" + 
 					"VALUES ('" + tipo + "','" + lunghezza + "','" + id + "');"; //Initialize query
 			String connectionURL = MainController.URL; //Connection URL
@@ -51,7 +50,6 @@ public class CodaDAO {
 		
 		try {
 			
-			Class.forName("com.mysql.jdbc.Driver");
 			String q = "DELETE FROM coda where IDVolo = '" + id + "'"; //Initialize query
 			String connectionURL = MainController.URL; //Connection URL
 	
@@ -80,7 +78,6 @@ public class CodaDAO {
 		
 		try {
 			
-			Class.forName("com.mysql.jdbc.Driver");
 			String q = "Select * from coda where IDVolo = '" + ID + "'"; //Initialize query
 			String connectionURL = MainController.URL; //Connection URL
 

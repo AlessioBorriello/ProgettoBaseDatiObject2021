@@ -1,5 +1,6 @@
  import java.sql.Time;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 
 public class Volo {
@@ -41,7 +42,6 @@ public class Volo {
 		}
 		
 		//Get slot times
-		Date fineTempoStimato = slot.getFineTempoStimato();
 		Date inizioTempoEffettivo = slot.getInizioTempoEffettivo();
 		Date fineTempoEffettivo = slot.getFineTempoEffettivo();
 		
@@ -50,7 +50,20 @@ public class Volo {
 			return false;
 		}
 		
-		return fineTempoStimato.before(fineTempoEffettivo); //Return if the Higher end of the estimated slot time is before the Higher end of the effective slot time
+		Date partenzaEffettiva = inizioTempoEffettivo;
+		
+		//Add 5 minutes to the start of the effective slot time
+		Calendar c = Calendar.getInstance(); //Create a calendar instance
+		c.setTime(partenzaEffettiva); //Set the calendar time to the passed date
+		
+		c.add(Calendar.MINUTE, 5);
+		partenzaEffettiva = c.getTime();
+		
+		boolean tookOffLate = partenzaEffettiva.after(slot.getFineTempoStimato());
+		
+		inRitardo = tookOffLate;
+		
+		return  tookOffLate; //Return if the Higher end of the estimated slot time is before the Higher end of the effective slot time
 		
 	}
 

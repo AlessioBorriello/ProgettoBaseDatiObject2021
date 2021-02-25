@@ -171,19 +171,36 @@ public class ViewFlightInfoPanel extends JPanel {
 		
 		if(data != null) {
 			if(mainFrame.createConfirmationFrame("Sei sicuro di voler impostare questo volo come 'partito'?")) {
-				//Create new slot and set values
+				
+				//Get flight's slot
 				Slot s = (new SlotDAO().getSlotByID(volo.getID()));
-				s.setInizioTempoEffettivo(data); //Set lower range
 				
-				//Get slot's higher range
-				Calendar c = Calendar.getInstance(); //Create a calendar instance
-				c.setTime(data);
-				c.add(Calendar.MINUTE, 15); //Add 15 minutes to the lower range of the slot
-				Date fineTempoEffettivo = new Date();
-				fineTempoEffettivo = c.getTime();
+				//If the flight took off in the estimated slot time
+				if(data.before(s.getFineTempoStimato())) {
+					//Effective and estimated times coincide
+					s.setInizioTempoEffettivo(s.getInizioTempoStimato());
+					s.setFineTempoEffettivo(s.getFineTempoStimato());
+				}else {
+					
+					//The flight took off later than the end of the estimated slot, so it did so in another slot time, calculate it
+					Calendar c = Calendar.getInstance(); //Create a calendar instance
+					c.setTime(data); //Set the calendar time to the passed date
+					
+					//Get lower range
+					c.add(Calendar.MINUTE, -5);
+					Date inizioTempoEffettivo = new Date();
+					inizioTempoEffettivo = c.getTime();
+					s.setInizioTempoEffettivo(inizioTempoEffettivo);
+					
+					//Get higher range
+					c.add(Calendar.MINUTE, 15);
+					Date fineTempoEffettivo = new Date();
+					fineTempoEffettivo = c.getTime();
+					s.setFineTempoEffettivo(fineTempoEffettivo);
+					
+				}
 				
-				s.setFineTempoEffettivo(fineTempoEffettivo); //Set higher range
-				volo.setSlot(s); //Update flight's slot
+				volo.setSlot(s);
 				
 				//Update slot in database
 				SlotDAO daoSlot = new SlotDAO();
