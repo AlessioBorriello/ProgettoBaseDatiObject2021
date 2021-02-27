@@ -1,8 +1,10 @@
+import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
 import java.awt.Toolkit;
 
+import javax.imageio.ImageIO;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -16,6 +18,7 @@ import javax.swing.SpringLayout;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.GridLayout;
+import java.awt.Image;
 import java.awt.Insets;
 import java.awt.MouseInfo;
 import java.awt.Point;
@@ -28,6 +31,9 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -79,6 +85,10 @@ public class MainFrame extends JFrame {
 	private int dashboardWidth = minDashboardWidth; //Current width of the dash board
 	
 	private ArrayList<Volo> flightList = null; //List of the flights to be displayed in the content panel
+	
+	//Notification panel
+	private BufferedImage bufferedBellImage;
+	private Image bellImage;
 	private ArrayList<String> notificationsList = null; //List of the notifications
 	
 	/**
@@ -92,6 +102,18 @@ public class MainFrame extends JFrame {
 		//Get all the companies from the database
 		CompagniaAereaDAO dao = new CompagniaAereaDAO();
 		listaCompagnie = dao.getAllCompagniaAerea();
+		
+		//Load notification bell image
+		try {                
+			bufferedBellImage = ImageIO.read(new File("imgs/bell.png"));
+		} catch (IOException e) {
+			System.out.println(e);
+		}
+		
+		bufferedBellImage = colorizeBufferedImage(bufferedBellImage, MainController.foregroundColorThree); //Colorize bell icon image
+		
+		//Scale bell icon image
+		bellImage = bufferedBellImage.getScaledInstance(18, 18, Image.SCALE_SMOOTH);
 		
 		//Frame properties
 		setResizable(false); //Not re sizable
@@ -143,11 +165,14 @@ public class MainFrame extends JFrame {
 				//Draw minimize button icon
 				g2d.drawLine(buttonMinimizeBounds.x + 6, buttonMinimizeBounds.y + buttonMinimizeBounds.height - 6, buttonMinimizeBounds.x + buttonMinimizeBounds.width - 6, buttonMinimizeBounds.y + buttonMinimizeBounds.height - 6);
 				
-				//Draw notification button stuff
+				//Draw notification bell icon
+				g2d.drawImage(bellImage, buttonOpenNotificationsBounds.x + 4, buttonOpenNotificationsBounds.y + 4, buttonOpenNotificationsBounds.x + buttonOpenNotificationsBounds.width - 4, buttonOpenNotificationsBounds.y + buttonOpenNotificationsBounds.height - 4, 0, 0, bellImage.getWidth(null), bellImage.getHeight(null), this);
+				
+				//Draw notification number
 				if(notificationsList.size() > 0) {
 					g2d.setColor(new Color(180, 0, 0));
-					int circleSize = 12;
-					int circleOffset = 5;
+					int circleSize = 14;
+					int circleOffset = 6;
 					Point circlePosition = new Point(buttonOpenNotificationsBounds.x + (buttonOpenNotificationsBounds.width/2) - (circleSize/2) + circleOffset, buttonOpenNotificationsBounds.y + (buttonOpenNotificationsBounds.height/2) - (circleSize/2) - circleOffset);
 					g2d.fillOval(circlePosition.x, circlePosition.y, circleSize, circleSize);
 					
@@ -228,7 +253,7 @@ public class MainFrame extends JFrame {
 		});
 		
 		CustomButton buttonOpenNotifications = new CustomButton("", null, mainController.getDifferentAlphaColor(MainController.foregroundColorThree, 64), 
-				MainController.foregroundColorThree, 21, true, MainController.foregroundColorThree, 2); //Create close button
+				MainController.foregroundColorThree, 21, false, null, 0); //Create close button
 		buttonOpenNotifications.setBounds(buttonOpenNotificationsBounds); //Set the button position to the previously defined position
 		buttonOpenNotifications.setName("buttonOpenNotifications"); //Name component
 		upperPanel.add(buttonOpenNotifications); //Add button to the control panel
@@ -821,6 +846,21 @@ public class MainFrame extends JFrame {
 		return returnList;
 		
 	}
+	
+	public BufferedImage colorizeBufferedImage(BufferedImage image, Color color) {
+		
+	    int w = image.getWidth();
+	    int h = image.getHeight();
+	    BufferedImage dyed = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+	    Graphics2D g = dyed.createGraphics();
+	    g.drawImage(image, 0, 0, null);
+	    g.setComposite(AlphaComposite.SrcAtop);
+	    g.setColor(color);
+	    g.fillRect(0, 0, w, h);
+	    g.dispose();
+	    
+	    return dyed;
+	  }
 	
 	//Setters and getters
 	public ArrayList<Volo> getFlightList() {

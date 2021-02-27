@@ -245,13 +245,13 @@ public class MainController {
 		
 		flightProgrammedColor = lightForegroundColorThree;
 		
-		backgroundColorOne = lightBackgroundColorOne;
+		backgroundColorOne = lightBackgroundColorThree;
 		backgroundColorTwo = lightBackgroundColorTwo;
-		backgroundColorThree = lightBackgroundColorThree;
+		backgroundColorThree = lightBackgroundColorOne;
 		
-		foregroundColorOne = lightForegroundColorOne;
+		foregroundColorOne = lightForegroundColorThree;
 		foregroundColorTwo = lightForegroundColorTwo;
-		foregroundColorThree = lightForegroundColorThree;
+		foregroundColorThree = lightForegroundColorOne;
 		
 	}
 	
