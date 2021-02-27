@@ -29,6 +29,8 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.awt.event.WindowEvent;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Random;
@@ -77,7 +79,8 @@ public class MainFrame extends JFrame {
 	private int dashboardWidth = minDashboardWidth; //Current width of the dash board
 	
 	private ArrayList<Volo> flightList = null; //List of the flights to be displayed in the content panel
-
+	private ArrayList<String> notificationsList = null; //List of the notifications
+	
 	/**
 	 * Frame containing the entire application
 	 * @param c Link to the mainController
@@ -108,6 +111,7 @@ public class MainFrame extends JFrame {
 		
 		Rectangle buttonMinimizeBounds = new Rectangle(frameWidth - 60, 2, 26, 26); //Button minimize position on the upper panel
 		Rectangle buttonCloseBounds = new Rectangle(frameWidth - 30, 2, 26, 26); //Button close position on the upper panel
+		Rectangle buttonOpenNotificationsBounds = new Rectangle(frameWidth - 90, 2, 26, 26);
 		JPanel upperPanel = (new JPanel() {
 			
 			public void paintComponent(Graphics g) {
@@ -138,6 +142,22 @@ public class MainFrame extends JFrame {
 				
 				//Draw minimize button icon
 				g2d.drawLine(buttonMinimizeBounds.x + 6, buttonMinimizeBounds.y + buttonMinimizeBounds.height - 6, buttonMinimizeBounds.x + buttonMinimizeBounds.width - 6, buttonMinimizeBounds.y + buttonMinimizeBounds.height - 6);
+				
+				//Draw notification button stuff
+				if(notificationsList.size() > 0) {
+					g2d.setColor(new Color(180, 0, 0));
+					int circleSize = 12;
+					int circleOffset = 5;
+					Point circlePosition = new Point(buttonOpenNotificationsBounds.x + (buttonOpenNotificationsBounds.width/2) - (circleSize/2) + circleOffset, buttonOpenNotificationsBounds.y + (buttonOpenNotificationsBounds.height/2) - (circleSize/2) - circleOffset);
+					g2d.fillOval(circlePosition.x, circlePosition.y, circleSize, circleSize);
+					
+					g2d.setColor(MainController.foregroundColorThree);
+					g2d.setFont(new Font(MainController.fontOne.getFontName(), Font.BOLD, 10));
+					String number = String.valueOf(notificationsList.size());
+					int stringLength = g2d.getFontMetrics(g2d.getFont()).stringWidth(number);
+					g2d.drawString(number, circlePosition.x - (stringLength/2) + (circleSize/2), circlePosition.y + (circleSize/2) + 3);
+				
+				}
 				
 			}
 			
@@ -207,6 +227,21 @@ public class MainFrame extends JFrame {
 			}
 		});
 		
+		CustomButton buttonOpenNotifications = new CustomButton("", null, mainController.getDifferentAlphaColor(MainController.foregroundColorThree, 64), 
+				MainController.foregroundColorThree, 21, true, MainController.foregroundColorThree, 2); //Create close button
+		buttonOpenNotifications.setBounds(buttonOpenNotificationsBounds); //Set the button position to the previously defined position
+		buttonOpenNotifications.setName("buttonOpenNotifications"); //Name component
+		upperPanel.add(buttonOpenNotifications); //Add button to the control panel
+		buttonOpenNotifications.addMouseListener(new MouseAdapter() {
+			public void mouseEntered(MouseEvent e) {
+				buttonOpenNotifications.selectAnimation(8);
+			}
+
+			public void mouseExited(MouseEvent e) {
+				buttonOpenNotifications.unselectAnimation(8);
+			}
+		});
+		
 		centerPanel = (new JLayeredPane() {
 			
 			public void paintComponent(Graphics g) {
@@ -250,6 +285,52 @@ public class MainFrame extends JFrame {
 		//Check if the dash board has not closed correctly every 1000ms (if mouse exited event gets skipped)
 		checkDashboardStatus(1000);
 		
+		//Get notifications list
+		notificationsList = checkForNotifications();
+		
+		//Update notifications list
+		class CheckNotifications extends TimerTask {
+			
+			//Override run method
+			public void run() {
+				notificationsList = checkForNotifications();
+				buttonOpenNotifications.repaint();
+				upperPanel.repaint();
+			}
+		}
+	
+		CheckNotifications checkNotifications = new CheckNotifications();
+		Timer t = new Timer();
+		int seconds = 60;
+		t.schedule(checkNotifications, (seconds - LocalDateTime.now().atZone(ZoneId.systemDefault()).getSecond())*1000, seconds*1000);
+		
+		//Open notifications
+		MainFrame mfLink = this; //Link with this main frame for the notification frame
+		buttonOpenNotifications.addActionListener(new ActionListener() {
+			
+			NotificationsPanel notificationPanel;
+			
+			public void actionPerformed(ActionEvent e) {
+				if(notificationPanel == null) {
+					
+					notificationPanel = new NotificationsPanel(mainController, mfLink, notificationsList);
+					notificationPanel.setLocation(buttonOpenNotifications.getBounds().x - 215, 5);
+					//notificationPanel.setBounds(buttonOpenNotifications.getBounds().x - 215, 5, 240, 400);
+					centerPanel.add(notificationPanel);
+					centerPanel.setLayer(notificationPanel, 1); //Bring the panel forward (higher number = towards the top)
+					centerPanel.repaint();
+					
+				}else {
+					
+					centerPanel.remove(notificationPanel);
+					notificationPanel =  null;
+					centerPanel.repaint();
+					
+				}
+			}
+		
+		});
+		
 	}
 	
 	/**
@@ -265,6 +346,18 @@ public class MainFrame extends JFrame {
 			if(this.lookingAtArchive == lookingAtArchive) { //Already looking at the same type of CheckFlightsPanel (lookingAtArchive here and the one passed are the same)
 				System.out.println("Already on this panel!");
 				return false; //Don't replace the content panel
+			}
+		}
+		
+		//If creating or editing a flight
+		if(currentPanel != null && currentPanel.getClass().getName().equals("CreateFlightPanel")) {
+			if(!createConfirmationFrame("Stai creando un volo, sei sicuro di voler uscire dalla pagina di creazione?")) {
+				return false;
+			}
+		}
+		if(currentPanel != null && currentPanel.getClass().getName().equals("EditFlightPanel")) {
+			if(!createConfirmationFrame("Stai modificando un volo, sei sicuro di voler uscire dalla pagina di modifica?")) {
+				return false;
 			}
 		}
 		
@@ -300,6 +393,13 @@ public class MainFrame extends JFrame {
 		if(currentPanel != null && currentPanel.getClass().getName().equals("CreateFlightPanel")) {
 			System.out.println("Already on this panel!");
 			return false; //Dont replace the content panel
+		}
+		
+		//If editing a flight
+		if(currentPanel != null && currentPanel.getClass().getName().equals("EditFlightPanel")) {
+			if(!createConfirmationFrame("Stai modificando un volo, sei sicuro di voler uscire dalla pagina di modifica?")) {
+				return false;
+			}
 		}
 		
 		Rectangle bounds = new Rectangle(contentPanel.getBounds()); //Get bounds of the content panel
@@ -373,7 +473,19 @@ public class MainFrame extends JFrame {
 		//Check if the current panel is already in place in the content panel (They have the same class name)
 		if(currentPanel != null && currentPanel.getClass().getName().equals("ViewFlightInfoPanel")) {
 			System.out.println("Already on this panel!");
-			return false; //Dont replace the content panel
+			return false; //Don't replace the content panel
+		}
+		
+		//If creating or editing a flight
+		if(currentPanel != null && currentPanel.getClass().getName().equals("CreateFlightPanel")) {
+			if(!createConfirmationFrame("Stai creando un volo, sei sicuro di voler uscire dalla pagina di creazione?")) {
+				return false;
+			}
+		}
+		if(currentPanel != null && currentPanel.getClass().getName().equals("EditFlightPanel")) {
+			if(!createConfirmationFrame("Stai modificando un volo, sei sicuro di voler uscire dalla pagina di modifica?")) {
+				return false;
+			}
 		}
 		
 		Rectangle bounds = new Rectangle(contentPanel.getBounds()); //Get bounds of the content panel
@@ -409,6 +521,18 @@ public class MainFrame extends JFrame {
 			return false; //Don t replace the content panel
 		}
 		
+		//If creating or editing a flight
+		if(currentPanel != null && currentPanel.getClass().getName().equals("CreateFlightPanel")) {
+			if(!createConfirmationFrame("Stai creando un volo, sei sicuro di voler uscire dalla pagina di creazione?")) {
+				return false;
+			}
+		}
+		if(currentPanel != null && currentPanel.getClass().getName().equals("EditFlightPanel")) {
+			if(!createConfirmationFrame("Stai modificando un volo, sei sicuro di voler uscire dalla pagina di modifica?")) {
+				return false;
+			}
+		}
+		
 		Rectangle bounds = new Rectangle(contentPanel.getBounds()); //Get bounds of the content panel
 		centerPanel.remove(contentPanel); //Remove content panel from the center panel
 		
@@ -440,6 +564,18 @@ public class MainFrame extends JFrame {
 		if(currentPanel != null && currentPanel.getClass().getName().equals("CheckGatePanel")) {
 			System.out.println("Already on this panel!");
 			return false; //Don t replace the content panel
+		}
+		
+		//If creating or editing a flight
+		if(currentPanel != null && currentPanel.getClass().getName().equals("CreateFlightPanel")) {
+			if(!createConfirmationFrame("Stai creando un volo, sei sicuro di voler uscire dalla pagina di creazione?")) {
+				return false;
+			}
+		}
+		if(currentPanel != null && currentPanel.getClass().getName().equals("EditFlightPanel")) {
+			if(!createConfirmationFrame("Stai modificando un volo, sei sicuro di voler uscire dalla pagina di modifica?")) {
+				return false;
+			}
 		}
 		
 		Rectangle bounds = new Rectangle(contentPanel.getBounds()); //Get bounds of the content panel
@@ -569,7 +705,7 @@ public class MainFrame extends JFrame {
 		}
 		
 		//Add bits to the query
-		query += idQuery + " AND \n" + destinationQuery + " AND \n" + startTimeQuery + " AND \n" + endTimeQuery + " AND \n" + gateNumberQuery + " AND \n" + companyQuery + " AND \n" + archiveOnlyQuery + ")";
+		query += idQuery + " AND \n" + destinationQuery + " AND \n" + startTimeQuery + " AND \n" + endTimeQuery + " AND \n" + gateNumberQuery + " AND \n" + companyQuery + " AND \n" + archiveOnlyQuery + ") ORDER BY dataPartenza ASC";
 		//System.out.println(query);
 		
 		//Execute query
@@ -675,6 +811,17 @@ public class MainFrame extends JFrame {
 		
 	}
 	
+	public ArrayList<String> checkForNotifications() {
+		
+		ArrayList<String> returnList = new ArrayList<String>();
+		Date currentTime = Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant());
+
+		returnList = new VoloDAO().getIDListOfFlightsTakeOffTimePassed(currentTime);
+		
+		return returnList;
+		
+	}
+	
 	//Setters and getters
 	public ArrayList<Volo> getFlightList() {
 		return flightList;
@@ -688,10 +835,13 @@ public class MainFrame extends JFrame {
 	public DashboardPanel getDashboardPanel() {
 		return dashboardPanel;
 	}
-
+	public void setNotificationList(ArrayList<String> notificationList) {
+		this.notificationsList = notificationList;
+	}
 	public ArrayList<CompagniaAerea> getListaCompagnie() {
 		return listaCompagnie;
 	}
+
 	
 }
 

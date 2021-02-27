@@ -247,6 +247,12 @@ public class StatisticsPanel extends JPanel {
 				
 				String name = p.getName();
 				String percentage = String.format("%.2f", ((float)p.getValue()/total)*100); //Get percentage of the pie
+				
+				//Don't continue if the percentage is 0
+				if(((float)p.getValue()/total)*100 == 0) {
+					break;
+				}
+				
 				name += " (" + percentage + "%)"; //Add it to the name
 				int stringLenght = g2d.getFontMetrics().stringWidth(name); //Get string pixel length
 				

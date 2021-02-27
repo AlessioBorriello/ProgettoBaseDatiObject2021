@@ -40,6 +40,8 @@ public class SearchPanel extends JPanel {
 	private JPanel archiveOnlyPanel; //Panel that shows additional options if looking at an archive
 	private SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss"); //Date format
 	
+	private Date[] minimumAndMaxDates = new Date[2];
+	
 	//Research elements
 	private JTextField idField;
 	private JTextField destinationField;
@@ -142,12 +144,15 @@ public class SearchPanel extends JPanel {
 		chckbxRyanair.setBounds(10, 321, 120, 23); //Set bounds
 		add(chckbxRyanair); //Add check box
 		
+		//Get minimum and max dates
+		minimumAndMaxDates = new VoloDAO().getMinAndMaxTakeOffTime();
+		
 		spinnerTimeLower = new CustomSpinner(MainController.backgroundColorOne, mainController.getDifferentAlphaColor(MainController.foregroundColorThree, 64), 
 				MainController.foregroundColorThree, 2, true, MainController.foregroundColorThree, 1); //Create spinner
 		spinnerTimeLower.setName("spinnerTimeLower"); //Set name
 		spinnerTimeLower.setEnabled(false); //Set enabled to false (not activated)
 		spinnerTimeLower.setBounds(37, 192, 104, 24); //Set bounds
-		spinnerTimeLower.setModel(new SpinnerDateModel(new Date(1612134000000L), null, null, Calendar.DAY_OF_YEAR)); //Set spinner model
+		spinnerTimeLower.setModel(new SpinnerDateModel(minimumAndMaxDates[0], minimumAndMaxDates[0], minimumAndMaxDates[1], Calendar.DAY_OF_YEAR)); //Set spinner model
 		spinnerTimeLower.setEditorBackgroundColor(MainController.backgroundColorOne);
 		spinnerTimeLower.setEditorForegroundColor(MainController.foregroundColorThree);
 		spinnerTimeLower.setEditorFont(new Font(MainController.fontOne.getFontName(), Font.PLAIN, 10));
@@ -158,7 +163,7 @@ public class SearchPanel extends JPanel {
 		spinnerTimeHigher.setName("spinnerTimeHigher"); //Set name
 		spinnerTimeHigher.setEnabled(false); //Set enabled to false (not activated)
 		spinnerTimeHigher.setBounds(167, 192, 104, 24); //Set bounds
-		spinnerTimeHigher.setModel(new SpinnerDateModel(new Date(1612134000000L), null, null, Calendar.DAY_OF_YEAR)); //Set spinner model
+		spinnerTimeHigher.setModel(new SpinnerDateModel(minimumAndMaxDates[1], minimumAndMaxDates[0], minimumAndMaxDates[1], Calendar.DAY_OF_YEAR)); //Set spinner model
 		spinnerTimeHigher.setEditorBackgroundColor(MainController.backgroundColorOne);
 		spinnerTimeHigher.setEditorForegroundColor(MainController.foregroundColorThree);
 		spinnerTimeHigher.setEditorFont(new Font(MainController.fontOne.getFontName(), Font.PLAIN, 10));
@@ -300,4 +305,20 @@ public class SearchPanel extends JPanel {
 		chckbxInTime.show(active);
 	}
 
+	public void setMinimumAndMaxDatesAndUpdateSpinners(Date[] minimumAndMaxDates) {
+		
+		this.minimumAndMaxDates = minimumAndMaxDates;
+		
+		spinnerTimeLower.setModel(new SpinnerDateModel(minimumAndMaxDates[0], minimumAndMaxDates[0], minimumAndMaxDates[1], Calendar.DAY_OF_YEAR)); //Set spinner model
+		spinnerTimeLower.setEditorBackgroundColor(MainController.backgroundColorOne);
+		spinnerTimeLower.setEditorForegroundColor(MainController.foregroundColorThree);
+		spinnerTimeLower.setEditorFont(new Font(MainController.fontOne.getFontName(), Font.PLAIN, 10));
+		
+		spinnerTimeHigher.setModel(new SpinnerDateModel(minimumAndMaxDates[1], minimumAndMaxDates[0], minimumAndMaxDates[1], Calendar.DAY_OF_YEAR)); //Set spinner model
+		spinnerTimeHigher.setEditorBackgroundColor(MainController.backgroundColorOne);
+		spinnerTimeHigher.setEditorForegroundColor(MainController.foregroundColorThree);
+		spinnerTimeHigher.setEditorFont(new Font(MainController.fontOne.getFontName(), Font.PLAIN, 10));
+		
+	}
+	
 }

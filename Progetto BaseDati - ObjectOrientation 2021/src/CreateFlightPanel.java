@@ -36,6 +36,9 @@ import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+
 import javax.swing.JTable;
 
 public class CreateFlightPanel extends JPanel {
@@ -114,7 +117,7 @@ public class CreateFlightPanel extends JPanel {
 		
 		CustomSpinner spinnerTakeOffDate = new CustomSpinner(MainController.backgroundColorOne, mainController.getDifferentAlphaColor(MainController.foregroundColorThree, 64), 
 				MainController.foregroundColorThree, 2, true, MainController.foregroundColorThree, 1); //Create spinner to declare the take off date
-		spinnerTakeOffDate.setModel(new SpinnerDateModel(new Date(1612134000000L), null, null, Calendar.DAY_OF_YEAR)); //Set spinner model
+		spinnerTakeOffDate.setModel(new SpinnerDateModel(Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant()), null, null, Calendar.DAY_OF_YEAR)); //Set spinner model
 		spinnerTakeOffDate.setName("spinnerTakeOffDate"); //Name component
 		spinnerTakeOffDate.setBounds(310, 231, 150, 24); //Set bounds
 		spinnerTakeOffDate.setEditorBackgroundColor(MainController.backgroundColorOne);
@@ -423,6 +426,9 @@ public class CreateFlightPanel extends JPanel {
 			if(searchPanel != null) { //If the searchPanel gets found
 				searchPanel.makeSearch(); //Make search
 			}
+			
+			//Update minimum and max dates spinners
+			searchPanel.setMinimumAndMaxDatesAndUpdateSpinners(new VoloDAO().getMinAndMaxTakeOffTime());
 			
 			//Update dash board
 			searchPanel.toggleArchiveOnlyCheckBoxes(false);

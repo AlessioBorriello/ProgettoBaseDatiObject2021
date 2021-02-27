@@ -6,6 +6,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
+import java.io.File;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.time.Instant;
@@ -14,13 +16,18 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import javax.swing.JPanel;
+import javax.imageio.ImageIO;
 import javax.swing.GroupLayout;
 import javax.swing.JLabel;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.MouseInfo;
 import java.awt.Point;
 
 import javax.swing.JScrollPane;
@@ -50,6 +57,11 @@ public class CheckGatePanel extends JPanel {
 	private int[] estimatedAverages = new int[3];
 	private int[] effectiveAverages = new int[3];
 	
+	private Image airfranceLogoImage;
+	private Image alitaliaLogoImage;
+	private Image easyjetLogoImage;
+	private Image ryanairLogoImage;
+	
 	private int gateNumber;
 
 	public CheckGatePanel(Rectangle bounds, MainFrame mf, MainController c, ArrayList<Volo> flightList, int gateNumber) {
@@ -64,6 +76,23 @@ public class CheckGatePanel extends JPanel {
 		//setBounds(bounds);
 		setBounds(72, 2, 1124, 666); //Debug to show in the design tab,  this row should be replaced with the one above
 		setLayout(null);
+		
+		//Load company images
+		try {                
+			airfranceLogoImage = ImageIO.read(new File("imgs/company-logos/airfrance-logo.png"));
+			alitaliaLogoImage = ImageIO.read(new File("imgs/company-logos/alitalia-logo.png"));
+			easyjetLogoImage = ImageIO.read(new File("imgs/company-logos/easyjet-logo.png"));
+			ryanairLogoImage = ImageIO.read(new File("imgs/company-logos/ryanair-logo.png"));
+		} catch (IOException e) {
+			System.out.println(e);
+		}
+		
+		//Scale company images
+		int imageSize = 36;
+		airfranceLogoImage = airfranceLogoImage.getScaledInstance(imageSize, imageSize, Image.SCALE_SMOOTH);
+		alitaliaLogoImage = alitaliaLogoImage.getScaledInstance(imageSize, imageSize, Image.SCALE_SMOOTH);
+		easyjetLogoImage = easyjetLogoImage.getScaledInstance(imageSize, imageSize, Image.SCALE_SMOOTH);
+		ryanairLogoImage = ryanairLogoImage.getScaledInstance(imageSize, imageSize, Image.SCALE_SMOOTH);
 		
 		JPanel flightsPanel = new JPanel();
 		flightsPanel.setBounds(763, 420, 228, 180);
@@ -392,7 +421,8 @@ public class CheckGatePanel extends JPanel {
 			int totalValue = 0;
 			
 			Color[] dataColors = {MainController.flightProgrammedColor, MainController.flightTakenOffColor, MainController.flightTakenOffLateColor, MainController.flightCancelledColor}; //Programmed, taken off, taken off late, cancelled
-			Color[] companyColors = {MainController.airfranceColor, MainController.alitaliaColor, MainController.easyjetColor, MainController.ryanairColor}; //AirFrance, AlItalia, EasyJet, RyanAir
+			//Color[] companyColors = {MainController.airfranceColor, MainController.alitaliaColor, MainController.easyjetColor, MainController.ryanairColor}; //AirFrance, AlItalia, EasyJet, RyanAir
+			Image[] companyImages = {airfranceLogoImage, alitaliaLogoImage, easyjetLogoImage, ryanairLogoImage};
 			
 			for(int j = 0; j < 4; j++) {
 				g2d.setColor(dataColors[j]);
@@ -403,10 +433,20 @@ public class CheckGatePanel extends JPanel {
 			
 			//Draw company colored outline
 			if(totalValue > 0) {
-				g2d.setStroke(new BasicStroke(normalStroke.getLineWidth()*2));
-				g2d.setColor(companyColors[i]);
-				g2d.drawRect(xGraphOrigin + xSegmentLength + (xSegmentLength * i) - (columnWidth/2), yGraphOrigin - (ySegmentLength * totalValue), columnWidth, (ySegmentLength * totalValue));
+				//g2d.setStroke(new BasicStroke(normalStroke.getLineWidth()*2));
+				//g2d.setColor(companyColors[i]);
+				//g2d.drawRect(xGraphOrigin + xSegmentLength + (xSegmentLength * i) - (columnWidth/2), yGraphOrigin - (ySegmentLength * totalValue), columnWidth, (ySegmentLength * totalValue));
 			}
+			
+			//Draw company image
+			if(totalValue > 0) {
+				Point imagePosition = new Point(xGraphOrigin + xSegmentLength + (xSegmentLength * i) - (columnWidth/2) - (companyImages[i].getWidth(null)/4), yGraphOrigin - (ySegmentLength * totalValue) - companyImages[i].getHeight(null) - 8);
+				g2d.drawImage(companyImages[i], imagePosition.x, imagePosition.y, imagePosition.x + companyImages[i].getWidth(null), imagePosition.y + companyImages[i].getHeight(null), 0, 0, companyImages[i].getWidth(null), companyImages[i].getHeight(null), this);
+			    g2d.setStroke(new BasicStroke(1));
+			    g2d.setColor(MainController.foregroundColorThree);
+			    g2d.drawRoundRect(imagePosition.x, imagePosition.y, companyImages[i].getWidth(null), companyImages[i].getHeight(null), 18, 18);
+			}
+			
 		}
 		
 		//Draw graph info
@@ -416,45 +456,25 @@ public class CheckGatePanel extends JPanel {
 		int squareSize = 15;
 		g2d.setFont(new Font(MainController.fontOne.getFontName(), Font.BOLD, 14));
 		
-		g2d.setColor(MainController.airfranceColor);
-		g2d.drawRect(positionX, positionY, squareSize, squareSize);
-		g2d.setColor(MainController.foregroundColorThree);
-		g2d.drawString("AirFrance", positionX + 25, positionY + 13);
-		
-		g2d.setColor(MainController.alitaliaColor);
-		g2d.drawRect(positionX, positionY + yOffset, squareSize, squareSize);
-		g2d.setColor(MainController.foregroundColorThree);
-		g2d.drawString("Alitalia", positionX + 25, positionY + yOffset + 13);
-		
-		g2d.setColor(MainController.easyjetColor);
-		g2d.drawRect(positionX, positionY + (yOffset * 2), squareSize, squareSize);
-		g2d.setColor(MainController.foregroundColorThree);
-		g2d.drawString("EasyJet", positionX + 25, positionY + (yOffset * 2) + 13);
-		
-		g2d.setColor(MainController.ryanairColor);
-		g2d.drawRect(positionX, positionY + (yOffset * 3), squareSize, squareSize);
-		g2d.setColor(MainController.foregroundColorThree);
-		g2d.drawString("RyanAir", positionX + 25, positionY + (yOffset * 3) + 13);
-		
 		g2d.setColor(MainController.flightCancelledColor);
-		g2d.fillRect(positionX, positionY + (yOffset * 5), squareSize, squareSize);
+		g2d.fillRect(positionX, positionY + (yOffset * 0), squareSize, squareSize);
 		g2d.setColor(MainController.foregroundColorThree);
-		g2d.drawString("Cancellati", positionX + 25, positionY + (yOffset * 5) + 13);
+		g2d.drawString("Cancellati", positionX + 25, positionY + (yOffset * 0) + 13);
 		
 		g2d.setColor(MainController.flightTakenOffLateColor);
-		g2d.fillRect(positionX, positionY + (yOffset * 6), squareSize, squareSize);
+		g2d.fillRect(positionX, positionY + (yOffset * 1), squareSize, squareSize);
 		g2d.setColor(MainController.foregroundColorThree);
-		g2d.drawString("Partiti in ritardo", positionX + 25, positionY + (yOffset * 6) + 13);
+		g2d.drawString("Partiti in ritardo", positionX + 25, positionY + (yOffset * 1) + 13);
 		
 		g2d.setColor(MainController.flightTakenOffColor);
-		g2d.fillRect(positionX, positionY + (yOffset * 7), squareSize, squareSize);
+		g2d.fillRect(positionX, positionY + (yOffset * 2), squareSize, squareSize);
 		g2d.setColor(MainController.foregroundColorThree);
-		g2d.drawString("Partiti", positionX + 25, positionY + (yOffset * 7) + 13);
+		g2d.drawString("Partiti", positionX + 25, positionY + (yOffset * 2) + 13);
 		
 		g2d.setColor(MainController.flightProgrammedColor);
-		g2d.fillRect(positionX, positionY + (yOffset * 8), squareSize, squareSize);
+		g2d.fillRect(positionX, positionY + (yOffset * 3), squareSize, squareSize);
 		g2d.setColor(MainController.foregroundColorThree);
-		g2d.drawString("Programmati", positionX + 25, positionY + (yOffset * 8) + 13);
+		g2d.drawString("Programmati", positionX + 25, positionY + (yOffset * 3) + 13);
 		
 	}
 	
@@ -478,6 +498,9 @@ public class CheckGatePanel extends JPanel {
 	    g2d.setFont(new Font(MainController.fontOne.getFontName(), Font.BOLD, 46));
 	    g2d.setColor(MainController.foregroundColorThree);
 	    g2d.drawString("Informazioni Gate " + String.valueOf(gateNumber), 40, 100);
+	    
+	    int yTranslate = -15; //Draw the following with a slight y offset
+	    g2d.translate(0, yTranslate);
 	    
 	    //Draw averages table
 	    g2d.setFont(new Font(MainController.fontOne.getFontName(), Font.BOLD, 36));
@@ -536,6 +559,8 @@ public class CheckGatePanel extends JPanel {
 		    sLength = g2d.getFontMetrics(g2d.getFont()).stringWidth(s);
 		    g2d.drawString(s, 999 - (sLength/2), 320);
 	    }
+	    
+	    g2d.translate(0, -yTranslate); //Cancel y offset from this point on
 	    
 	    //Draw column graph
 	    drawColumnGraph(g2d, flightList, 40, 635, 450, 260, 2, 1);

@@ -167,7 +167,7 @@ public class VoloDAO {
 		
 		try {
 			
-			String q = "Select * from volo where id = '" + ID + "'" ; //Initialize query
+			String q = "Select * from volo where id = '" + ID + "' ORDER BY dataPartenza ASC" ; //Initialize query
 			
 			String connectionURL = MainController.URL; //Connection URL
 
@@ -221,7 +221,7 @@ public class VoloDAO {
 		
 		try {
 			
-			String q = "Select * from volo where partito = " + false + " and cancellato = " + false + ""; //Initialize query
+			String q = "Select * from volo where partito = " + false + " and cancellato = " + false + " ORDER BY dataPartenza ASC"; //Initialize query
 			String connectionURL = MainController.URL; //Connection URL
 
 	        Connection con = DriverManager.getConnection(connectionURL, MainController.USER, MainController.PASSWORD); //Create connection
@@ -275,7 +275,7 @@ public class VoloDAO {
 		
 		try {
 			
-			String q = "Select * from volo where partito = " + true + " or cancellato = " + true + ""; //Initialize query
+			String q = "Select * from volo where partito = " + true + " or cancellato = " + true + " ORDER BY dataPartenza ASC"; //Initialize query
 			String connectionURL = MainController.URL; //Connection URL
 
 	        Connection con = DriverManager.getConnection(connectionURL, MainController.USER, MainController.PASSWORD); //Create connection
@@ -490,6 +490,70 @@ public class VoloDAO {
 			con.close(); //Close connection
 			st.close(); //Close statement
 			return list; //Return list
+			
+		}catch(Exception e) { //Error catching
+			System.out.println(e);
+			return null; //Return null
+		}
+		
+	}
+
+	public ArrayList<String> getIDListOfFlightsTakeOffTimePassed(Date date) {
+		
+		//Convert date format to a usable format in the database
+		String dateString = dateTimeFormat.format(date);
+		
+		try {
+			
+			String q = "Select id from volo where partito = false AND cancellato = false AND dataPartenza <= '" + dateString + "' ORDER BY dataPartenza ASC" ; //Initialize query
+			
+			String connectionURL = MainController.URL; //Connection URL
+
+	        Connection con = DriverManager.getConnection(connectionURL, MainController.USER, MainController.PASSWORD); //Create connection
+			Statement st = con.createStatement(); //Create statement
+			ResultSet rs = st.executeQuery(q); //Execute query
+			
+			ArrayList<String> idList = new ArrayList<String>();
+			
+			while(rs.next()) {
+				
+				idList.add(rs.getString("id"));
+				
+			}
+			
+			return idList;
+			
+		}catch(Exception e) { //Error catching
+			System.out.println(e);
+			return null; //Return null
+		}
+		
+	}
+
+	public Date[] getMinAndMaxTakeOffTime() {
+		
+		try {
+			
+			String q = "SELECT MIN(dataPartenza) AS minimo, MAX(dataPartenza) as massimo FROM volo" ; //Initialize query
+			
+			String connectionURL = MainController.URL; //Connection URL
+
+	        Connection con = DriverManager.getConnection(connectionURL, MainController.USER, MainController.PASSWORD); //Create connection
+			Statement st = con.createStatement(); //Create statement
+			ResultSet rs = st.executeQuery(q); //Execute query
+			
+			Date[] dates = new Date[2];
+			
+			if(rs.next()) {
+				
+				//Minimum
+				dates[0] = rs.getTimestamp("minimo");
+				//Max
+				dates[1] = rs.getTimestamp("massimo");
+				
+			}
+			
+			return dates;
 			
 		}catch(Exception e) { //Error catching
 			System.out.println(e);

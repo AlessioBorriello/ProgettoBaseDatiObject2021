@@ -222,6 +222,8 @@ public class ViewFlightInfoPanel extends JPanel {
 				repaint();
 				revalidate();
 				mainFrame.createNotificationFrame("Volo impostato come 'partito'!");
+				mainFrame.setNotificationList(mainFrame.checkForNotifications()); //Update notification list
+				mainFrame.repaint();
 				
 			}
 		}
@@ -248,6 +250,7 @@ public class ViewFlightInfoPanel extends JPanel {
 			repaint();
 			revalidate();
 			mainFrame.createNotificationFrame("Volo impostato come 'cancellato'!");
+			mainFrame.setNotificationList(mainFrame.checkForNotifications()); //Update notification list
 			
 		}
 		
