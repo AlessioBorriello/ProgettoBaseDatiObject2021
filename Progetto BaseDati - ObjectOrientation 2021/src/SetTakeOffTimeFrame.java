@@ -35,18 +35,16 @@ public class SetTakeOffTimeFrame extends JDialog {
 	/**
 	 * Frame where the user is prompted to choose a date to be returned
 	 * @param mf Link to the mainFrame
-	 * @param data Starting data that the spinner has to display
+	 * @param data Starting date that the spinner has to display
 	 */
 	public SetTakeOffTimeFrame(MainFrame mf, Date data) {
 		
 		mainFrame = mf; //Link to the mainFrame
 		
-		//Calculate minimum date for the spinner (5 minutes before the passed date)
+		//Calculate minimum date for the spinner (5 minutes before the date passed as argument (A flight can't take off before the start of it's estimated slot time))
 		Calendar c = Calendar.getInstance(); //Create a calendar instance
 		c.setTime(data); //Set the calendar time to the passed date
-		
-		//Get lower range
-		c.add(Calendar.MINUTE, -5);
+		c.add(Calendar.MINUTE, -5); //Remove 5 minutes
 		Date minimumDate = new Date();
 		minimumDate = c.getTime();
 		
@@ -209,6 +207,10 @@ public class SetTakeOffTimeFrame extends JDialog {
 		
 	}
 	
+	/**
+	 * Get the date chosen in the spinner by the user
+	 * @return The date chosen in the spinner by the user
+	 */
 	public Date getDate() {
 		return time;
 	}

@@ -40,7 +40,7 @@ public class SearchPanel extends JPanel {
 	private JPanel archiveOnlyPanel; //Panel that shows additional options if looking at an archive
 	private SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss"); //Date format
 	
-	private Date[] minimumAndMaxDates = new Date[2];
+	private Date[] minimumAndMaxDates = new Date[2]; //Array of 2 dates containing the minimum and maximum dates in the flights that have not taken off yet (and are not cancelled)
 	
 	//Research elements
 	private JTextField idField;
@@ -144,7 +144,7 @@ public class SearchPanel extends JPanel {
 		chckbxRyanair.setBounds(10, 321, 120, 23); //Set bounds
 		add(chckbxRyanair); //Add check box
 		
-		//Get minimum and max dates
+		//Get minimum and max dates in the flights that have not taken off yet (and are not cancelled)
 		minimumAndMaxDates = new VoloDAO().getMinAndMaxTakeOffTime();
 		
 		spinnerTimeLower = new CustomSpinner(MainController.backgroundColorOne, mainController.getDifferentAlphaColor(MainController.foregroundColorThree, 64), 
@@ -220,7 +220,7 @@ public class SearchPanel extends JPanel {
 		//Add mouse listener to the button search
 		buttonSearch.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				makeSearch();
+				searchFlights();
 			}
 		});
 		
@@ -272,7 +272,7 @@ public class SearchPanel extends JPanel {
 	/**
 	 * Gather all of the component's data and do a research in the database
 	 */
-	public void makeSearch() {
+	public void searchFlights() {
 		
 		//Gather data
 		String idFieldString = idField.getText();
@@ -290,7 +290,7 @@ public class SearchPanel extends JPanel {
 		
 		//Update flight list in the main frame
 		mainFrame.setFlightList(mainFrame.searchFlights(idFieldString, destinationFieldString, gateNumber, dateStart, dateEnd, airFrance, alitalia, easyJet, ryanair, cancelled, delayed, inTime));
-		//Update the panel
+		//Update the flight list panel
 		mainFrame.redrawCheckFlightsPanel();
 		
 	}
@@ -305,16 +305,22 @@ public class SearchPanel extends JPanel {
 		chckbxInTime.show(active);
 	}
 
+	/**
+	 * Set the minimum and maximum values of the spinners that allow the user to choose a time range to find flights
+	 * @param minimumAndMaxDates Array of 2 dates containing the minimum and maximum date to apply as min and max to the spinners
+	 */
 	public void setMinimumAndMaxDatesAndUpdateSpinners(Date[] minimumAndMaxDates) {
 		
-		this.minimumAndMaxDates = minimumAndMaxDates;
+		this.minimumAndMaxDates = minimumAndMaxDates; //Update values
 		
-		spinnerTimeLower.setModel(new SpinnerDateModel(minimumAndMaxDates[0], minimumAndMaxDates[0], minimumAndMaxDates[1], Calendar.DAY_OF_YEAR)); //Set spinner model
+		spinnerTimeLower.setModel(new SpinnerDateModel(minimumAndMaxDates[0], minimumAndMaxDates[0], minimumAndMaxDates[1], Calendar.DAY_OF_YEAR)); //Set spinner model with the updated values
+		//Re apply custom background, foreground and font to the spinner
 		spinnerTimeLower.setEditorBackgroundColor(MainController.backgroundColorOne);
 		spinnerTimeLower.setEditorForegroundColor(MainController.foregroundColorThree);
 		spinnerTimeLower.setEditorFont(new Font(MainController.fontOne.getFontName(), Font.PLAIN, 10));
 		
-		spinnerTimeHigher.setModel(new SpinnerDateModel(minimumAndMaxDates[1], minimumAndMaxDates[0], minimumAndMaxDates[1], Calendar.DAY_OF_YEAR)); //Set spinner model
+		//Re apply custom background, foreground and font to the spinner
+		spinnerTimeHigher.setModel(new SpinnerDateModel(minimumAndMaxDates[1], minimumAndMaxDates[0], minimumAndMaxDates[1], Calendar.DAY_OF_YEAR)); //Set spinner model with the updated values
 		spinnerTimeHigher.setEditorBackgroundColor(MainController.backgroundColorOne);
 		spinnerTimeHigher.setEditorForegroundColor(MainController.foregroundColorThree);
 		spinnerTimeHigher.setEditorFont(new Font(MainController.fontOne.getFontName(), Font.PLAIN, 10));

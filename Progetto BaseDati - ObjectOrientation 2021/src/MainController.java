@@ -27,7 +27,6 @@ public class MainController {
 	
 	//Fonts
 	static Font fontOne;
-	static Font fontTwo;
 	
 	//Dark palette
 	static Color darkBackgroundColorOne = new Color(29, 35, 39);
@@ -74,7 +73,7 @@ public class MainController {
 	
 	public static void main(String[] args) {
 		
-		//Import fonts
+		//Import and register font
 		try {
 			
 			fontOne = Font.createFont(Font.TRUETYPE_FONT, new File("fonts/hgrsmp_0.TTF"));
@@ -218,6 +217,12 @@ public class MainController {
 		
 	}
 	
+	/**
+	 * Get the color passed as argument with a different specified alpha
+	 * @param c Color to get with a different alpha
+	 * @param newAlpha Alpha of the color
+	 * @return The color with the modified alpha
+	 */
 	public Color getDifferentAlphaColor(Color c, int newAlpha) {
 		
 		newAlpha = (newAlpha > 255)? 255 : newAlpha; //Clamp max
@@ -227,6 +232,9 @@ public class MainController {
 		
 	}
 	
+	/**
+	 * Set the color palette to the dark palette
+	 */
 	static public void setPaletteToDarkPalette() {
 		
 		flightProgrammedColor = darkForegroundColorThree;
@@ -241,6 +249,9 @@ public class MainController {
 		
 	}
 	
+	/**
+	 * Set the color palette to the light palette
+	 */
 	static public void setPaletteToLightPalette() {
 		
 		flightProgrammedColor = lightForegroundColorThree;

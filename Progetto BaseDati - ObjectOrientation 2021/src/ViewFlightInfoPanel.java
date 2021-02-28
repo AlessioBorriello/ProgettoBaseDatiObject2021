@@ -48,7 +48,7 @@ public class ViewFlightInfoPanel extends JPanel {
 	
 	private Image companyImage; //Company image
 	
-	private ArrayList<Coda> listaCode;
+	private ArrayList<Coda> listaCode; //List of queues of the flight
 
 	/**
 	 * Panel that shows the info of a given flight in detail
@@ -63,8 +63,7 @@ public class ViewFlightInfoPanel extends JPanel {
 		mainController = c; //Link main controller
 		volo = v; //Flight to show the info of
 		
-		//setBounds(bounds);
-		setBounds(72, 2, 1124, 666); //Debug to show in the design tab,  this row should be replaced with the one above
+		setBounds(bounds); //Set bounds
 		setLayout(null); //Set layout
 		
 		//Get correct company image path
@@ -139,7 +138,7 @@ public class ViewFlightInfoPanel extends JPanel {
 		//Add action listener
 		buttonEditFlight.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				mainFrame.setContentPanelToEditFlightPanel(v);
+				mainFrame.setContentPanelToEditFlightPanel(v, false);
 			}
 		});
 		buttonEditFlight.setBounds(805, 548, 210, 74); //Set bound
@@ -177,12 +176,14 @@ public class ViewFlightInfoPanel extends JPanel {
 				
 				//If the flight took off in the estimated slot time
 				if(data.before(s.getFineTempoStimato())) {
+					
 					//Effective and estimated times coincide
 					s.setInizioTempoEffettivo(s.getInizioTempoStimato());
 					s.setFineTempoEffettivo(s.getFineTempoStimato());
-				}else {
 					
-					//The flight took off later than the end of the estimated slot, so it did so in another slot time, calculate it
+				}else { //Otherwise
+					
+					//The flight took off later than the end of the estimated slot, therefore it did so in another slot time, calculate it
 					Calendar c = Calendar.getInstance(); //Create a calendar instance
 					c.setTime(data); //Set the calendar time to the passed date
 					
@@ -256,7 +257,11 @@ public class ViewFlightInfoPanel extends JPanel {
 		
 	}
 
-	public Color getStatusColor() {
+	/**
+	 * Calculate the color of the border of the panel based on the flight's status, programmed, taken off, taken off late and cancelled
+	 * @return The color of the border of the panel representing the flight's status
+	 */
+	public Color getBorderColor() {
 		
 		if(volo.isPartito()) { //If the flight has taken off
 			if(volo.checkIfFlightTookOffLate()) { //Check if it did so late
@@ -293,7 +298,7 @@ public class ViewFlightInfoPanel extends JPanel {
 	    //Draw company image
 	    g2d.drawImage(companyImage, 35, (getHeight()/2) - (companyImage.getHeight(null)/2) - 30, 285, (getHeight()/2) - (companyImage.getHeight(null)/2) + 250 - 30, 0, 0, companyImage.getWidth(null), companyImage.getHeight(null), this);
 	    g2d.setStroke(new BasicStroke(4));
-	    g2d.setColor(getStatusColor());
+	    g2d.setColor(getBorderColor());
 	    g2d.drawRoundRect(35, (getHeight()/2) - (companyImage.getHeight(null)/2) - 30, 250, 250, 110, 110);
 	    
 	    //ID string
@@ -345,7 +350,7 @@ public class ViewFlightInfoPanel extends JPanel {
 	    int index = 0;
 	    for(Coda coda : listaCode) {
 	    	
-	    	//Draw rectangle on uneven queue's number
+	    	//Draw different colored rectangle on uneven queue's number (Once every 2 queues)
 	    	if(index%2 == 1) {
 	    		g2d.setColor(MainController.backgroundColorTwo);
 	    		g2d.fillRect(720, 116 + (index * 60), 390, 60);

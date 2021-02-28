@@ -88,8 +88,7 @@ public class CreateFlightPanel extends JPanel {
 		easyjetLogoImage = easyjetLogoImage.getScaledInstance(250, 250, Image.SCALE_SMOOTH);
 		ryanairLogoImage = ryanairLogoImage.getScaledInstance(250, 250, Image.SCALE_SMOOTH);
 		
-		//setBounds(bounds);
-		setBounds(72, 2, 1124, 666); //To have a preview in design, replace with the row above
+		setBounds(bounds); //Set bounds
 		setLayout(null); //Set panel layout to absolute
 		
 		CustomComboBox cBoxCompany = mainFrame.createCustomComboBox(); //Combo box of the companies
@@ -202,6 +201,7 @@ public class CreateFlightPanel extends JPanel {
 		//Button action listener
 		buttonCreateFlight.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				
 				//Gather data
 				String nomeCompagnia = (String)cBoxCompany.getSelectedItem();
 				Date data = (Date)spinnerTakeOffDate.getValue();
@@ -209,6 +209,7 @@ public class CreateFlightPanel extends JPanel {
 				String destinazione = (String)cBoxDestination.getSelectedItem();
 				
 				createFlight(nomeCompagnia, data, gate, destinazione); //Create flight with the gathered data
+				
 			}
 		});
 		
@@ -244,7 +245,7 @@ public class CreateFlightPanel extends JPanel {
 		
 	/**
 	 * Add a queue to the panelQueues
-	 * @param type
+	 * @param type Type of the queue to add to the queue list
 	 */
 	public void addQueue(String type) {
 		
@@ -253,7 +254,7 @@ public class CreateFlightPanel extends JPanel {
 		listaCode.add(type); //Add the queue to the ArrayList listaCode
 		
 		//Determine background color
-		Color bgColor = (listaCode.size()%2 == 0)? MainController.backgroundColorTwo : null; //If the array size is not even, set a background color for the button
+		Color bgColor = (listaCode.size()%2 == 0)? MainController.backgroundColorTwo : null; //If the array size is not even, set a different background color for the button (Once every 2 buttons)
 		
 		//Create button for that queue
 		CustomButton buttonAddedQueue = new CustomButton(type, bgColor, mainController.getDifferentAlphaColor(MainController.foregroundColorThree, 64), 
@@ -292,7 +293,7 @@ public class CreateFlightPanel extends JPanel {
 
 	/**
 	 * Remove a queue from the panelQueues containing the queues
-	 * @param queueLabel What label to remove from the panel
+	 * @param queueButton What queue button to remove
 	 */
 	public void removeQueue(CustomButton queueButton) {
 		
@@ -337,6 +338,7 @@ public class CreateFlightPanel extends JPanel {
 	 * @param nomeCompagnia Company name of the flight
 	 * @param data Take off date of the flight
 	 * @param gate Gate where the flight's embark takes place
+	 * @param destinazione Destination of the flight
 	 */
 	public void createFlight(String nomeCompagnia, Date data, int gate, String destinazione) {
 		
@@ -408,7 +410,7 @@ public class CreateFlightPanel extends JPanel {
 		v.setPartito(false);
 		v.setSlot(s);
 		
-		//Calculate number of bookings
+		//Calculate number of bookings (sum of all the queues lengths)
 		int sum = 0;
 		for(Coda coda : v.getGate().getListaCode()) {
 			sum += coda.getPersoneInCoda();
@@ -420,11 +422,11 @@ public class CreateFlightPanel extends JPanel {
 		dao.insertFlight(mainFrame, v);
 		
 		//Go to checkFlightsPanel
-		if(mainFrame.setContentPanelToCheckFlightsPanel(false)) { //If the panel gets changed
+		if(mainFrame.setContentPanelToCheckFlightsPanel(false, false)) { //If the panel successfully gets changed
 			
 			SearchPanel searchPanel = (SearchPanel)mainController.getComponentByName(mainFrame, "searchPanel"); //Get searchPanel from the mainFrame
 			if(searchPanel != null) { //If the searchPanel gets found
-				searchPanel.makeSearch(); //Make search
+				searchPanel.searchFlights(); //Make search (to possibly include this new flight)
 			}
 			
 			//Update minimum and max dates spinners
@@ -439,6 +441,10 @@ public class CreateFlightPanel extends JPanel {
 		
 	}
 
+	/**
+	 * Add destinations in to a given combo box
+	 * @param box The combo box to add the destinations to
+	 */
 	public void populateDestinationComboBox(CustomComboBox box) {
 		
 		box.addItem("Londra");

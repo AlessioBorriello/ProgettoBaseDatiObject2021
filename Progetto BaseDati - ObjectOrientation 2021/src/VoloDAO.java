@@ -214,8 +214,8 @@ public class VoloDAO {
 	}
 	
 	/**
-	 * Get all the flights that are not archived (where partito and cancellato are false)
-	 * @return
+	 * Get all the flights that are not archived (where 'partito' and 'cancellato' are false)
+	 * @return List of all the non taken off and non cancelled flights
 	 */
 	public ArrayList<Volo> getNonArchivedFlights(){
 		
@@ -268,8 +268,8 @@ public class VoloDAO {
 	}
 	
 	/**
-	 * Get all the flights that are archived (where partito or cancellato are true)
-	 * @return
+	 * Get all the flights that are archived (where 'partito' or 'cancellato' are true)
+	 * @return List of all the taken off or cancelled flights
 	 */
 	public ArrayList<Volo> getArchivedFlights(){
 		
@@ -498,6 +498,11 @@ public class VoloDAO {
 		
 	}
 
+	/**
+	 * Get a list of ID's of all the flights whose take off time happen before a given date
+	 * @param date The date that a flight needs to take off before of to be added in the return list
+	 * @return List of ID's of all the flights whose take off time happen before a given date
+	 */
 	public ArrayList<String> getIDListOfFlightsTakeOffTimePassed(Date date) {
 		
 		//Convert date format to a usable format in the database
@@ -530,6 +535,10 @@ public class VoloDAO {
 		
 	}
 
+	/**
+	 * Get the minimum and maximum dates present in the database, non considering cancelled or flights that have taken off
+	 * @return Array of size 2 containing the minimum and maximum dates present in the database, non considering cancelled or flights that have taken off
+	 */
 	public Date[] getMinAndMaxTakeOffTime() {
 		
 		try {

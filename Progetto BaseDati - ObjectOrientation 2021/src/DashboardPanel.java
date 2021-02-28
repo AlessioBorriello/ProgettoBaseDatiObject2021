@@ -30,11 +30,10 @@ import java.awt.event.ActionEvent;
 
 public class DashboardPanel extends JPanel {
 
-	private int height; //Height of the dash board
-	private MainFrame mainFrame; //Main panel
+	private MainFrame mainFrame; //Main frame
 	private MainController mainController; //Main controller
 	
-	private SearchPanel searchPanel; //Search panel
+	private SearchPanel searchPanel; //Search panel, declared here to be accessed by methods
 	
 	//Animation
 	final private int startingPositionX = -230; //Starting x of the dash board panel
@@ -55,17 +54,14 @@ public class DashboardPanel extends JPanel {
 	 */
 	public DashboardPanel(int h, MainFrame mf, MainController mc) {
 		
-		height = h; //Set height value of the dash board
 		mainFrame = mf; //Set the main frame
 		mainController = mc; //Set the main controller
 		
-		setBackground(SystemColor.activeCaptionBorder); //Set background
-		//setBounds(startingPositionX,  2,  300, height - 4); //Position board in the starting position
-		setBounds(startingPositionX,  2,  300, 670); //Debug to show dash board in the design tab, this row should be replaced with the one above
+		setBounds(startingPositionX,  2,  300, 670); //Position board in the starting position
 		setLayout(null); //Set layout to absolute
 		
-		
-		searchPanel = new SearchPanel(mainController, mainFrame); //Create search panel
+		//Create panel that allows the user to do a research in the database
+		searchPanel = new SearchPanel(mainController, mainFrame);
 		searchPanel.setLocation(new Point(2, 2)); //Position panel
 		searchPanel.setSize(new Dimension(294, 401)); //Set size
 		searchPanel.setName("searchPanel"); //Set component name
@@ -107,6 +103,7 @@ public class DashboardPanel extends JPanel {
 		noSearchAvailablePanel.setName("noSearchAvailablePanel"); //Set component name
 		add(noSearchAvailablePanel);
 		
+		//Create control panel, panel containing the buttons used to navigate the application
 		JPanel dashboardControlPanel = (new JPanel() {
 			
 			public void paintComponent(Graphics g) {
@@ -151,11 +148,11 @@ public class DashboardPanel extends JPanel {
 			public void actionPerformed(ActionEvent e) {
 				
 				//Set panel on main frame to the correct panel (not looking at the archive)
-				if(mf.setContentPanelToCheckFlightsPanel(false)) { //If the panel gets changed
+				if(mf.setContentPanelToCheckFlightsPanel(false, true)) { //If the panel gets changed
 					
 					SearchPanel searchPanel = (SearchPanel)mainController.getComponentByName(mainFrame, "searchPanel"); //Get searchPanel from the mainFrame
 					if(searchPanel != null) { //If the searchPanel gets found
-						searchPanel.makeSearch(); //Make search
+						searchPanel.searchFlights(); //Make search
 					}
 					
 					//Update dash board
@@ -169,8 +166,6 @@ public class DashboardPanel extends JPanel {
 		});
 		buttonCheckFlights.setBounds(10, 11, 276, 50); //Set position and bounds
 		dashboardControlPanel.add(buttonCheckFlights); //Add to dashboardControlPanel
-		
-		
 		
 		CustomButton buttonFlightsArchive = new CustomButton("Archivio voli", null, mainController.getDifferentAlphaColor(MainController.foregroundColorThree, 64), 
 				MainController.foregroundColorThree, 22, false, null, 0); //Create check flights archive button
@@ -188,11 +183,11 @@ public class DashboardPanel extends JPanel {
 			public void actionPerformed(ActionEvent e) {
 				
 				//Set panel on main frame to the correct panel (looking at the archive)
-				if(mf.setContentPanelToCheckFlightsPanel(true)) { //If the panel gets changed
+				if(mf.setContentPanelToCheckFlightsPanel(true, true)) { //If the panel gets changed
 					
 					SearchPanel searchPanel = (SearchPanel)mainController.getComponentByName(mainFrame, "searchPanel"); //Get searchPanel from the mainFrame
 					if(searchPanel != null) { //If the searchPanel gets found
-						searchPanel.makeSearch(); //Make search
+						searchPanel.searchFlights(); //Make search
 					}
 					
 					//Update dashboard
@@ -223,7 +218,7 @@ public class DashboardPanel extends JPanel {
 			public void actionPerformed(ActionEvent e) {
 			
 				//Set panel on main frame to the correct panel
-				mf.setContentPanelToCreateFlightsPanel();
+				mf.setContentPanelToCreateFlightsPanel(true);
 			
 			}
 		});
@@ -246,7 +241,7 @@ public class DashboardPanel extends JPanel {
 			public void actionPerformed(ActionEvent e) {
 			
 				//Set panel on main frame to the correct panel
-				mf.setContentPanelToStatisticsPanel();
+				mf.setContentPanelToStatisticsPanel(true);
 			
 			}
 		});

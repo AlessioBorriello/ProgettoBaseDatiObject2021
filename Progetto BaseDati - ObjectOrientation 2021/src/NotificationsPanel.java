@@ -34,37 +34,43 @@ public class NotificationsPanel extends JPanel{
 	private JPanel flightListPanel;
 	private JScrollPane scrollPanel;
 	
-	private int maxHeight = 400;
-	private int minimumHeight = 140;
+	private int maxHeight = 400; //Maximum panel's height before the list of flights shows a scroll bar
+	private int minimumHeight = 140; //Minimum height of the panel
 	
+	/**
+	 * Panel showing the current system time and in a list all the flights in the database that should have taken off already (take off time < current time)
+	 * @param mainController Link to the MainController
+	 * @param mainFrame Link to the MainFrame
+	 * @param flightIDList List of the ID's of the flights in the database whose take off time is < than the current time
+	 */
 	public NotificationsPanel(MainController mainController, MainFrame mainFrame, ArrayList<String> flightIDList) {
 		
 		this.mainController = mainController;
 		this.mainFrame = mainFrame;
 		this.flightIDList = flightIDList;
 		
-		setSize(240, minimumHeight);
-		setLayout(null);
+		setSize(240, minimumHeight); //Set size of the panel
+		setLayout(null); //Set layout to absolute
 		
 		class IncreaseTime extends TimerTask {
 			
 			//Override run method
 			public void run() {
-				currentTime = currentTime.plusSeconds(1);
-				repaint();
+				currentTime = currentTime.plusSeconds(1); //Increase current time by 1 second
+				repaint(); //Repaint panel
 			}
 		}
 	
 		IncreaseTime increaseTime = new IncreaseTime();
 		Timer t = new Timer();
-		t.schedule(increaseTime, 1000, 1000);
+		t.schedule(increaseTime, 1000, 1000); //Increase time once a second
 		
-		scrollPanel = new JScrollPane();
-		scrollPanel.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-		scrollPanel.setBorder(null);
-		scrollPanel.setVerticalScrollBar(mainFrame.createCustomScrollbar());
-		scrollPanel.setBounds(4, 100, getWidth() - 6, minimumHeight - 102);
-		add(scrollPanel);
+		scrollPanel = new JScrollPane(); //Create scroll panel
+		scrollPanel.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER); //Never use horizontal scroll bar
+		scrollPanel.setBorder(null); //Set border to null
+		scrollPanel.setVerticalScrollBar(mainFrame.createCustomScrollbar()); //Set vertical scroll bar to a custom scroll bar
+		scrollPanel.setBounds(4, 100, getWidth() - 6, minimumHeight - 102); //Set scroll panel bounds, it starts 100 pixels lower than the panel and it's height is the minimum - 102
+		add(scrollPanel); //Add scroll panel
 		
 		flightListPanel = (new JPanel() {
 			
@@ -86,22 +92,31 @@ public class NotificationsPanel extends JPanel{
 				
 			}
 			
-		});
-		flightListPanel.setLayout(null);
-		scrollPanel.setViewportView(flightListPanel);
+		}); //Create list panel containing the ID of the flights being notified about
+		flightListPanel.setLayout(null); //Set layout to absolute
+		scrollPanel.setViewportView(flightListPanel); //Make the scroll panel watch this panel
 		
-		populateFlightList(flightIDList);
+		populateFlightList(flightIDList); //Populate the flight list panel with the ID of the flights being notified about
 		
 	}
 	
+	/**
+	 * Create a button for each of the ID in the given list and add them to the flight list panel, it than calculates it's new height and applies it
+	 * if the height after the buttons have been added is higher than the max height, then it sets it's height to the max and the scroll panel starts
+	 * showing it's scroll bar, to allow the user to navigate the rest of the buttons
+	 * @param flightIDList List of ID's of the flight to create the buttons out of
+	 */
 	public void populateFlightList(ArrayList<String> flightIDList) {
 		
-		NotificationsPanel thisPanel = this; //Link to this panel
+		NotificationsPanel thisPanel = this; //Link to this panel (to remove it if the user clicks on a button)
 		
-		int index = 0;
-		int height = 50;
-		int vGap = 2;
+		int index = 0; //Button index in the list
+		int height = 50; //Button height
+		int vGap = 2; //Gap between each button
+		
+		//For every string in the id list
 		for(String s : flightIDList) {
+			//Create a custom button
 			CustomButton buttonFlight = new CustomButton(s, null, mainController.getDifferentAlphaColor(MainController.foregroundColorThree, 48), 
 					MainController.foregroundColorThree, 18, true, MainController.foregroundColorThree, 2); //Create button create flight
 			buttonFlight.setName("buttonFlight"); //Name component
@@ -118,7 +133,7 @@ public class NotificationsPanel extends JPanel{
 			buttonFlight.addMouseListener(new MouseAdapter() {
 				//When mouse clicked
 				public void mouseClicked(MouseEvent e) {
-					mainFrame.setContentPanelToViewFlightInfoPanel(new VoloDAO().getFlightByID(s)); //Go to view flight info
+					mainFrame.setContentPanelToViewFlightInfoPanel(new VoloDAO().getFlightByID(s), false); //Go to view flight info
 					JLayeredPane centerPanel = (JLayeredPane)mainController.getComponentByName(mainFrame, "centerPanel"); //Get center panel
 					if(centerPanel != null) {
 						centerPanel.remove(thisPanel); //Remove this panel from the centerPanel
@@ -131,10 +146,10 @@ public class NotificationsPanel extends JPanel{
 			index++;
 		}
 		
-		//Calculate new height of the list panel (after the buttons have been added)
+		//Calculate new height of the list (after the buttons have been added)
 		int newListPanelHeight = ((height + vGap) * index);
 		
-		//Change panels height
+		//Calculate new panels heights clamping it so that it's height does not get higher than the max height variable (+102 because the scroll panel starts 100 pixels lower than the notification panel)
 		int newPanelHeight = (newListPanelHeight + 102 > maxHeight)? maxHeight : 102 + newListPanelHeight; //Max clamp
 		newPanelHeight = (newPanelHeight < minimumHeight)? minimumHeight : newPanelHeight; //Minimum clamp
 		
@@ -185,7 +200,7 @@ public class NotificationsPanel extends JPanel{
 		g2d.setStroke(new BasicStroke(2));
 		g2d.drawLine(20, 40, getWidth() - 20, 40);
 		
-		//No notifications
+		//If no notifications
 		if(flightIDList.size() == 0) {
 			String s = "Nessun volo dovrebbe";
 			int sLength = g2d.getFontMetrics(g2d.getFont()).stringWidth(s);
@@ -193,7 +208,7 @@ public class NotificationsPanel extends JPanel{
 			s = "essere partito";
 			sLength = g2d.getFontMetrics(g2d.getFont()).stringWidth(s);
 			g2d.drawString(s, (getWidth()/2) - (sLength/2), 85);
-		}else {
+		}else { //Otherwise
 			String s = "Questi voli dovrebbero";
 			int sLength = g2d.getFontMetrics(g2d.getFont()).stringWidth(s);
 			g2d.drawString(s, (getWidth()/2) - (sLength/2), 65);

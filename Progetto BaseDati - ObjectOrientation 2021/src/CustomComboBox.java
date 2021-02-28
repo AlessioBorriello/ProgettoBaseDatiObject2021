@@ -32,19 +32,30 @@ import javax.swing.plaf.basic.ComboPopup;
 
 public class CustomComboBox extends JComboBox<Object> {
 	
-	Color borderColor;
-	int borderThickness;
+	Color borderColor; //Color of the border
+	int borderThickness; //Thickness of the border
 	
-	Color buttonBackgroundColor;
-	Color buttonHoveringColor;
+	Color buttonBackgroundColor; //Background color of the button on the side of the combo box
+	Color buttonHoveringColor; //Color of the rectangle being drawn on the button on the side of the combo box when the mouse hovers over it
 	
-	JScrollBar customScrollbar;
+	JScrollBar customScrollbar; //Scroll bar of the combo box
 	
-	Color unselectedItemBackgroundColor;
-	Color unselectedItemForegroundColor;
+	Color unselectedItemBackgroundColor; //Color of the background of an unselected item
+	Color unselectedItemForegroundColor; //Color of the foreground of an unselected item
 	
-	Font font;
+	Font font; //Font used in the combo box
 	
+	/**
+	 * Create a combo box with a custom UI
+	 * @param borderColor Color of the border
+	 * @param borderThickness Thickness of the border
+	 * @param buttonBackgroundColor Color of the background of the button on the combo box
+	 * @param buttonHoveringColor Color of the rectangle being drawn on the button on the combo box when the mouse is hovering
+	 * @param customScrollbar Scroll bar of the combo box pop up
+	 * @param unselectedItemBackgroundColor Color of the background of an unselected item (Mouse not hovering on it in the pop up)
+	 * @param unselectedItemForegroundColor Color of the foreground of an unselected item (Mouse not hovering on it in the pop up)
+	 * @param font Font of the combo box
+	 */
 	public CustomComboBox(Color borderColor, int borderThickness, Color buttonBackgroundColor, Color buttonHoveringColor, JScrollBar customScrollbar, Color unselectedItemBackgroundColor, Color unselectedItemForegroundColor, Font font) {
 		
 		this.borderColor = borderColor;
@@ -60,12 +71,13 @@ public class CustomComboBox extends JComboBox<Object> {
 		
 		this.font = font;
 		
-		setBorder(new LineBorder(borderColor, borderThickness));
-		setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-		setUI(new CustomComboBoxUI());
+		setBorder(new LineBorder(borderColor, borderThickness)); //Draw border
+		setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)); //Hand cursor when mouse passes on the combo box
+		setUI(new CustomComboBoxUI()); //Implement custom UI
 		
 	}
 	
+	//Custom combo box UI being implemented by the combo box
 	private class CustomComboBoxUI extends BasicComboBoxUI {
 		
 		protected JButton createArrowButton() {
@@ -85,7 +97,7 @@ public class CustomComboBox extends JComboBox<Object> {
             	    //Text AA
             	    g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
             	    
-            	    //Draw arrows
+            	    //Draw arrow
             	    g2d.setStroke(new BasicStroke(borderThickness));
             	    g2d.setColor(borderColor);
             	    
@@ -123,46 +135,28 @@ public class CustomComboBox extends JComboBox<Object> {
 	        
 	    }
 		
-		protected ComboBoxEditor createEditor() {
+		public void paintCurrentValue(Graphics g, Rectangle bounds, boolean hasFocus) {
 			
-	        return new BasicComboBoxEditor();
+	        Component c; //Component to store the renderer
 	        
-	    }
-		
-		public void paintCurrentValue(Graphics g,Rectangle bounds,boolean hasFocus) {
-	        ListCellRenderer<Object> renderer = comboBox.getRenderer();
-	        Component c;
-
-	        if ( hasFocus && !isPopupVisible(comboBox) ) {
-	            c = renderer.getListCellRendererComponent( listBox,
-	                                                       comboBox.getSelectedItem(),
-	                                                       -1,
-	                                                       true,
-	                                                       false );
-	        }
-	        else {
-	            c = renderer.getListCellRendererComponent( listBox,
-	                                                       comboBox.getSelectedItem(),
-	                                                       -1,
-	                                                       false,
-	                                                       false );
+	        //Get the renderer
+	        if(hasFocus && !isPopupVisible(comboBox)) {
+	            c = renderer.getListCellRendererComponent(listBox, comboBox.getSelectedItem(), -1, true, false);
+	        }else {
+	            c = renderer.getListCellRendererComponent(listBox, comboBox.getSelectedItem(), -1, false, false);
 	            c.setBackground(UIManager.getColor("ComboBox.background"));
 	        }
+	        
+	        //Set font
 	        c.setFont(font);
-	        if ( hasFocus && !isPopupVisible(comboBox) ) {
-	        	//Item selected when focus is on the combo box
-	            c.setForeground(unselectedItemForegroundColor);
-	            c.setBackground(unselectedItemBackgroundColor);
-	        }
-	        else {
-	        	//Item selected when focus is not on the combo box
-                c.setForeground(unselectedItemForegroundColor);
-                c.setBackground(unselectedItemBackgroundColor);
-	        }
+	        
+	        //Set background and foreground of the unselected items renderer
+            c.setForeground(unselectedItemForegroundColor);
+            c.setBackground(unselectedItemBackgroundColor);
 
 	        // Fix for 4238829: should lay out the JPanel.
 	        boolean shouldValidate = false;
-	        if (c instanceof JPanel)  {
+	        if (c instanceof JPanel) {
 	            shouldValidate = true;
 	        }
 
@@ -175,57 +169,56 @@ public class CustomComboBox extends JComboBox<Object> {
 	        }
 
 	        currentValuePane.paintComponent(g,c,comboBox,x,y,w,h,shouldValidate);
+	        
 	    }
 	
 	}
 	
+	//Custom combo pop up implemented by the custom combo box UI
 	private class CustomComboPopup extends BasicComboPopup {
 
 		public CustomComboPopup(JComboBox<Object> combo) {
 			
 			super(combo);//Call normal BasicComboPopup constructor
-			setBorder(new LineBorder(borderColor, borderThickness));
-			setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+			setBorder(new LineBorder(borderColor, borderThickness)); //Set border
+			setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)); //Hand cursor when mouse passes on the combo box pop up
 			
 		}
 		
 		protected JScrollPane createScroller() {
 			
-			//Create custom scroll bar
-	        JScrollPane sp = new JScrollPane( list,
-	                                ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
-	                                ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER );
-	        sp.setHorizontalScrollBar(null);
-	        sp.setVerticalScrollBar(customScrollbar); //Set custom scroll bar
+			//Create scroll pane
+	        JScrollPane sp = new JScrollPane(list, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER); //Never utilize horizontal scroll bar
+	        sp.setHorizontalScrollBar(null); //Set horizontal scroll bar as null
+	        sp.setVerticalScrollBar(customScrollbar); //Set vertical scroll bar as custom scroll bar
 	        return sp;
+	        
 	    }
 		
 	}
 	
+	//Custom combo box renderer implemented by the custom combo box UI
 	private class CustomComboBoxRenderer extends BasicComboBoxRenderer {
 		
 		public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
 			
-			if (isSelected) {
-				//Invert colors for the item being selected
+			//If the component is the one being selected (mouse hovering on it)
+			if(isSelected) {
+				//Invert colors for the renderer of the item being selected
 				setBackground(unselectedItemForegroundColor);
 				setForeground(unselectedItemBackgroundColor);
-			}
-			else {
+			}else {
 				setBackground(unselectedItemBackgroundColor);
 				setForeground(unselectedItemForegroundColor);
 			}
 			
-			setFont(font);
+			setFont(font); //Set font
 			
-			if (value instanceof Icon) {
-				setIcon((Icon)value);
-			}
-			else {
-				setHorizontalAlignment(JLabel.CENTER); //Set the text to the center
-				setText((value == null) ? "" : value.toString());
-			}
-			return this;
+			setHorizontalAlignment(JLabel.CENTER); //Set the text to the center
+			setText((value == null) ? "" : value.toString()); //If value is not null
+			
+			return this; //Return this instance of Custom Combo Box Renderer
+			
 		}
 		
 	}

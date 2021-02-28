@@ -35,15 +35,21 @@ public class StatisticsPanel extends JPanel {
 	private MainController mainController; //Main controller
 	
 	private int gatesNumber = 12; //How many gate there are in the airport
-	private int flightTotal = 0;
+	private int flightTotal = 0; //How many flights there are in the whole airport
 	
-	private class Pie {
+	private class PieSlice {
 		
-		private String name;
-		private int value;
-		private Color color;
+		private String name; //Name of the slice
+		private int value; //Value of the slice
+		private Color color; //Color of the slice
 		
-		public Pie(String name, int value, Color c) {
+		/**
+		 * Create a new pie slice and set it's name, value and color
+		 * @param name Name of the slice
+		 * @param value Value of the slice
+		 * @param c Color of the slice
+		 */
+		public PieSlice(String name, int value, Color c) {
 			
 			this.name = name;
 			this.value = value;
@@ -51,6 +57,7 @@ public class StatisticsPanel extends JPanel {
 			
 		}
 		
+		//Setters and getters
 		public int getValue() {
 			return value;
 		}
@@ -72,24 +79,39 @@ public class StatisticsPanel extends JPanel {
 		
 	}
 
+	/**
+	 * Panel that shows the amount of flights in the database and a pie chart representation of it, it also shows the
+	 * amount of flights each of the 12 gates has, allowing the user to choose a gate to see more info about it into the CheckGatePanel
+	 * @param bounds Bounds of the contentPanel that contains this panel
+	 * @param mf Link to the MainFrame
+	 * @param c Link to the MainController
+	 */
 	public StatisticsPanel(Rectangle bounds, MainFrame mf, MainController c) {
 		
 		mainFrame = mf; //Link main frame
 		mainController = c; //Link main controller
 		
-		//Get flight's number
+		//Get number of flights for each of the companies in the airport
 		for(int i = 0; i < 4; i++) {
 			flightTotal += mainFrame.getListaCompagnie().get(i).getNumeroVoli();
 		}
 		
-		//setBounds(bounds);
-		setBounds(72, 2, 1124, 666); //Debug to show in the design tab,  this row should be replaced with the one above
-		setLayout(null);
+		setBounds(bounds); //Set bounds
+		setLayout(null); //Set bounds
 		
-		populateGatesGrid(gatesNumber, 6, 15, 15, 125, (getBounds().height/2) - 10);
+		populateGatesGrid(gatesNumber, 6, 15, 15, 125, (getBounds().height/2) - 10); //Create grid of gates panel
 		
 	}
 
+	/**
+	 * 
+	 * @param gatesNumber Amount of panels to create
+	 * @param columns How many panels per row
+	 * @param hgap Horizontal gap between each panel
+	 * @param vgap Vertical gap between each panel
+	 * @param xStartOffset Starting x offset of the first panel
+	 * @param yStartOffset Starting y offset of the first panel
+	 */
 	public void populateGatesGrid(int gatesNumber, int columns, int hgap, int vgap, int xStartOffset, int yStartOffset) {
 		
 		//Position in the grid
@@ -144,7 +166,7 @@ public class StatisticsPanel extends JPanel {
 	 * @param drawNames If the pie should show the names of the singular pie slice
 	 * @param f Font to draw the names with
 	 */
-	public void drawPieChart(Graphics2D g2d, int angleOffset, int centerX, int centerY, int width, int height,  ArrayList<Pie> pies, boolean drawOutline, boolean draw3D, int depth, boolean drawNames, Font f) {
+	public void drawPieChart(Graphics2D g2d, int angleOffset, int centerX, int centerY, int width, int height,  ArrayList<PieSlice> pies, boolean drawOutline, boolean draw3D, int depth, boolean drawNames, Font f) {
 		
 		angleOffset %= 360; //Modulate angleOffset to 360
 		angleOffset = (angleOffset < 0)? (360 + angleOffset) : angleOffset; //If the angleOffset is negative add 360 to it (same resulting angle, but positive)
@@ -158,7 +180,7 @@ public class StatisticsPanel extends JPanel {
 		}
 		
 		//Get sum of values
-		for(Pie p : pies) {
+		for(PieSlice p : pies) {
 			total += p.getValue();
 		}
 		
@@ -176,7 +198,7 @@ public class StatisticsPanel extends JPanel {
 		
 		if(draw3D) { //If drawing 3D effect
 			
-			for(Pie p : pies) { //Draw bottom of the pie
+			for(PieSlice p : pies) { //Draw bottom of the pie
 				
 				float pieAngle = (float)(360 * p.getValue())/total; //Get end angle of the pie
 				g2d.setPaint(p.getColor().darker().darker()); //Set color to a darker version of the pie color
@@ -189,7 +211,7 @@ public class StatisticsPanel extends JPanel {
 			
 			startAngle = angleOffset; //Reset angle
 			//Draw depth polygons
-			for(Pie p : pies) {
+			for(PieSlice p : pies) {
 				
 				float pieAngle = (float)(360 * p.getValue())/total; //Get end angle of the pie
 				g2d.setPaint(p.getColor().darker().darker()); //Set color to a darker version of the pie color
@@ -241,7 +263,7 @@ public class StatisticsPanel extends JPanel {
 			
 			g2d.setFont(f);
 			
-			for(Pie p : pies) {
+			for(PieSlice p : pies) {
 				
 				float pieAngle = (float)(360 * p.getValue())/total; //Get end angle of the pie
 				
@@ -277,7 +299,7 @@ public class StatisticsPanel extends JPanel {
 		}
 		
 		startAngle = angleOffset; //Reset angle
-		for(Pie p : pies) { //Draw top of the pie
+		for(PieSlice p : pies) { //Draw top of the pie
 			
 			float pieAngle = (float)(360 * p.getValue())/total; //Get end angle of the pie
 			
@@ -343,24 +365,25 @@ public class StatisticsPanel extends JPanel {
 		
 		int angle = -90;
 		g2d.rotate(Math.toRadians(angle)); //Rotate
-		g2d.drawString(s, -655, 70);
+		g2d.drawString(s, -655, 70); //Draw string rotated -90 degrees
 		g2d.rotate(Math.toRadians(-angle)); //Rotate back
 		
 		//Draw lines
 		g2d.setStroke(new BasicStroke(4, BasicStroke.CAP_ROUND, BasicStroke.JOIN_MITER));
 		g2d.drawLine(120, (getHeight()/2) - 40, getWidth() - 25, (getHeight()/2) - 40);
 		
-		//Draw pie chart
-		ArrayList<Pie> companyData = new ArrayList<Pie>();
+		//Create an array list of pie slices
+		ArrayList<PieSlice> companyDataPie = new ArrayList<PieSlice>();
 		
-		companyData.add(new Pie("AirFrance", mainFrame.getListaCompagnie().get(0).getNumeroVoli(), MainController.airfranceColor));
-		companyData.add(new Pie("Alitalia", mainFrame.getListaCompagnie().get(1).getNumeroVoli(), MainController.alitaliaColor));
-		companyData.add(new Pie("EasyJet", mainFrame.getListaCompagnie().get(2).getNumeroVoli(), MainController.easyjetColor));
-		companyData.add(new Pie("RyanAir", mainFrame.getListaCompagnie().get(3).getNumeroVoli(), MainController.ryanairColor));
+		//Add slices to the pie
+		companyDataPie.add(new PieSlice("AirFrance", mainFrame.getListaCompagnie().get(0).getNumeroVoli(), MainController.airfranceColor)); //Add AirFrance slice, with it's flight number and color
+		companyDataPie.add(new PieSlice("Alitalia", mainFrame.getListaCompagnie().get(1).getNumeroVoli(), MainController.alitaliaColor)); //Add Alitalia slice, with it's flight number and color
+		companyDataPie.add(new PieSlice("EasyJet", mainFrame.getListaCompagnie().get(2).getNumeroVoli(), MainController.easyjetColor)); //Add EasyJet slice, with it's flight number and color
+		companyDataPie.add(new PieSlice("RyanAir", mainFrame.getListaCompagnie().get(3).getNumeroVoli(), MainController.ryanairColor)); //Add RyanAir slice, with it's flight number and color
 		
-		drawPieChart(g2d, 45, 840, 150, 200, 100, companyData, true, true, 25, true, new Font(MainController.fontOne.getFontName(), Font.BOLD, 16));
+		drawPieChart(g2d, 45, 840, 150, 200, 100, companyDataPie, true, true, 25, true, new Font(MainController.fontOne.getFontName(), Font.BOLD, 16)); //Draw pie
 		
-		//Draw flight total number
+		//Draw flight total number in the airport
 		g2d.setColor(MainController.foregroundColorThree);
 		g2d.setFont(new Font(MainController.fontOne.getFontName(), Font.BOLD, 40));
 		s = "Numero di voli presenti";

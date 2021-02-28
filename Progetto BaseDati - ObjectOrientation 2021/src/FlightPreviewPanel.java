@@ -36,6 +36,9 @@ public class FlightPreviewPanel extends JPanel {
 	private int width = 255;
 	private int height = 255;
 	
+	private Color hoveringColor = new Color(MainController.foregroundColorThree.getRed(), MainController.foregroundColorThree.getGreen(), MainController.foregroundColorThree.getBlue(), 42); //Color of the rectangle being drawn on the panel when the mouse is hovering
+	private int hoveringAlpha = hoveringColor.getAlpha(); //Alpha of the color of the rectangle being drawn on the panel when the mouse is hovering
+	
 	//Flight status
 	private Color borderColor; //Border color based on the flight status
 	private String statusString; //String based on the flight status
@@ -44,12 +47,17 @@ public class FlightPreviewPanel extends JPanel {
 	private Image companyLogoImage;
 	
 	//Animation
-	private hoveringAnimationStatus animationStatus = hoveringAnimationStatus.unselected;
-	private int animationHeight = 0;
-	private Color hoveringColor = new Color(MainController.foregroundColorThree.getRed(), MainController.foregroundColorThree.getGreen(), MainController.foregroundColorThree.getBlue(), 42);
-	private int hoveringAlpha = hoveringColor.getAlpha();
-	private int animationAlpha = 0;
+	private hoveringAnimationStatus animationStatus = hoveringAnimationStatus.unselected; //Animation status
+	private int animationHeight = 0; //Height of the rectangle being drawn on the panel when the mouse is hovering
+	private int animationAlpha = 0; //Alpha of the rectangle being drawn on the panel when the mouse is hovering
 
+	/**
+	 * Panel showing the preview info of a given flight
+	 * @param mf Link to the MainFrame
+	 * @param c Link to the MainController
+	 * @param v Flight to show the info of
+	 * @param companyLogoImage Image of the company of the flight
+	 */
 	public FlightPreviewPanel(MainFrame mf, MainController c, Volo v, Image companyLogoImage) {
 		
 		mainFrame = mf; //Link main frame
@@ -74,7 +82,7 @@ public class FlightPreviewPanel extends JPanel {
 			//Mouse clicked
 			public void mouseClicked(MouseEvent e) {
 				//Change panel to the ViewFlightPanel
-				mainFrame.setContentPanelToViewFlightInfoPanel(v);
+				mainFrame.setContentPanelToViewFlightInfoPanel(v, false);
 			}
 			//Mouse entered
 			public void mouseEntered(MouseEvent e) {
@@ -152,24 +160,32 @@ public class FlightPreviewPanel extends JPanel {
 	    
 	}
 	
+	/**
+	 * Calculate the color of the border of the panel based on the flight's status, programmed, taken off, taken off late and cancelled
+	 * @return The color of the border of the panel representing the flight's status
+	 */
 	public Color getBorderColor() {
 		
 		if(volo.isPartito()) {
 			if(volo.checkIfFlightTookOffLate()) {
-				return MainController.flightTakenOffLateColor; //Yellow border
+				return MainController.flightTakenOffLateColor; //Taken off late
 			}else {
-				return MainController.flightTakenOffColor; //Blue border
+				return MainController.flightTakenOffColor; //Taken off
 			}
 		}else {
 			if(volo.isCancellato()) {
-				return MainController.flightCancelledColor; //Red border
+				return MainController.flightCancelledColor; //Cancelled
 			}else {
-				return MainController.flightProgrammedColor; //Black border
+				return MainController.flightProgrammedColor; //Programmed
 			}
 		}
 		
 	}
 	
+	/**
+	 * Calculate the string showing the status of the flight, programmed, taken off, taken off late and cancelled
+	 * @return The string containing the status of the flight
+	 */
 	public String getStatusString() {
 		
 		if(volo.isPartito()) { //If the flight has taken off
@@ -188,6 +204,10 @@ public class FlightPreviewPanel extends JPanel {
 		
 	}
 
+	/**
+	 * Select animation when the mouse hovers on the panel
+	 * @param frames How many frames the animation should take
+	 */
 	public void selectAnimation(int frames) {
 
 		//If not already selected
@@ -242,6 +262,10 @@ public class FlightPreviewPanel extends JPanel {
 		
 	}
 	
+	/**
+	 * Unselect animation when the mouse hovers on the panel
+	 * @param frames How many frames the animation should take
+	 */
 	public void unselectAnimation(int frames) {
 		
 		//If not already selected

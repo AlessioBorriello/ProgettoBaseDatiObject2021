@@ -41,8 +41,7 @@ public class EditFlightPanel extends JPanel {
 
 	private MainFrame mainFrame; //Main panel
 	private MainController mainController; //Main controller
-	private Volo v;
-	
+	private Volo v; //Flight being edited
 	private ArrayList<String> listaCode = new ArrayList<String>(); //List of the queues
 	
 	//Company images
@@ -88,8 +87,7 @@ public class EditFlightPanel extends JPanel {
 		easyjetLogoImage = easyjetLogoImage.getScaledInstance(250, 250, Image.SCALE_SMOOTH);
 		ryanairLogoImage = ryanairLogoImage.getScaledInstance(250, 250, Image.SCALE_SMOOTH);
 		
-		//setBounds(bounds);
-		setBounds(72, 2, 1124, 666); //To have a preview in design, replace with the row above
+		setBounds(bounds); //Set bounds
 		setLayout(null); //Set panel layout to absolute
 		
 		CustomComboBox cBoxCompany = mainFrame.createCustomComboBox(); //Combo box of the companies
@@ -109,9 +107,11 @@ public class EditFlightPanel extends JPanel {
 			}
 		});
 		add(cBoxCompany); //Add to panel
-		//Populate combo box
+		
+		//Populate combo box and find the correct company name in it
 		int companyIndex = 0; //Index where the company of the flight is located
 		int tempIndex = 0; //Index to increment in the for loop
+		
 		for(CompagniaAerea comp : mainFrame.getListaCompagnie()) {
 			//Add each member of the array listaCompagnie to the combo box
 			cBoxCompany.addItem(comp.getNome());
@@ -120,7 +120,7 @@ public class EditFlightPanel extends JPanel {
 			}
 			tempIndex++; //Increment temporary index
 		}
-		//Set the comboBox
+		//Set the correct company in the combo box
 		cBoxCompany.setSelectedIndex(companyIndex);
 		
 		CustomSpinner spinnerTakeOffDate = new CustomSpinner(MainController.backgroundColorOne, mainController.getDifferentAlphaColor(MainController.foregroundColorThree, 64), 
@@ -202,12 +202,12 @@ public class EditFlightPanel extends JPanel {
 		});
 		add(buttonAddQueue); //Add to panel
 		
-		//Add queues
+		//Add queues of the flight being edited
 		for(Coda coda : (v.getGate().getListaCode())) {
 			addQueue(coda.getTipo());
 		}
 		
-		//Hide button if all the queues have been added
+		//Hide add queue button if all the queues have already been added
 		if(listaCode.size() >= 6) {
 			buttonAddQueue.show(false);
 		}
@@ -219,7 +219,7 @@ public class EditFlightPanel extends JPanel {
 		
 		populateDestinationComboBox(cBoxDestination);
 		
-		//Set flight's destination as default
+		//Set flight's destination in the destination combo box
 		for (int i = 0; i < cBoxDestination.getItemCount(); i++) {
 			if(v.getDestinazione().equals(cBoxDestination.getItemAt(i))) {
 				cBoxDestination.setSelectedIndex(i);
@@ -274,7 +274,7 @@ public class EditFlightPanel extends JPanel {
 	
 	/**
 	 * Add a queue to the panelQueues
-	 * @param type
+	 * @param type Type of the queue to add to the queue list
 	 */
 	public void addQueue(String type) {
 		
@@ -283,7 +283,7 @@ public class EditFlightPanel extends JPanel {
 		listaCode.add(type); //Add the queue to the ArrayList listaCode
 		
 		//Determine background color
-		Color bgColor = (listaCode.size()%2 == 0)? MainController.backgroundColorTwo : null; //If the array size is not even, set a background color for the button
+		Color bgColor = (listaCode.size()%2 == 0)? MainController.backgroundColorTwo : null; //If the array size is not even, set a different background color for the button (Once every 2 buttons)
 		
 		//Create button for that queue
 		CustomButton buttonAddedQueue = new CustomButton(type, bgColor, mainController.getDifferentAlphaColor(MainController.foregroundColorThree, 64), 
@@ -308,10 +308,10 @@ public class EditFlightPanel extends JPanel {
 		});
 		add(buttonAddedQueue);
 		
-		//Move add queue button
+		//Move add queue button down
 		buttonAddQueue.setBounds(buttonAddQueue.getBounds().x, buttonAddQueue.getBounds().y + queueButtonDistance, buttonAddQueue.getBounds().width, buttonAddQueue.getBounds().height);
 		
-		//Hide button if all the queues have been added
+		//Hide add queue button if all the queues have been added
 		if(listaCode.size() >= 6) {
 			buttonAddQueue.show(false);
 		}
@@ -322,7 +322,7 @@ public class EditFlightPanel extends JPanel {
 	
 	/**
 	 * Remove a queue from the panelQueues containing the queues
-	 * @param queueLabel What label to remove from the panel
+	 * @param queueButton What queue button to remove
 	 */
 	public void removeQueue(CustomButton queueButton) {
 		
@@ -375,7 +375,7 @@ public class EditFlightPanel extends JPanel {
 	
 	/**
 	 * Update the passed flight in the database
-	 * @param v Old flight instance
+	 * @param v Old flight instance to update
 	 * @param nomeCompagnia Company name of the updated flight
 	 * @param data Take off date of the updated flight
 	 * @param gate Gate where the updated flight's embark takes place
@@ -414,10 +414,10 @@ public class EditFlightPanel extends JPanel {
 			
 			//Get queues of the non updated flight
 			for(Coda oldCoda : v.getGate().getListaCode()) {
-				if(coda.getTipo().equals(oldCoda.getTipo())) { //The queue of the updated flight was already in the non updated one
-					coda.setPersoneInCoda(oldCoda.getPersoneInCoda());
-				}else {
-					coda.setPersoneInCoda(0); //The queue was not in the non updated one
+				if(coda.getTipo().equals(oldCoda.getTipo())) { //If one of the queues in the updated flight was already in the non updated one
+					coda.setPersoneInCoda(oldCoda.getPersoneInCoda()); //Set it's length (to not loose bookings)
+				}else { //Otherwise, the queue was not in the non updated one
+					coda.setPersoneInCoda(0); //Set it's length to 0
 				}
 			}
 			
@@ -472,10 +472,14 @@ public class EditFlightPanel extends JPanel {
 		daoCompany.increaseCompagniaAereaFlightCount(mainFrame, editedVolo.getCompagnia().getNome()); //Increase new company count
 		
 		//Change panel to the ViewFlightPanel
-		mainFrame.setContentPanelToViewFlightInfoPanel(editedVolo);
+		mainFrame.setContentPanelToViewFlightInfoPanel(editedVolo, false);
 		
 	}
 
+	/**
+	 * Add destinations in to a given combo box
+	 * @param box The combo box to add the destinations to
+	 */
 	public void populateDestinationComboBox(CustomComboBox box) {
 		
 		box.addItem("Londra");

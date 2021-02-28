@@ -18,28 +18,46 @@ import javax.swing.plaf.basic.BasicScrollBarUI;
 public class CustomScrollBar extends JScrollBar {
 	
 	//Bar variables
-	private int barWidth;
-	private int buttonHeight;
+	private int barWidth; //Width of the scroll bar
+	private int buttonHeight; //Height of the buttons on the top and bottom of the scroll bar
 	
-	private Color backgroundColor;
+	private Color backgroundColor; //Color of the background of the scroll bar
 	
-	private Color thumbC;
-	private boolean roundedThumb;
+	private Color thumbC; //Color of the thumb (the center piece of the scroll bar)
+	private boolean roundedThumb; //If the thumb should be rounded
 	
-	private boolean thumbBorder;
-	private Color thumbBorderColor;
-	private int thumbBorderThickness;
+	private boolean thumbBorder; //If the thumb should have a border
+	private Color thumbBorderColor; //Color of said border
+	private int thumbBorderThickness; //Thickness of said border
 	
-	private boolean paintTrackHighlights;
-	private Color trackHiglightsColor;
+	private boolean paintTrackHighlights; //If the scroll bar should paint the track highlights (When using the buttons, change the background color of the track between said button and the thumb)
+	private Color trackHiglightsColor; //Color of the highlight
 	
 	//Buttons variables
-	private Color buttonBackgroundColor;
-	private Color buttonHoveringColor;
-	private boolean buttonBorder;
-	private Color buttonBorderColor;
-	private int buttonBorderThickness;
+	private Color buttonBackgroundColor; //Background color of the button on the top and bottom of the scroll bar
+	private Color buttonHoveringColor; //Color of the rectangle being drawn on the button on the top and bottom of the scroll bar when the mouse hovers over it
+	private boolean buttonBorder; //If the buttons on the scroll bar should have a border
+	private Color buttonBorderColor; //Color of said border
+	private int buttonBorderThickness; //Thickness of said border
 
+	/**
+	 * Create a scroll bar with a custom UI
+	 * @param barWidth Width of the scroll bar
+	 * @param buttonHeight Height of the buttons on the top and bottom of the scroll bar
+	 * @param backgroundColor Color of the background of the scroll bar
+	 * @param thumbColor Color of the thumb (the center piece of the scroll bar)
+	 * @param roundedThumb If the thumb should be rounded
+	 * @param thumbBorder If the thumb should have a border
+	 * @param thumbBorderColor Color of the border of the thumb
+	 * @param thumbBorderThickness Thickness of the border of the thumb
+	 * @param paintTrackHighlights If the scroll bar should paint the track highlights (When using the buttons, change the background color of the track between said button and the thumb)
+	 * @param trackHiglightsColor Color of the highlight
+	 * @param buttonBackgroundColor Background color of the button on the top and bottom of the scroll bar
+	 * @param buttonHoveringColor Color of the rectangle being drawn on the button on the top and bottom of the scroll bar when the mouse hovers over it
+	 * @param buttonBorder If the buttons on the scroll bar should have a border
+	 * @param buttonBorderColor Color of the border of the buttons
+	 * @param buttonBorderThickness Thickness of the border of the buttons
+	 */
 	public CustomScrollBar(int barWidth, int buttonHeight, 
 							Color backgroundColor, 
 							Color thumbColor, 
@@ -69,21 +87,12 @@ public class CustomScrollBar extends JScrollBar {
 		this.buttonBorderColor = buttonBorderColor;
 		this.buttonBorderThickness = buttonBorderThickness;
 		
-		setUI(new CustomScrollBarUI());
+		setUI(new CustomScrollBarUI()); //Implement custom UI
 		
 	}
 	
+	//Custom scroll bar UI being implemented by the scroll bar
 	private class CustomScrollBarUI extends BasicScrollBarUI {
-		
-		@Override
-		protected Dimension getMinimumThumbSize() {
-			if(super.getMinimumThumbSize() == null) {
-				return new Dimension(10, 10);
-			}else {
-				return super.getMinimumThumbSize();
-			}
-			
-		}
 
 		protected void installDefaults() {
 			
@@ -112,8 +121,13 @@ public class CustomScrollBar extends JScrollBar {
 	        scrollbar.setEnabled(scrollbar.isEnabled());
 	    }
 		
+		/**
+		 * Create a custom button with an arrow pointing up
+		 * @return The button
+		 */
 		protected JButton createDecreaseButton() {
 			
+			//Create a custom button as a decrease button (the one on the top of the scroll bar)
 			CustomButton decreaseButton = (new CustomButton("", buttonBackgroundColor, buttonHoveringColor, null, 0, buttonBorder, buttonBorderColor, buttonBorderThickness) {
 				
 				public void paint(Graphics g) {
@@ -152,8 +166,13 @@ public class CustomScrollBar extends JScrollBar {
 			
 		}
 		
+		/**
+		 * Create a custom button with an arrow pointing down
+		 * @return The button
+		 */
 		protected JButton createIncreaseButton() {
 			
+			//Create a custom button as a increase button (the on on the bottom of the scroll bar)
 			CustomButton increaseButton = (new CustomButton("", buttonBackgroundColor, buttonHoveringColor, null, 0, buttonBorder, buttonBorderColor, buttonBorderThickness) {
 				
 				public void paint(Graphics g) {
@@ -196,7 +215,7 @@ public class CustomScrollBar extends JScrollBar {
 	        
 			Insets insets = scrollbar.getInsets();
 	        Rectangle thumbR = getThumbBounds();
-	        g.setColor(trackHiglightsColor);
+	        g.setColor(trackHiglightsColor); //Set color
 
             //paint the distance between the start of the track and top of the thumb
             int x = insets.left;
@@ -211,7 +230,7 @@ public class CustomScrollBar extends JScrollBar {
 			
 	        Insets insets = scrollbar.getInsets();
 	        Rectangle thumbR = getThumbBounds();
-	        g.setColor(trackHiglightsColor);
+	        g.setColor(trackHiglightsColor); //Set color
 
             //fill the area between the bottom of the thumb and the end of the track.
             int x = insets.left;
@@ -228,12 +247,13 @@ public class CustomScrollBar extends JScrollBar {
 		 	g.setColor(backgroundColor);
 	        g.fillRect(trackBounds.x, trackBounds.y, trackBounds.width, trackBounds.height);
 	        
+	        //If the highlights should be painted
 	        if(paintTrackHighlights) {
 		        if(trackHighlight == DECREASE_HIGHLIGHT) {
-		            paintDecreaseHighlight(g);
+		            paintDecreaseHighlight(g); //Paint decrease highlights
 		        }
 		        else if(trackHighlight == INCREASE_HIGHLIGHT) {
-		            paintIncreaseHighlight(g);
+		            paintIncreaseHighlight(g); //Paint increase highlights
 		        }
 	        }
 	    
@@ -257,8 +277,8 @@ public class CustomScrollBar extends JScrollBar {
 	        int w = thumbBounds.width;
 	        int h = thumbBounds.height;
 
-	        g2d.translate(thumbBounds.x, thumbBounds.y);
-	        g2d.setColor(thumbC);
+	        g2d.translate(thumbBounds.x, thumbBounds.y); //Translate draw methods
+	        g2d.setColor(thumbC); //Set color
 	        
 	        //Draw thumb
 	        if(roundedThumb) {
@@ -288,7 +308,7 @@ public class CustomScrollBar extends JScrollBar {
 			incrButton.setBounds(0, scrollbar.getHeight() - 15, decrButton.getBounds().width, buttonHeight);
 			decrButton.setBounds(0, 0, decrButton.getBounds().width, buttonHeight);
 			
-			//Set the gaps that limit the thumb movement
+			//Set the gaps that limit the thumb movement (so that the thumb won't go inside the decrease and increase buttons)
 			decrGap = buttonHeight;
 			incrGap = buttonHeight;
 			

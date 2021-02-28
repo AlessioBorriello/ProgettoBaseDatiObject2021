@@ -19,15 +19,3 @@ public class Coda {
 	}
 	
 }
-
-//Enum containing the possible types of queues
-enum queueType{
-	
-	famiglie,
-	diversamenteAbili,
-	priority,
-	businessClass,
-	standardClass,
-	economyClass
-	
-}

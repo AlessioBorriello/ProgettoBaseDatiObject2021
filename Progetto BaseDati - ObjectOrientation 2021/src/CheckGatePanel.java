@@ -47,23 +47,35 @@ public class CheckGatePanel extends JPanel {
 	private MainFrame mainFrame; //Main panel
 	private MainController mainController; //Main controller
 	
-	private ArrayList<Volo> flightList;
+	private ArrayList<Volo> flightList; //List of flights in this gate
 	
+	//Slots
 	private ArrayList<Slot> estimatedSlotList = new ArrayList<Slot>();
 	private ArrayList<Slot> effectiveSlotList = new ArrayList<Slot>();
 	
-	private JPanel flightListPanel;
+	private JPanel flightListPanel; //Panel containing the list of flights of this gate
 	
+	//Average usage of the gate {daily, weekly, monthly}
 	private int[] estimatedAverages = new int[3];
 	private int[] effectiveAverages = new int[3];
 	
+	//Company images
 	private Image airfranceLogoImage;
 	private Image alitaliaLogoImage;
 	private Image easyjetLogoImage;
 	private Image ryanairLogoImage;
 	
+	//Number that identifies the gate
 	private int gateNumber;
-
+	
+	/**
+	 * Panel containing informations on a given gate, like it's average use and flight list
+	 * @param bounds Bounds of the contentPanel that contains this panel
+	 * @param mf Link to the MainFrame
+	 * @param c Link to the MainController
+	 * @param flightList List containing the flights that use this gate
+	 * @param gateNumber The number identifying the gate
+	 */
 	public CheckGatePanel(Rectangle bounds, MainFrame mf, MainController c, ArrayList<Volo> flightList, int gateNumber) {
 		
 		mainFrame = mf; //Link main frame
@@ -73,8 +85,7 @@ public class CheckGatePanel extends JPanel {
 		
 		this.gateNumber = gateNumber;
 		
-		//setBounds(bounds);
-		setBounds(72, 2, 1124, 666); //Debug to show in the design tab,  this row should be replaced with the one above
+		setBounds(bounds); //Set bounds
 		setLayout(null);
 		
 		//Load company images
@@ -105,6 +116,7 @@ public class CheckGatePanel extends JPanel {
 		scrollPanel.setVerticalScrollBar(mainFrame.createCustomScrollbar());
 		flightsPanel.add(scrollPanel);
 		
+		//Create panel showing the list of flights that use this gate
 		flightListPanel = (new JPanel() {
 			
 			public void paintComponent(Graphics g) {
@@ -158,12 +170,11 @@ public class CheckGatePanel extends JPanel {
 		CustomCheckBox chckbxInclude = new CustomCheckBox("Includi voli partiti e cancellati", null, 16, MainController.foregroundColorThree, false, null, 0); //Create check box
 		chckbxInclude.setSelected(true);
 		chckbxInclude.setName("chckbxIncludeTakenOffLate"); //Set name
-		//Toggle gate spinner
 		chckbxInclude.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if(!chckbxInclude.isSelected()) {
 					//Include flights
-					populateFlightListPanel(flightList);
+					populateFlightListPanel(flightList); //Use all flights
 				}else {
 					//Exclude flights
 					ArrayList<Volo> tempFlightList = new ArrayList<Volo>();
@@ -181,6 +192,10 @@ public class CheckGatePanel extends JPanel {
 		
 	}
 	
+	/**
+	 * Populate the flight list panel with flights panel
+	 * @param list List containing the flights to be added in the panel
+	 */
 	public void populateFlightListPanel(ArrayList<Volo> list) {
 		
 		//Clear panel first
@@ -222,7 +237,7 @@ public class CheckGatePanel extends JPanel {
 			buttonFlight.addMouseListener(new MouseAdapter() {
 				//When mouse clicked
 				public void mouseClicked(MouseEvent e) {
-					mainFrame.setContentPanelToViewFlightInfoPanel(v);
+					mainFrame.setContentPanelToViewFlightInfoPanel(v, false); //Go to the view flight info panel, without asking for confirmation
 				}
 			});
 			flightListPanel.add(buttonFlight);
@@ -230,10 +245,10 @@ public class CheckGatePanel extends JPanel {
 			index++;
 		}
 		
-		//Calculate new height of the grid panel (after the buttons have been added)
+		//Calculate new height of the list panel (after the buttons have been added)
 		int newGridPanelHeight = ((height + vGap) * index) - vGap;
 		
-		//Create group layout
+		//Create group layout (and assign calculated height)
 		GroupLayout gl_gridPanel = new GroupLayout(flightListPanel);
 		gl_gridPanel.setHorizontalGroup(
 			gl_gridPanel.createParallelGroup(Alignment.LEADING)
@@ -247,6 +262,12 @@ public class CheckGatePanel extends JPanel {
 		
 	}
 	
+	/**
+	 * Calculate the daily, weekly and monthly average estimated usage of the slot, it takes the slots of the flights in this gate and samples how many of them happen
+	 * in different days, weeks and months, so the average will be given by (how many slots are on this gate)*(15 minutes)/(number of samples)
+	 * @param list List containing the slots of the flights in this gate
+	 * @return Array[3] of estimated averages in order: daily, weekly, monthly
+	 */
 	public int[] calculateEstimatedGateAverageUse(ArrayList<Slot> list) {
 		
 		//Note that the slot are ordered by their flight's take off time
@@ -254,20 +275,26 @@ public class CheckGatePanel extends JPanel {
 		Date previousInizioTempoStimato = null;
 		Date previousFineTempoStimato = null;
 		
-		int daySampleSize = 0;
-		int weekSampleSize = 0;
-		int monthSampleSize = 0;
+		//Of the given slot list, this is the amount of slots that take place in a different
+		int daySampleSize = 0; //Day
+		int weekSampleSize = 0; //Week
+		int monthSampleSize = 0; //Month
+		
 		for(Slot s : list) {
 			
+			//Get slot estimated values
 			Date inizioTempoStimato = s.getInizioTempoStimato();
 			Date fineTempoStimato = s.getFineTempoStimato();
 			
+			//If the previous slot is null or the slot 's' (in the current for) and the previous one have a day difference greater than 0 (they happen in different days)
 			if(previousInizioTempoStimato == null || dateDayDifference(previousInizioTempoStimato, inizioTempoStimato) > 0 || dateDayDifference(previousFineTempoStimato, fineTempoStimato) > 0) {
-				daySampleSize++;
+				daySampleSize++; //Increase daily sample size
+				//If the previous slot is null or the slot 's' (in the current for) and the previous one have a day difference greater than 6 (they happen in different weeks)
 				if(previousInizioTempoStimato == null || dateDayDifference(previousInizioTempoStimato, inizioTempoStimato) > 6 || dateDayDifference(previousFineTempoStimato, fineTempoStimato) > 6) {
-					weekSampleSize++;
+					weekSampleSize++; //Increase weekly sample size
+					//If the previous slot is null or the slot 's' (in the current for) and the previous one have a day difference greater than 30 (they happen in different months)
 					if(previousInizioTempoStimato == null || dateDayDifference(previousInizioTempoStimato, inizioTempoStimato) > 30 || dateDayDifference(previousFineTempoStimato, fineTempoStimato) > 30) {
-						monthSampleSize++;
+						monthSampleSize++; //Increase monthly sample size
 					}
 				}
 			}
@@ -278,6 +305,7 @@ public class CheckGatePanel extends JPanel {
 			
 		}
 		
+		//Assign averages
 		int[] averages = new int[3];
 		averages[0] = (list.size() * 15) / daySampleSize;
 		averages[1] = (list.size() * 15) / weekSampleSize;
@@ -287,6 +315,12 @@ public class CheckGatePanel extends JPanel {
 		
 	}
 	
+	/**
+	 * Calculate the daily, weekly and monthly average effective usage of the slot, it takes the slots of the flights in this gate and samples how many of them happen
+	 * in different days, weeks and months, so the average will be given by (how many slots are on this gate)*(15 minutes)/(number of samples)
+	 * @param list List containing the slots of the flights in this gate
+	 * @return Array[3] of effective averages in order: daily, weekly, monthly
+	 */
 	public int[] calculateEffectiveGateAverageUse(ArrayList<Slot> list) {
 		
 		//Note that the slot are ordered by their flight's take off time
@@ -294,20 +328,26 @@ public class CheckGatePanel extends JPanel {
 		Date previousInizioTempoEffettivo = null;
 		Date previousFineTempoEffettivo = null;
 		
+		//Of the given slot list, this is the amount of slots that take place in a different
 		int daySampleSize = 0;
 		int weekSampleSize = 0;
 		int monthSampleSize = 0;
+		
 		for(Slot s : list) {
 			
+			//Get slot effective values
 			Date inizioTempoEffettivo = s.getInizioTempoEffettivo();
 			Date fineTempoEffettivo = s.getFineTempoEffettivo();
 			
+			//If the previous slot is null or the slot 's' (in the current for) and the previous one have a day difference greater than 0 (they happen in different days)
 			if(previousInizioTempoEffettivo == null || dateDayDifference(previousInizioTempoEffettivo, inizioTempoEffettivo) > 0 || dateDayDifference(previousFineTempoEffettivo, fineTempoEffettivo) > 0) {
-				daySampleSize++;
+				daySampleSize++; //Increase daily sample size
+				//If the previous slot is null or the slot 's' (in the current for) and the previous one have a day difference greater than 6 (they happen in different weeks)
 				if(previousInizioTempoEffettivo == null || dateDayDifference(previousInizioTempoEffettivo, inizioTempoEffettivo) > 6 || dateDayDifference(previousFineTempoEffettivo, fineTempoEffettivo) > 6) {
-					weekSampleSize++;
+					weekSampleSize++; //Increase weekly sample size
+					//If the previous slot is null or the slot 's' (in the current for) and the previous one have a day difference greater than 30 (they happen in different months)
 					if(previousInizioTempoEffettivo == null || dateDayDifference(previousInizioTempoEffettivo, inizioTempoEffettivo) > 30 || dateDayDifference(previousFineTempoEffettivo, fineTempoEffettivo) > 30) {
-						monthSampleSize++;
+						monthSampleSize++; //Increase monthly sample size
 					}
 				}
 			}
@@ -318,6 +358,7 @@ public class CheckGatePanel extends JPanel {
 			
 		}
 		
+		//Assign averages
 		int[] averages = new int[3];
 		averages[0] = (list.size() * 15) / daySampleSize;
 		averages[1] = (list.size() * 15) / weekSampleSize;
@@ -327,18 +368,38 @@ public class CheckGatePanel extends JPanel {
 		
 	}
 	
+	/**
+	 * Calculate how many days are between 2 given dates
+	 * @param date1 First date to consider
+	 * @param date2 Second date to consider
+	 * @return The amount of days in between the 2 given days
+	 */
 	public long dateDayDifference(Date date1, Date date2) {
 		
 		SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyy-MM-dd"); //Date format
 		
+		//Convert to local date format
 		LocalDate d1 = LocalDate.parse(dateTimeFormat.format(date1), DateTimeFormatter.ISO_LOCAL_DATE);
 		LocalDate d2 = LocalDate.parse(dateTimeFormat.format(date2), DateTimeFormatter.ISO_LOCAL_DATE);
+		
+		//Calculate difference between the 2 dates
 		Duration diff = Duration.between(d1.atStartOfDay(), d2.atStartOfDay());
-		return diff.toDays();
+		return diff.toDays(); //Convert the difference to days and return it
 		
 	}
 
-	public void drawColumnGraph(Graphics2D g2d, ArrayList<Volo> flightList, int xOrigin, int yOrigin, int width, int height, int strokeWidth, int step) {
+	/**
+	 * Draw a column graph for the flights on this gate, divides the columns based on the company owning the flight and divides the column themselves based on the flight type:
+	 * programmed, taken off, taken off late and cancelled
+	 * @param g2d Graphics2D instance to use to draw
+	 * @param flightList List of the flight on this gate to consider
+	 * @param xOrigin X origin of the graph
+	 * @param yOrigin Y origin of the graph
+	 * @param width Width of the graph
+	 * @param height Height of the graph
+	 * @param strokeWidth width of the stroke of the graph
+	 */
+	public void drawColumnGraph(Graphics2D g2d, ArrayList<Volo> flightList, int xOrigin, int yOrigin, int width, int height, int strokeWidth) {
 		
 		BasicStroke normalStroke = new BasicStroke(strokeWidth);
 		Stroke dashedStroke = new BasicStroke(strokeWidth/2, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[]{6}, 0); //Dashed stroke with half the stroke width
@@ -405,6 +466,9 @@ public class CheckGatePanel extends JPanel {
 		g2d.setColor(new Color(MainController.foregroundColorThree.getRed(), MainController.foregroundColorThree.getGreen(), MainController.foregroundColorThree.getBlue(), 95)); //Lower alpha black
 		g2d.setStroke(dashedStroke); //Dashed stroke
 		
+		//Calculate step, how many steps a dashed line and the corresponding value should be drawn on the y axis
+		int step = (int)Math.ceil(maxValue * .1);
+		
 		for(int i = step; i <= maxValue; i += step) { //Each yStep
 			
 			g2d.drawLine(xOrigin, yGraphOrigin - (i * ySegmentLength), xOrigin + width, yGraphOrigin - (i * ySegmentLength)); //Dashed line on x axis
@@ -415,31 +479,25 @@ public class CheckGatePanel extends JPanel {
 		
 		//Draw columns
 		int columnWidth = 20;
+		//For the 4 companies on this gate
 		for(int i = 0; i < 4; i++) {
 			
 			int yOffset = 0;
 			int totalValue = 0;
 			
 			Color[] dataColors = {MainController.flightProgrammedColor, MainController.flightTakenOffColor, MainController.flightTakenOffLateColor, MainController.flightCancelledColor}; //Programmed, taken off, taken off late, cancelled
-			//Color[] companyColors = {MainController.airfranceColor, MainController.alitaliaColor, MainController.easyjetColor, MainController.ryanairColor}; //AirFrance, AlItalia, EasyJet, RyanAir
 			Image[] companyImages = {airfranceLogoImage, alitaliaLogoImage, easyjetLogoImage, ryanairLogoImage};
 			
+			//For the 4 types of flights in the i company (on this gate)
 			for(int j = 0; j < 4; j++) {
-				g2d.setColor(dataColors[j]);
+				g2d.setColor(dataColors[j]); //Set the color of the rectangle based on the j type of flight in the i company being considered
 				g2d.fillRect(xGraphOrigin + xSegmentLength + (xSegmentLength * i) - (columnWidth/2), yGraphOrigin - (ySegmentLength * data[i][j]) - yOffset, columnWidth, (ySegmentLength * data[i][j]));
-				yOffset += (ySegmentLength * data[i][j]);
-				totalValue += data[i][j];
-			}
-			
-			//Draw company colored outline
-			if(totalValue > 0) {
-				//g2d.setStroke(new BasicStroke(normalStroke.getLineWidth()*2));
-				//g2d.setColor(companyColors[i]);
-				//g2d.drawRect(xGraphOrigin + xSegmentLength + (xSegmentLength * i) - (columnWidth/2), yGraphOrigin - (ySegmentLength * totalValue), columnWidth, (ySegmentLength * totalValue));
+				yOffset += (ySegmentLength * data[i][j]); //Start next flight type of this company with this offset
+				totalValue += data[i][j]; //Increase the total value of this company
 			}
 			
 			//Draw company image
-			if(totalValue > 0) {
+			if(totalValue > 0) { //If the total value of this column is at least 1 (or there is simply no column drawn at all)
 				Point imagePosition = new Point(xGraphOrigin + xSegmentLength + (xSegmentLength * i) - (columnWidth/2) - (companyImages[i].getWidth(null)/4), yGraphOrigin - (ySegmentLength * totalValue) - companyImages[i].getHeight(null) - 8);
 				g2d.drawImage(companyImages[i], imagePosition.x, imagePosition.y, imagePosition.x + companyImages[i].getWidth(null), imagePosition.y + companyImages[i].getHeight(null), 0, 0, companyImages[i].getWidth(null), companyImages[i].getHeight(null), this);
 			    g2d.setStroke(new BasicStroke(1));
@@ -563,7 +621,7 @@ public class CheckGatePanel extends JPanel {
 	    g2d.translate(0, -yTranslate); //Cancel y offset from this point on
 	    
 	    //Draw column graph
-	    drawColumnGraph(g2d, flightList, 40, 635, 450, 260, 2, 1);
+	    drawColumnGraph(g2d, flightList, 40, 635, 450, 260, 2);
 	    
 	    //Draw flight on top of the flight scroll panel
 	    g2d.setFont(new Font(MainController.fontOne.getFontName(), Font.BOLD, 32));

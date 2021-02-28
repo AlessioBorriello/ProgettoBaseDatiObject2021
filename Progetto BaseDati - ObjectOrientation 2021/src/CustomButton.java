@@ -12,27 +12,38 @@ import javax.swing.JButton;
 
 public class CustomButton extends JButton{
 	
-	private String s;
+	private String s; //String to display in the middle of the button
 	
-	private Color backgroundColor;
+	private Color backgroundColor; //Color of the button
 	
-	private Color hoveringColor;
-	private int hoveringAlpha;
+	private Color hoveringColor; //Color of the rectangle being drawn on the button when the mouse is hovering
+	private int hoveringAlpha; //Alpha of the color of the rectangle being drawn on the button when the mouse is hovering
 	
-	private Color fontColor;
-	private int fontSize;
-	private int finalFontSize;
+	private Color fontColor; //Color of the font
+	private int fontSize; //Size of the font
+	private int finalFontSize; //Size of the font after the hovering animation is completed
 	
-	private boolean border = false;
-	private Color borderColor;
-	private int borderThickness;
+	private boolean border = false; //If the button should have a border
+	private Color borderColor; //Color of the border
+	private int borderThickness; //Thickness of the border
 	
 	//Animation
-	private hoveringAnimationStatus animationStatus = hoveringAnimationStatus.unselected;
-	private int animationHeight = 0;
-	private int animationAlpha = 0;
-	private float animationFontSize = 0;
+	private hoveringAnimationStatus animationStatus = hoveringAnimationStatus.unselected; //Animation status
+	private int animationHeight = 0; //Height of the rectangle being drawn on the button when the mouse is hovering
+	private int animationAlpha = 0; //Alpha of the rectangle being drawn on the button when the mouse is hovering
+	private float animationFontSize = 0; //Amount to add to the font size to reach the finalFontSize
 	
+	/**
+	 * Create a button with a custom UI
+	 * @param s String to display in the middle of the button
+	 * @param backgroundColor Color of the button
+	 * @param hoveringColor Color of the rectangle being drawn on the button when the mouse is hovering
+	 * @param fontColor Color of the font
+	 * @param fontSize Size of the font
+	 * @param border If the button should have a border
+	 * @param borderColor Color of the border
+	 * @param borderThickness Thickness of the border
+	 */
 	public CustomButton(String s, Color backgroundColor, Color hoveringColor, Color fontColor, int fontSize, boolean border, Color borderColor, int borderThickness) {
 		
 		this.s = s;
@@ -40,20 +51,20 @@ public class CustomButton extends JButton{
 		this.backgroundColor = backgroundColor;
 		
 		this.hoveringColor = hoveringColor;
-		hoveringAlpha =  hoveringColor.getAlpha();
+		hoveringAlpha =  hoveringColor.getAlpha(); //Get hovering color's alpha
 		
 		this.fontColor = fontColor;
 		this.fontSize = fontSize;
-		this.finalFontSize = (int)(fontSize * 1.2);
+		this.finalFontSize = (int)(fontSize * 1.2); //Final font size is 120% of the font size
 		
 		this.border = border;
 		this.borderColor = borderColor;
 		this.borderThickness = borderThickness;
 		
-		setFocusable(false);
-		setContentAreaFilled(false);
-		setBorder(null);
-		setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		setFocusable(false); //Non focusable
+		setContentAreaFilled(false); //Don't draw the content area
+		setBorder(null); //Set border to null
+		setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)); //Hand cursor when mouse passes on the button
 		
 	}
 	
@@ -73,9 +84,9 @@ public class CustomButton extends JButton{
 		int sLenght = g2d.getFontMetrics().stringWidth(s);
 		g2d.drawString(s, (getWidth()/2) - (sLenght/2), (getHeight()/2) + ((fontSize + animationFontSize)/2) - 4);
 		
-		//Hovering animation rectangle
-		animationAlpha = (animationAlpha > 255)? 255 : animationAlpha; //Clamp max
-		animationAlpha = (animationAlpha < 0)? 0 : animationAlpha; //Clamp minimum
+		//Draw hovering animation rectangle
+		animationAlpha = (animationAlpha > 255)? 255 : animationAlpha; //Clamp max (alpha can't be > 255)
+		animationAlpha = (animationAlpha < 0)? 0 : animationAlpha; //Clamp minimum (alpha can't be < 0)
 		g2d.setColor(new Color(hoveringColor.getRed(), hoveringColor.getGreen(), hoveringColor.getBlue(), animationAlpha));
 		g2d.fillRect(0, (getHeight()/2) - (animationHeight/2), getWidth(), animationHeight);
 		
@@ -90,6 +101,10 @@ public class CustomButton extends JButton{
 		
 	}
 	
+	/**
+	 * Select animation when the mouse hovers on the button
+	 * @param frames How many frames the animation should take
+	 */
 	public void selectAnimation(int frames) {
 
 		//If not already selected
@@ -151,6 +166,10 @@ public class CustomButton extends JButton{
 		
 	}
 	
+	/**
+	 * Unselect animation when the mouse hovers on the button
+	 * @param frames How many frames the animation should take
+	 */
 	public void unselectAnimation(int frames) {
 		
 		//If not already selected
@@ -212,6 +231,10 @@ public class CustomButton extends JButton{
 		
 	}
 
+	/**
+	 * Set the color of the background
+	 * @param c Color of the background for the button
+	 */
 	public void setButtonBackgroundColor(Color c) {
 		this.backgroundColor = c;
 	}

@@ -2,7 +2,7 @@ import java.util.ArrayList;
 
 public class Gate {
 	
-	private int numeroGate; //Gate's numebr
+	private int numeroGate; //Gate's number
 	private ArrayList<Coda> listaCode = new ArrayList<Coda>(); //List of queues in the gate
 	
 	//Setters and getters

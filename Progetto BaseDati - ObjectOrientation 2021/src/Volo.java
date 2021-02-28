@@ -13,7 +13,7 @@ public class Volo {
 	private boolean partito = false; //If the flight has taken off
 	private boolean cancellato = false; //If the flight has been cancelled
 	private boolean inRitardo = false; //If the flight has taken off late
-	private String ID = null; //Flight if
+	private String ID = ""; //Flight id
 	private String destinazione; //Flight destination
 	
 	/**
@@ -122,11 +122,9 @@ public class Volo {
 	public void setInRitardo(boolean inRitardo) {
 		this.inRitardo = inRitardo;
 	}
-
 	public String getDestinazione() {
 		return destinazione;
 	}
-
 	public void setDestinazione(String destinazione) {
 		this.destinazione = destinazione;
 	}

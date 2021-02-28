@@ -28,7 +28,7 @@ public class ConfirmationFrame extends JDialog {
 	private MainFrame mainFrame; //Link to the mainFrame
 	private boolean answer = false; //Boolean containing the choice of the user (False = undo, True = confirm)
 	
-	private ArrayList<String> notificationParts; //Subdivision of the notification
+	private ArrayList<String> notificationParts; //Array list of substrings of the notification
 
 	/**
 	 * Frame showing a confirmation choice to the user to confirm or undo
@@ -77,10 +77,10 @@ public class ConfirmationFrame extends JDialog {
 			    g2d.setColor(MainController.foregroundColorThree);
 			    
 			    //Draw the string
-			    notificationParts = mainFrame.subdivideString(g2d, notification, getWidth() - ((int)(getWidth()*.3)));
-			    int verticalSubdivision = (notificationParts.size() > 1)? notificationParts.size() : 2;
-			    int yOffset = 30;
-			    int yStart = getHeight()/verticalSubdivision;
+			    notificationParts = mainFrame.subdivideString(g2d, notification, getWidth() - ((int)(getWidth()*.3))); //Subdivide the notification in a set of string that are narrower than the 70% of the width of the panel
+			    int verticalSubdivision = (notificationParts.size() > 1)? notificationParts.size() : 2; //Vertical division of height (Must be at least 2)
+			    int yOffset = 30; //Vertical offset for each notification part
+			    int yStart = getHeight()/verticalSubdivision; //Start of the upper most notification part
 			    
 			    //If it's only a single row
 			    if(notificationParts.size() == 1) {
@@ -97,7 +97,7 @@ public class ConfirmationFrame extends JDialog {
 			}
 			
 		}); //Create contentPanel
-		add(contentPanel, BorderLayout.CENTER); //Add contentPanel to the frame
+		add(contentPanel, BorderLayout.CENTER); //Add contentPanel that shows the notification
 		contentPanel.setLayout(null); //Set contentPanel's layout to absolute
 			
 		JPanel buttonPanel = (new JPanel() {
@@ -126,7 +126,6 @@ public class ConfirmationFrame extends JDialog {
 			}
 			
 		}); //Create buttonPanel
-		buttonPanel.setBackground(new Color(70, 130, 180)); //Set buttonPanel's background color
 		add(buttonPanel, BorderLayout.SOUTH); //Add buttonPanel to the frame
 
 		CustomButton okButton = new CustomButton("OK", null, 
@@ -151,21 +150,21 @@ public class ConfirmationFrame extends JDialog {
 			}
 		});
 		
-		CustomButton cancellaButton = new CustomButton("ANNULLA", null, 
+		CustomButton cancelButton = new CustomButton("ANNULLA", null, 
 				new Color(MainController.foregroundColorThree.getRed(), MainController.foregroundColorThree.getGreen(), MainController.foregroundColorThree.getBlue(), 64), 
 				MainController.foregroundColorThree, 18, true, MainController.foregroundColorThree, 1); //Create cancellaButton
-		cancellaButton.setFocusable(false); //Set as non focusable
-		cancellaButton.addMouseListener(new MouseAdapter() {
+		cancelButton.setFocusable(false); //Set as non focusable
+		cancelButton.addMouseListener(new MouseAdapter() {
 			public void mouseEntered(MouseEvent e) {
-				cancellaButton.selectAnimation(8);
+				cancelButton.selectAnimation(8);
 			}
 
 			public void mouseExited(MouseEvent e) {
-				cancellaButton.unselectAnimation(8);
+				cancelButton.unselectAnimation(8);
 			}
 		});
 		//Button's action listeners
-		cancellaButton.addActionListener(new ActionListener() {
+		cancelButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				setVisible(false); //Set frame as invisible
 				answer = false; //Set answer to true (undo)
@@ -181,7 +180,7 @@ public class ConfirmationFrame extends JDialog {
 			gl_buttonPane.createParallelGroup(Alignment.TRAILING)
 				.addGroup(gl_buttonPane.createSequentialGroup()
 					.addGap(52)
-					.addComponent(cancellaButton, GroupLayout.PREFERRED_SIZE, 135, GroupLayout.PREFERRED_SIZE)
+					.addComponent(cancelButton, GroupLayout.PREFERRED_SIZE, 135, GroupLayout.PREFERRED_SIZE)
 					.addPreferredGap(ComponentPlacement.RELATED, 116, Short.MAX_VALUE)
 					.addComponent(okButton, GroupLayout.PREFERRED_SIZE, 135, GroupLayout.PREFERRED_SIZE)
 					.addGap(52))
@@ -192,7 +191,7 @@ public class ConfirmationFrame extends JDialog {
 				.addGroup(gl_buttonPane.createSequentialGroup()
 					.addContainerGap(19, Short.MAX_VALUE)
 					.addGroup(gl_buttonPane.createParallelGroup(Alignment.LEADING)
-						.addComponent(cancellaButton, GroupLayout.PREFERRED_SIZE, 33, GroupLayout.PREFERRED_SIZE)
+						.addComponent(cancelButton, GroupLayout.PREFERRED_SIZE, 33, GroupLayout.PREFERRED_SIZE)
 						.addComponent(okButton, GroupLayout.PREFERRED_SIZE, 33, GroupLayout.PREFERRED_SIZE))
 					.addContainerGap())
 		);
@@ -200,6 +199,10 @@ public class ConfirmationFrame extends JDialog {
 		
 	}
 	
+	/**
+	 * Get the user's answer to the confirmation prompt
+	 * @return The user's answer to the confirmation prompt
+	 */
 	public boolean getAnswer() {
 		return answer;
 	}

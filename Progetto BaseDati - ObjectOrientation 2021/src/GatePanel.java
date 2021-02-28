@@ -21,15 +21,22 @@ public class GatePanel extends JPanel{
 	
 	private int flightCount; //Number of flights in this gate
 	
-	private Color borderColor;
+	private Color hoveringColor = new Color(MainController.foregroundColorThree.getRed(), MainController.foregroundColorThree.getGreen(), MainController.foregroundColorThree.getBlue(), 42); //Color of the rectangle being drawn on the panel when the mouse is hovering
+	private int hoveringAlpha = hoveringColor.getAlpha(); //Alpha of the color of the rectangle being drawn on the panel when the mouse is hovering
+	
+	private Color borderColor; //Border color based on if the gate hosts any flight
 	
 	//Animation
-	private hoveringAnimationStatus animationStatus = hoveringAnimationStatus.unselected;
-	private int animationHeight = 0;
-	private Color hoveringColor = new Color(MainController.foregroundColorThree.getRed(), MainController.foregroundColorThree.getGreen(), MainController.foregroundColorThree.getBlue(), 42);
-	private int hoveringAlpha = hoveringColor.getAlpha();
-	private int animationAlpha = 0;
+	private hoveringAnimationStatus animationStatus = hoveringAnimationStatus.unselected; //Animation status
+	private int animationHeight = 0; //Height of the rectangle being drawn on the panel when the mouse is hovering
+	private int animationAlpha = 0; //Alpha of the rectangle being drawn on the panel when the mouse is hovering
 	
+	/**
+	 * Panel showing the number of flights that take place in a given gate
+	 * @param mainController Link to the MainFrame
+	 * @param mainFrame Link to the MainController
+	 * @param gateNumber Number that identifies the gate
+	 */
 	public GatePanel(MainController mainController, MainFrame mainFrame, int gateNumber) {
 		
 		this.mainController = mainController;
@@ -50,7 +57,7 @@ public class GatePanel extends JPanel{
 			public void mouseClicked(MouseEvent e) {
 				if(flightCount > 0) {
 					ArrayList<Volo> flightList = new VoloDAO().getFlightsByGate(gateNumber); //Get flights for this gate
-					mainFrame.setContentPanelToCheckGatePanel(flightList, gateNumber);
+					mainFrame.setContentPanelToCheckGatePanel(flightList, gateNumber, false);
 				}else {
 					mainFrame.createNotificationFrame("Non ci sono voli che utilizzano questo gate!");
 				}
@@ -59,6 +66,10 @@ public class GatePanel extends JPanel{
 		
 	}
 	
+	/**
+	 * Select animation when the mouse hovers on the panel
+	 * @param frames How many frames the animation should take
+	 */
 	public void selectAnimation(int frames) {
 
 		//If not already selected
@@ -113,6 +124,10 @@ public class GatePanel extends JPanel{
 		
 	}
 	
+	/**
+	 * Unselect animation when the mouse hovers on the panel
+	 * @param frames How many frames the animation should take
+	 */
 	public void unselectAnimation(int frames) {
 		
 		//If not already selected
@@ -182,7 +197,7 @@ public class GatePanel extends JPanel{
 	    g2d.setPaint(gPaint);
 	    g2d.fillRoundRect(0, 0, getWidth(), getHeight(), roundCornerAmount, roundCornerAmount);
 	    
-	    //Draw border effect
+	    //Draw border
 	    g2d.setColor(borderColor);
 	    g2d.setStroke(new BasicStroke(3));
 	    g2d.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, roundCornerAmount, roundCornerAmount);

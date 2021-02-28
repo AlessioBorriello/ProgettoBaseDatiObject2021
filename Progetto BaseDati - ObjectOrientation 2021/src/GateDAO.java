@@ -206,6 +206,11 @@ public class GateDAO {
 		
 	}
 
+	/**
+	 * Get the amount of flights that take place on a specified gate
+	 * @param gateNumber The number of the gate we want the number of flights of
+	 * @return The number of flights that take place on the specified gate
+	 */
 	public int getFlightAmountByGateNumber(int gateNumber) {
 		
 		try {
@@ -223,6 +228,7 @@ public class GateDAO {
 			
 			con.close(); //Close connection
 			st.close(); //Close statement
+			
 			return count; //Return list
 			
 		}catch(Exception e) { //Error catching

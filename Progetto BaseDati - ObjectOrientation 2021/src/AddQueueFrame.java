@@ -32,6 +32,7 @@ public class AddQueueFrame extends JDialog {
 	/**
 	 * Frame where the user is prompted to choose a queue to add or undo the action
 	 * @param mf Link to the MainFrame
+	 * @param queueList List of the currently added queues to the flight being edited/created
 	 */
 	public AddQueueFrame(MainFrame mf, ArrayList<String> queueList) {
 		
@@ -194,10 +195,20 @@ public class AddQueueFrame extends JDialog {
 		
 	}
 	
+	/**
+	 * Get the user's choice to add a queue or undo
+	 * @return The user's choice
+	 */
 	public String getChoice() {
 		return choice;
 	}
 
+	/**
+	 * Add a queue type to the given combo box if said queue is not already in the queue list
+	 * @param c ComboBox to add the queues to
+	 * @param queue Queue type to add
+	 * @param queueList List of the queues already added to the flight being edited/created
+	 */
 	public void comboBoxAddItemIfNotPresent(JComboBox c, String queue, ArrayList<String> queueList) {
 		
 		for(String q : queueList) {

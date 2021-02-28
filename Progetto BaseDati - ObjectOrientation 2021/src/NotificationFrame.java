@@ -37,7 +37,7 @@ public class NotificationFrame extends JDialog {
 
 	private MainFrame mainFrame;
 	
-	private ArrayList<String> notificationParts; //Subdivision of the notification
+	private ArrayList<String> notificationParts; //Array list of substrings of the notification
 
 	/**
 	 * Frame showing a notification to the user
@@ -85,11 +85,11 @@ public class NotificationFrame extends JDialog {
 			    g2d.setFont(new Font(MainController.fontOne.getFontName(), Font.PLAIN, 22));
 			    g2d.setColor(MainController.foregroundColorThree);
 			    
-			    //Draw the string
-			    notificationParts = mainFrame.subdivideString(g2d, notification, getWidth() - ((int)(getWidth()*.3)));
-			    int verticalSubdivision = (notificationParts.size() > 1)? notificationParts.size() : 2;
-			    int yOffset = 30;
-			    int yStart = getHeight()/verticalSubdivision;
+			    //Draw the notification
+			    notificationParts = mainFrame.subdivideString(g2d, notification, getWidth() - ((int)(getWidth()*.3))); //Subdivide the notification in a set of string that are narrower than the 70% of the width of the panel
+			    int verticalSubdivision = (notificationParts.size() > 1)? notificationParts.size() : 2; //Vertical division of height (Must be at least 2)
+			    int yOffset = 30; //Vertical offset for each notification part
+			    int yStart = getHeight()/verticalSubdivision; //Start of the upper most notification part
 			    
 			    //If it's only a single row
 			    if(notificationParts.size() == 1) {
@@ -105,7 +105,7 @@ public class NotificationFrame extends JDialog {
 			    
 			}
 			
-		}); //Create contentPanel
+		}); //Create contentPanel that shows the notification
 		add(contentPanel, BorderLayout.CENTER); //Add contentPanel to the frame
 		contentPanel.setLayout(null); //Set contentPanel's layout to absolute
 		

@@ -9,6 +9,8 @@ import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -31,6 +33,7 @@ public class CheckFlightsPanel extends JPanel {
 	
 	private JPanel gridPanel; //Panel containing the FlightPreviewPanels in a grid
 	
+	//Images of the company
 	private Image airfranceLogoImage;
 	private Image alitaliaLogoImage;
 	private Image easyjetLogoImage;
@@ -38,7 +41,7 @@ public class CheckFlightsPanel extends JPanel {
 
 	/**
 	 * Panel containing the grid of the FlightPreviewPanels
-	 * @param bounds Bounds of the contentPanel that contains this panel (to give it the contentPanel's dimensions)
+	 * @param bounds Bounds of the contentPanel that contains this panel
 	 * @param mf Link to the MainFrame
 	 * @param c Link to the MainController
 	 * @param lookingAtArchive If the panel is displaying the archive of the flights (the flights where 'partito' = 1)
@@ -64,8 +67,7 @@ public class CheckFlightsPanel extends JPanel {
 		easyjetLogoImage = easyjetLogoImage.getScaledInstance(92, 92, Image.SCALE_SMOOTH);
 		ryanairLogoImage = ryanairLogoImage.getScaledInstance(92, 92, Image.SCALE_SMOOTH);
 		
-		//setBounds(bounds);
-		setBounds(72, 2, 1124, 666); //Debug to show in the design tab,  this row should be replaced with the one above
+		setBounds(bounds); //Set bounds
 		setLayout(new BorderLayout(0, 0)); //Set layout
 		
 		JScrollPane scrollPanel = new JScrollPane(); //Create scroll panel
@@ -73,6 +75,13 @@ public class CheckFlightsPanel extends JPanel {
 		scrollPanel.setVerticalScrollBar(mainFrame.createCustomScrollbar());//Create and set the custom scroll bar
 		scrollPanel.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER); //Don't show horizontal scroll bar
 		scrollPanel.getVerticalScrollBar().setUnitIncrement(14); //Set scroll bar speed
+		scrollPanel.addMouseWheelListener(new MouseWheelListener() {
+			public void mouseWheelMoved(MouseWheelEvent e) {
+				//Repaint main frame when the mouse wheel is used
+				mainFrame.repaint();
+			
+			}
+		});
 		add(scrollPanel, BorderLayout.CENTER); //Add scroll panel
 		
 		gridPanel = (new JPanel() {
@@ -179,7 +188,7 @@ public class CheckFlightsPanel extends JPanel {
 		//Calculate new height of the grid panel (after the panels have been added)
 		int newGridPanelHeight = yStartOffset + (height * (yPosition + 1)) + (vgap * (yPosition + 1));
 		
-		//Create group layout
+		//Create group layout (and assign calculated height)
 		GroupLayout gl_gridPanel = new GroupLayout(gridPanel);
 		gl_gridPanel.setHorizontalGroup(
 			gl_gridPanel.createParallelGroup(Alignment.LEADING)
@@ -195,6 +204,10 @@ public class CheckFlightsPanel extends JPanel {
 	
 	}
 
+	/**
+	 * Get the grid panel instance
+	 * @return The grid panel instance
+	 */
 	public JPanel getGridPanel() {
 		return gridPanel;
 	}

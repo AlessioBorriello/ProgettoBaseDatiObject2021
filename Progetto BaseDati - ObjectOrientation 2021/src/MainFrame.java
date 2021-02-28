@@ -64,15 +64,14 @@ public class MainFrame extends JFrame {
 
 	private MainController mainController; //Linked controller
 	private Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize(); //Screen dimensions
-	private JPanel contentPanel; //Panel that changes the content displayed
+	private JPanel contentPanel = null; //Panel that changes the content displayed
 	private JLayeredPane centerPanel; //Panel containing content panel and dash board
 	private ArrayList<CompagniaAerea> listaCompagnie = new ArrayList<CompagniaAerea>(); //Array containing the companies
 	private DashboardPanel dashboardPanel; //Dash board panel
 	
 	private SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss"); //Date format
 	
-	private JPanel currentPanel = null; //Current panel being displayed in the content panel
-	private boolean lookingAtArchive; //To differentiate when on the panel CheckFlightsPanel if looking at the archive or not
+	private boolean lookingAtArchive; //To differentiate when on the panel CheckFlightsPanel if looking at the archive or not (as they use the same panel type)
 	
 	final private int screenWidth = (int)screenSize.getWidth(); //Screen width
 	final private int screenHeight = (int)screenSize.getHeight(); //Screen height
@@ -80,9 +79,6 @@ public class MainFrame extends JFrame {
 	final private int frameHeight = 700; //Frame height
 	
 	private Point mouseClickPoint; //Mouse position
-	final private int maxDashboardWidth = 200; //Max width of the dash board
-	final private int minDashboardWidth = 30; //Minimum width of the dash board
-	private int dashboardWidth = minDashboardWidth; //Current width of the dash board
 	
 	private ArrayList<Volo> flightList = null; //List of the flights to be displayed in the content panel
 	
@@ -100,8 +96,7 @@ public class MainFrame extends JFrame {
 		mainController = c; //Link controller and frame
 		
 		//Get all the companies from the database
-		CompagniaAereaDAO dao = new CompagniaAereaDAO();
-		listaCompagnie = dao.getAllCompagniaAerea();
+		listaCompagnie = new CompagniaAereaDAO().getAllCompagniaAerea();
 		
 		//Load notification bell image
 		try {                
@@ -121,7 +116,7 @@ public class MainFrame extends JFrame {
 		setTitle("Title"); //Set frame title
 		setBounds((screenWidth/2) - (frameWidth/2), (screenHeight/2) - (frameHeight/2), frameWidth, frameHeight); //Set the frame sizes and position in the middle of the screen
 		
-		//Main Panel
+		//Main Panel, it contains the center panel and the upper panel
 		JPanel mainPanel = new JPanel(); //Create panel
 		mainPanel.setBackground(SystemColor.inactiveCaption); //Set background
 		mainPanel.setName("mainPanel"); //Set name of the component
@@ -133,7 +128,7 @@ public class MainFrame extends JFrame {
 		
 		Rectangle buttonMinimizeBounds = new Rectangle(frameWidth - 60, 2, 26, 26); //Button minimize position on the upper panel
 		Rectangle buttonCloseBounds = new Rectangle(frameWidth - 30, 2, 26, 26); //Button close position on the upper panel
-		Rectangle buttonOpenNotificationsBounds = new Rectangle(frameWidth - 90, 2, 26, 26);
+		Rectangle buttonOpenNotificationsBounds = new Rectangle(frameWidth - 90, 2, 26, 26); //Button open notification position on the upper panel
 		JPanel upperPanel = (new JPanel() {
 			
 			public void paintComponent(Graphics g) {
@@ -237,9 +232,11 @@ public class MainFrame extends JFrame {
 		//Mouse listeners of close button
 		buttonClose.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				setVisible(false); //Make frame invisible
-				dispose(); //Dispose of it
-				System.exit(0); //Close application
+				if(createConfirmationFrame("Sei sicuro di voler uscire?")) {
+					setVisible(false); //Make frame invisible
+					dispose(); //Dispose of it
+					System.exit(0); //Close application
+				}
 			}
 		});
 		buttonClose.addMouseListener(new MouseAdapter() {
@@ -267,6 +264,7 @@ public class MainFrame extends JFrame {
 			}
 		});
 		
+		//Layered pane that contains the content panel, the panel that holds the current panel being used by the user and the dash board
 		centerPanel = (new JLayeredPane() {
 			
 			public void paintComponent(Graphics g) {
@@ -293,19 +291,22 @@ public class MainFrame extends JFrame {
 		centerPanel.setPreferredSize(new Dimension(frameWidth, frameHeight - upperPanelHeight)); //Set center panel preferred size
 		mainPanel.add(centerPanel); //Add center panel to the main panel
 		
+		//Panel hanging on the side of the center panel until the mouse hovers over it, it then animates to open
 		dashboardPanel = new DashboardPanel(centerPanel.getPreferredSize().height, this, mainController);
 		dashboardPanel.setName("dashboardPanel");
 		centerPanel.add(dashboardPanel);
 		
+		//Panel that holds the current panel being used by the user
 		contentPanel = new JPanel(); //Create content panel
 		contentPanel.setName("contentPanel"); //Name component
 		contentPanel.setBounds(72, 2, centerPanel.getPreferredSize().width - 72 - 4, centerPanel.getPreferredSize().height - 4); //Position the content panel
 		centerPanel.add(contentPanel); //Add the content panel to the center panel
 		contentPanel.setLayout(new BorderLayout(0, 0)); //Set content panel's layout
 		
-		flightList = searchFlights("", "", -1, null, null, true, true, true, true, true, true, true); //Start a research to get all of the flights
+		//Start a research to get all of the flights (as the panel starts not looking at the archive (look line after next)) that have not taken off or have been cancelled
+		flightList = searchFlights("", "", -1, null, null, true, true, true, true, true, true, true);
 		
-		setContentPanelToCheckFlightsPanel(false); //Set content panel at the start of the application to the CheckFlightsPanel
+		setContentPanelToCheckFlightsPanel(false, false); //Set content panel at the start of the application to the CheckFlightsPanel, not looking at the archive
 		
 		//Check if the dash board has not closed correctly every 1000ms (if mouse exited event gets skipped)
 		checkDashboardStatus(1000);
@@ -326,7 +327,7 @@ public class MainFrame extends JFrame {
 	
 		CheckNotifications checkNotifications = new CheckNotifications();
 		Timer t = new Timer();
-		int seconds = 60;
+		int seconds = 60; //Interval to check for notifications
 		t.schedule(checkNotifications, (seconds - LocalDateTime.now().atZone(ZoneId.systemDefault()).getSecond())*1000, seconds*1000);
 		
 		//Open notifications
@@ -361,12 +362,14 @@ public class MainFrame extends JFrame {
 	/**
 	 * Set contentPanel to the CheckFlightsPanel
 	 * @param lookingAtArchive If the panel has to show the archive of the flights (where 'partito' or 'cancellato' = 1)
+	 * @param askConfirmation If before changing the user should be prompted with a confirmation frame, it does so only if the user is currently
+	 * on a create flight or edit flight panel
 	 * @return If the panel got changed
 	 */
-	public boolean setContentPanelToCheckFlightsPanel(boolean lookingAtArchive) {
+	public boolean setContentPanelToCheckFlightsPanel(boolean lookingAtArchive, boolean askConfirmation) {
 		
 		//Check if the current panel is already in place in the content panel (They have the same class name)
-		if(currentPanel != null && currentPanel.getClass().getName().equals("CheckFlightsPanel")) {
+		if(contentPanel != null && contentPanel.getClass().getName().equals("CheckFlightsPanel")) {
 			//Differentiate if looking at the archive or not
 			if(this.lookingAtArchive == lookingAtArchive) { //Already looking at the same type of CheckFlightsPanel (lookingAtArchive here and the one passed are the same)
 				System.out.println("Already on this panel!");
@@ -375,14 +378,16 @@ public class MainFrame extends JFrame {
 		}
 		
 		//If creating or editing a flight
-		if(currentPanel != null && currentPanel.getClass().getName().equals("CreateFlightPanel")) {
-			if(!createConfirmationFrame("Stai creando un volo, sei sicuro di voler uscire dalla pagina di creazione?")) {
-				return false;
+		if(askConfirmation) {
+			if(contentPanel != null && contentPanel.getClass().getName().equals("CreateFlightPanel")) {
+				if(!createConfirmationFrame("Stai creando un volo, sei sicuro di voler uscire dalla pagina di creazione?")) {
+					return false;
+				}
 			}
-		}
-		if(currentPanel != null && currentPanel.getClass().getName().equals("EditFlightPanel")) {
-			if(!createConfirmationFrame("Stai modificando un volo, sei sicuro di voler uscire dalla pagina di modifica?")) {
-				return false;
+			if(contentPanel != null && contentPanel.getClass().getName().equals("EditFlightPanel")) {
+				if(!createConfirmationFrame("Stai modificando un volo, sei sicuro di voler uscire dalla pagina di modifica?")) {
+					return false;
+				}
 			}
 		}
 		
@@ -399,7 +404,6 @@ public class MainFrame extends JFrame {
 		contentPanel.repaint(); //Repaint content panel
 		contentPanel.revalidate(); //Re validate content panel
 		
-		currentPanel = contentPanel; //Update current panel
 		this.lookingAtArchive = lookingAtArchive; //Set if looking at the archive or not
 		
 		dashboardPanel.toggleSearchPanel(true); //Show search panel on dash board
@@ -410,20 +414,24 @@ public class MainFrame extends JFrame {
 
 	/**
 	 * Set contentPanel to the CreateFlightsPanel
+	 * @param askConfirmation If before changing the user should be prompted with a confirmation frame, it does so only if the user is currently
+	 * on a create flight or edit flight panel
 	 * @return If the panel got changed
 	 */
-	public boolean setContentPanelToCreateFlightsPanel() {
+	public boolean setContentPanelToCreateFlightsPanel(boolean askConfirmation) {
 		
 		//Check if the current panel is already in place in the content panel (They have the same class name)
-		if(currentPanel != null && currentPanel.getClass().getName().equals("CreateFlightPanel")) {
+		if(contentPanel != null && contentPanel.getClass().getName().equals("CreateFlightPanel")) {
 			System.out.println("Already on this panel!");
-			return false; //Dont replace the content panel
+			return false; //Don't replace the content panel
 		}
 		
 		//If editing a flight
-		if(currentPanel != null && currentPanel.getClass().getName().equals("EditFlightPanel")) {
-			if(!createConfirmationFrame("Stai modificando un volo, sei sicuro di voler uscire dalla pagina di modifica?")) {
-				return false;
+		if(askConfirmation) {
+			if(contentPanel != null && contentPanel.getClass().getName().equals("EditFlightPanel")) {
+				if(!createConfirmationFrame("Stai modificando un volo, sei sicuro di voler uscire dalla pagina di modifica?")) {
+					return false;
+				}
 			}
 		}
 		
@@ -440,8 +448,6 @@ public class MainFrame extends JFrame {
 		contentPanel.revalidate(); //Re validate content panel
 		centerPanel.repaint(); //Repaint center panel
 		
-		currentPanel = contentPanel; //Update current panel
-		
 		dashboardPanel.toggleSearchPanel(false); //Hide search panel on dash board
 		
 		return true;
@@ -450,18 +456,29 @@ public class MainFrame extends JFrame {
 	
 	/**
 	 * Set contentPanel to the EditFlightPanel
+	 * @param askConfirmation If before changing the user should be prompted with a confirmation frame, it does so only if the user is currently
+	 * on a create flight or edit flight panel
 	 * @return If the panel got changed
 	 */
-	public boolean setContentPanelToEditFlightPanel(Volo flightToUpdate) {
+	public boolean setContentPanelToEditFlightPanel(Volo flightToUpdate, boolean askConfirmation) {
 		
 		if(flightToUpdate == null) {
 			return false;
 		}
 		
 		//Check if the current panel is already in place in the content panel (They have the same class name)
-		if(currentPanel != null && currentPanel.getClass().getName().equals("EditFlightPanel")) {
+		if(contentPanel != null && contentPanel.getClass().getName().equals("EditFlightPanel")) {
 			System.out.println("Already on this panel!");
 			return false; //Don't replace the content panel
+		}
+		
+		//If creating a flight
+		if(askConfirmation) {
+			if(contentPanel != null && contentPanel.getClass().getName().equals("CreateFlightPanel")) {
+				if(!createConfirmationFrame("Stai creando un volo, sei sicuro di voler uscire dalla pagina di creazione?")) {
+					return false;
+				}
+			}
 		}
 		
 		Rectangle bounds = new Rectangle(contentPanel.getBounds()); //Get bounds of the content panel
@@ -477,8 +494,6 @@ public class MainFrame extends JFrame {
 		contentPanel.revalidate(); //Re validate content panel
 		centerPanel.repaint(); //Repaint center panel
 		
-		currentPanel = contentPanel; //Update current panel
-		
 		dashboardPanel.toggleSearchPanel(false); //Hide search panel on dash board
 		
 		return true;
@@ -487,29 +502,34 @@ public class MainFrame extends JFrame {
 
 	/**
 	 * Set contentPanel to the ViewFlightInfoPanel
+	 * @param volo The flight the panel should show the info of
+	 * @param askConfirmation If before changing the user should be prompted with a confirmation frame, it does so only if the user is currently
+	 * on a create flight or edit flight panel
 	 * @return If the panel got changed
 	 */
-	public boolean setContentPanelToViewFlightInfoPanel(Volo volo) {
+	public boolean setContentPanelToViewFlightInfoPanel(Volo volo, boolean askConfirmation) {
 		
 		if(volo == null) {
 			return false;
 		}
 		
 		//Check if the current panel is already in place in the content panel (They have the same class name)
-		if(currentPanel != null && currentPanel.getClass().getName().equals("ViewFlightInfoPanel")) {
+		if(contentPanel != null && contentPanel.getClass().getName().equals("ViewFlightInfoPanel")) {
 			System.out.println("Already on this panel!");
 			return false; //Don't replace the content panel
 		}
 		
 		//If creating or editing a flight
-		if(currentPanel != null && currentPanel.getClass().getName().equals("CreateFlightPanel")) {
-			if(!createConfirmationFrame("Stai creando un volo, sei sicuro di voler uscire dalla pagina di creazione?")) {
-				return false;
+		if(askConfirmation) {
+			if(contentPanel != null && contentPanel.getClass().getName().equals("CreateFlightPanel")) {
+				if(!createConfirmationFrame("Stai creando un volo, sei sicuro di voler uscire dalla pagina di creazione?")) {
+					return false;
+				}
 			}
-		}
-		if(currentPanel != null && currentPanel.getClass().getName().equals("EditFlightPanel")) {
-			if(!createConfirmationFrame("Stai modificando un volo, sei sicuro di voler uscire dalla pagina di modifica?")) {
-				return false;
+			if(contentPanel != null && contentPanel.getClass().getName().equals("EditFlightPanel")) {
+				if(!createConfirmationFrame("Stai modificando un volo, sei sicuro di voler uscire dalla pagina di modifica?")) {
+					return false;
+				}
 			}
 		}
 		
@@ -526,8 +546,6 @@ public class MainFrame extends JFrame {
 		contentPanel.revalidate(); //Re validate content panel
 		centerPanel.repaint(); //Repaint center panel
 		
-		currentPanel = contentPanel; //Update current panel
-		
 		dashboardPanel.toggleSearchPanel(false); //Hide search panel on dash board
 		
 		return true;
@@ -536,25 +554,29 @@ public class MainFrame extends JFrame {
 	
 	/**
 	 * Set contentPanel to the StatisticsPanel
+	 * @param askConfirmation If before changing the user should be prompted with a confirmation frame, it does so only if the user is currently
+	 * on a create flight or edit flight panel
 	 * @return If the panel got changed
 	 */
-	public boolean setContentPanelToStatisticsPanel() {
+	public boolean setContentPanelToStatisticsPanel(boolean askConfirmation) {
 		
 		//Check if the current panel is already in place in the content panel (They have the same class name)
-		if(currentPanel != null && currentPanel.getClass().getName().equals("StatisticsPanel")) {
+		if(contentPanel != null && contentPanel.getClass().getName().equals("StatisticsPanel")) {
 			System.out.println("Already on this panel!");
 			return false; //Don t replace the content panel
 		}
 		
 		//If creating or editing a flight
-		if(currentPanel != null && currentPanel.getClass().getName().equals("CreateFlightPanel")) {
-			if(!createConfirmationFrame("Stai creando un volo, sei sicuro di voler uscire dalla pagina di creazione?")) {
-				return false;
+		if(askConfirmation) {
+			if(contentPanel != null && contentPanel.getClass().getName().equals("CreateFlightPanel")) {
+				if(!createConfirmationFrame("Stai creando un volo, sei sicuro di voler uscire dalla pagina di creazione?")) {
+					return false;
+				}
 			}
-		}
-		if(currentPanel != null && currentPanel.getClass().getName().equals("EditFlightPanel")) {
-			if(!createConfirmationFrame("Stai modificando un volo, sei sicuro di voler uscire dalla pagina di modifica?")) {
-				return false;
+			if(contentPanel != null && contentPanel.getClass().getName().equals("EditFlightPanel")) {
+				if(!createConfirmationFrame("Stai modificando un volo, sei sicuro di voler uscire dalla pagina di modifica?")) {
+					return false;
+				}
 			}
 		}
 		
@@ -571,8 +593,6 @@ public class MainFrame extends JFrame {
 		contentPanel.revalidate(); //Re validate content panel
 		centerPanel.repaint(); //Repaint center panel
 		
-		currentPanel = contentPanel; //Update current panel
-		
 		dashboardPanel.toggleSearchPanel(false); //Hide search panel on dash board
 		
 		return true;
@@ -581,25 +601,31 @@ public class MainFrame extends JFrame {
 	
 	/**
 	 * Set contentPanel to the CheckGatePanel
+	 * @param flightList List of the flights that use this gate
+	 * @param gateNumber The number identifying the gate
+	 * @param askConfirmation If before changing the user should be prompted with a confirmation frame, it does so only if the user is currently
+	 * on a create flight or edit flight panel
 	 * @return If the panel got changed
 	 */
-	public boolean setContentPanelToCheckGatePanel(ArrayList<Volo> flightList, int gateNumber) {
+	public boolean setContentPanelToCheckGatePanel(ArrayList<Volo> flightList, int gateNumber, boolean askConfirmation) {
 		
 		//Check if the current panel is already in place in the content panel (They have the same class name)
-		if(currentPanel != null && currentPanel.getClass().getName().equals("CheckGatePanel")) {
+		if(contentPanel != null && contentPanel.getClass().getName().equals("CheckGatePanel")) {
 			System.out.println("Already on this panel!");
 			return false; //Don t replace the content panel
 		}
 		
 		//If creating or editing a flight
-		if(currentPanel != null && currentPanel.getClass().getName().equals("CreateFlightPanel")) {
-			if(!createConfirmationFrame("Stai creando un volo, sei sicuro di voler uscire dalla pagina di creazione?")) {
-				return false;
+		if(askConfirmation) {
+			if(contentPanel != null && contentPanel.getClass().getName().equals("CreateFlightPanel")) {
+				if(!createConfirmationFrame("Stai creando un volo, sei sicuro di voler uscire dalla pagina di creazione?")) {
+					return false;
+				}
 			}
-		}
-		if(currentPanel != null && currentPanel.getClass().getName().equals("EditFlightPanel")) {
-			if(!createConfirmationFrame("Stai modificando un volo, sei sicuro di voler uscire dalla pagina di modifica?")) {
-				return false;
+			if(contentPanel != null && contentPanel.getClass().getName().equals("EditFlightPanel")) {
+				if(!createConfirmationFrame("Stai modificando un volo, sei sicuro di voler uscire dalla pagina di modifica?")) {
+					return false;
+				}
 			}
 		}
 		
@@ -615,8 +641,6 @@ public class MainFrame extends JFrame {
 		contentPanel.repaint(); //Repaint content panel
 		contentPanel.revalidate(); //Re validate content panel
 		centerPanel.repaint(); //Repaint center panel
-		
-		currentPanel = contentPanel; //Update current panel
 		
 		dashboardPanel.toggleSearchPanel(false); //Hide search panel on dash board
 		
@@ -781,6 +805,10 @@ public class MainFrame extends JFrame {
 		
 	}
 	
+	/**
+	 * Create an instance of a custom scroll bar with preset settings
+	 * @return The scroll bar
+	 */
 	public CustomScrollBar createCustomScrollbar() {
 		
 		//Create the scroll bar with these default settings and return it
@@ -796,6 +824,10 @@ public class MainFrame extends JFrame {
 		
 	}
 	
+	/**
+	 * Create an instance of a custom combo box with preset settings
+	 * @return The combo box
+	 */
 	public CustomComboBox createCustomComboBox() {
 		
 		//Create the combo box with these default settings and return it
@@ -806,40 +838,53 @@ public class MainFrame extends JFrame {
 		
 	}
 	
+	/**
+	 * Subdivide a string in to a series of sub strings whenever the pixel width of said string is higher than a given width
+	 * @param g2d Graphics2D instance
+	 * @param s String to subdivide
+	 * @param maxWidth Width the string should not be greater than
+	 * @return An array list of sub strings that make out the entire passed string but whose pixel width are never greater than the passed max width
+	 */
 	public ArrayList<String> subdivideString(Graphics2D g2d, String s, int maxWidth) {
 		
-		String[] singleWordsArray = s.split(" "); //Divide in the single words
+		String[] singleWordsArray = s.split(" "); //Divide in the single words (Split when there is a space)
 		
-		ArrayList<String> returnList = new ArrayList<String>(); //return list of sub strings
+		ArrayList<String> returnList = new ArrayList<String>();
 		
 		String tempString = singleWordsArray[0]; //First word
 		int wordIndex = 1;
-		while(wordIndex < singleWordsArray.length) { //For all the letters
+		while(wordIndex < singleWordsArray.length) { //For all the words in the string
 			
 			//Add word by word
-			tempString += " " + singleWordsArray[wordIndex]; //Add the next word
+			tempString += " " + singleWordsArray[wordIndex]; //Add the next word to a temp string
 			
 			if(g2d.getFontMetrics(g2d.getFont()).stringWidth(tempString) > maxWidth) { //If it's too long
-				returnList.add(tempString); //Add temp string to the list
-				tempString = ""; //Reset temp string
+				returnList.add(tempString); //Add the temp string to the return list
+				tempString = ""; //Reset temp string (so it's pixel's width is 0)
 			}
 			
-			wordIndex++;
+			wordIndex++; //Next word
 			
 		}
 		
-		if(!tempString.equals("")) { //If there are leftover letters
-			returnList.add(tempString); //Add temp string to the list
+		if(!tempString.equals("")) { //If there are leftover words
+			returnList.add(tempString); //Add the temp string (that now contains the leftover words) to the list
 		}
 		
 		return returnList;
 		
 	}
 	
+	/**
+	 * Check if in the database there are flights whose take off time is before the current system time
+	 * if so, it puts them in a string array list
+	 * @return The string array list containing the flights whose take off time is before the current system time
+	 */
 	public ArrayList<String> checkForNotifications() {
 		
 		ArrayList<String> returnList = new ArrayList<String>();
-		Date currentTime = Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant());
+		
+		Date currentTime = Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant()); //Get system time and convert it to the Date form
 
 		returnList = new VoloDAO().getIDListOfFlightsTakeOffTimePassed(currentTime);
 		
@@ -847,20 +892,33 @@ public class MainFrame extends JFrame {
 		
 	}
 	
+	/**
+	 * Colorize an image with a given color
+	 * @param image The image to colorize
+	 * @param color The color the image should be turned in
+	 * @return The dyed image
+	 */
 	public BufferedImage colorizeBufferedImage(BufferedImage image, Color color) {
 		
+		//Get image size
 	    int w = image.getWidth();
 	    int h = image.getHeight();
-	    BufferedImage dyed = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
-	    Graphics2D g = dyed.createGraphics();
+	    
+	    BufferedImage dyed = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB); //Initialize the new dyed image
+	    Graphics2D g = dyed.createGraphics(); //Create graphics from the dyed image
+	    
+	    //Draw the image and set alpha composite
 	    g.drawImage(image, 0, 0, null);
 	    g.setComposite(AlphaComposite.SrcAtop);
+	    //Set color
 	    g.setColor(color);
+	    //Fill a rectangle with said color of the image size
 	    g.fillRect(0, 0, w, h);
-	    g.dispose();
+	    g.dispose(); //Dispose graphics
 	    
 	    return dyed;
-	  }
+	  
+	}
 	
 	//Setters and getters
 	public ArrayList<Volo> getFlightList() {

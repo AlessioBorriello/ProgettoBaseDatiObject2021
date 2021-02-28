@@ -22,19 +22,25 @@ import javax.swing.plaf.basic.BasicSpinnerUI;
 
 public class CustomSpinner extends JSpinner{
 	
-	private Color buttonBackgroundColor;
-	private Color arrowColor;
-	private Color buttonHoveringColor;
-	private int arrowThickness;
-	private int buttonWidth = 15;
+	private Color buttonBackgroundColor; //Color of the background of the button on the spinner
+	private Color arrowColor; //Color of the arrow on the buttons
+	private Color buttonHoveringColor; //Color of the rectangle being drawn on the button on spinner when the mouse hovers over it
+	private int arrowThickness; //Thickness  of the arrow on the button
+	private int buttonWidth = 15; //Width of the button
 	
-	private boolean border = false;
-	private Color borderColor;
-	private int borderThickness;
+	private boolean border = false; //If the spinner should have a border
+	private Color borderColor; //Color of said border
 	
-	private int width;
-	private int height;
-	
+	/**
+	 * Create a spinner with a custom UI
+	 * @param buttonBackgroundColor Color of the background of the button on the spinner
+	 * @param buttonHoveringColor Color of the rectangle being drawn on the button on spinner when the mouse hovers over it
+	 * @param arrowColor Color of the arrow on the buttons
+	 * @param arrowThickness Thickness  of the arrow on the button
+	 * @param border If the spinner should have a border
+	 * @param borderColor Color of the border
+	 * @param borderThickness Thickness of the border
+	 */
 	public CustomSpinner(Color buttonBackgroundColor, Color buttonHoveringColor, Color arrowColor, int arrowThickness, boolean border, Color borderColor, int borderThickness) {
         
 		
@@ -45,13 +51,10 @@ public class CustomSpinner extends JSpinner{
 		
 		this.border = border;
 		this.borderColor = borderColor;
-		this.borderThickness = borderThickness;
 		
-		this.width = getPreferredSize().width;
-		this.height = getPreferredSize().height;
 		
-		setUI(new CustomSpinnerUI()); //Set the custom UI
-		setBorder(new LineBorder(borderColor, borderThickness));
+		setUI(new CustomSpinnerUI()); //Implement custom UI
+		setBorder(new LineBorder(borderColor, borderThickness)); //Set border
 		
     }
 	
@@ -75,42 +78,64 @@ public class CustomSpinner extends JSpinner{
 		
 	}
 	
+	/**
+	 * Set the color of the background of the editor of the spinner
+	 * @param c Color of the background
+	 */
 	public void setEditorBackgroundColor(Color c) {
 		getEditor().getComponent(0).setBackground(c); //Access editor's text field (getComponent(0)) and set it's background
 	}
 	
+	/**
+	 * Set the color of the foreground of the editor of the spinner
+	 * @param c Color of the foreground
+	 */
 	public void setEditorForegroundColor(Color c) {
 		getEditor().getComponent(0).setForeground(c); //Access editor's text field (getComponent(0)) and set it's foreground
 	}
 	
+	/**
+	 * Set the font of the editor of the spinner
+	 * @param f Font of the editor
+	 */
 	public void setEditorFont(Font f) {
 		getEditor().getComponent(0).setFont(f);; //Access editor's text field (getComponent(0)) and set it's font
 	}
 	
-	//Create custom UI
+	//Create custom spinner UI being implemented by the custom spinner
 	private class CustomSpinnerUI extends BasicSpinnerUI {
 
         protected Component createPreviousButton() {
         	
+        	//Create button with the down arrow pointing down
         	Component component = createButton(spinnerButtonArrowDirection.down);
-            super.createPreviousButton();
-            if (component != null) {
-                installPreviousButtonListeners(component);
+            
+            if (component != null) { //If the button has been created
+                installPreviousButtonListeners(component); //Install the button as the 'previous button' (the bottom one)
             }
+            
             return component;
         	
         }
 
         protected Component createNextButton() {
         	
+        	//Create button with the down arrow pointing up
         	Component component = createButton(spinnerButtonArrowDirection.up);
-            if (component != null) {
-                installNextButtonListeners(component);
+        	
+            if (component != null) { //If the button has been created
+                installNextButtonListeners(component); //Install the button as the 'next button' (the upper one)
             }
+            
             return component;
         	
         }
 
+        /**
+         * Create a button with an arrow pointing up or down to be installed in the custom spinner UI
+         * @param direction Direction the arrow should point at, up or down
+         * @return The button
+         */
         private Component createButton(spinnerButtonArrowDirection direction) {
         	
             CustomButton button = (new CustomButton("", buttonBackgroundColor, buttonHoveringColor, arrowColor, 2, border, borderColor, 2) {
@@ -146,16 +171,15 @@ public class CustomSpinner extends JSpinner{
             	}
             	
             });
-            button.setPreferredSize(new Dimension(buttonWidth, 4));
+            button.setPreferredSize(new Dimension(buttonWidth, 4)); //Set button size
             button.addMouseListener(new MouseAdapter() {
     			public void mouseEntered(MouseEvent e) {
-    				if(isEnabled()) {
+    				if(isEnabled()) { //Animate button only if the spinner is enabled
     					button.selectAnimation(8);
     				}
     			}
-
     			public void mouseExited(MouseEvent e) {
-    				if(isEnabled()) {
+    				if(isEnabled()) { //Animate button only if the spinner is enabled
     					button.unselectAnimation(8);
     				}
     			}
@@ -168,6 +192,7 @@ public class CustomSpinner extends JSpinner{
 
 }
 
+//Direction of the arrow on the button
 enum spinnerButtonArrowDirection {
 	up,
 	down
