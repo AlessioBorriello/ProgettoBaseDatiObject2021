@@ -406,33 +406,43 @@ public class EditFlightPanel extends JPanel {
 		fineTempoStimato = c.getTime();
 		
 		//Create queue list
-		ArrayList<Coda> list = new ArrayList<Coda>();
+		ArrayList<Coda> newQueueList = new ArrayList<Coda>();
 		for(String s : listaCode) {
 			Coda coda = new Coda();
-			coda.setTipo(s);
-			list.add(coda);
+			try {
+				coda.setTipo(s);
+			} catch (NonExistentQueueTypeException e) {
+				e.printStackTrace();
+			}
+			coda.setPersoneInCoda(0);
 			
 			//Get queues of the non updated flight
 			for(Coda oldCoda : v.getGate().getListaCode()) {
+				
 				if(coda.getTipo().equals(oldCoda.getTipo())) { //If one of the queues in the updated flight was already in the non updated one
 					coda.setPersoneInCoda(oldCoda.getPersoneInCoda()); //Set it's length (to not loose bookings)
-				}else { //Otherwise, the queue was not in the non updated one
-					coda.setPersoneInCoda(0); //Set it's length to 0
 				}
+				
 			}
+			
+			newQueueList.add(coda);
 			
 		}
 		
 		//Check if there is at least one queue
-		if(list.size() == 0) {
+		if(newQueueList.size() == 0) {
 			mainFrame.createNotificationFrame("Seleziona almeno una coda!");
 			return;
 		}
 		
 		//Create gate
 		Gate g = new Gate();
-		g.setListaCode(list);
-		g.setNumeroGate(gate);
+		g.setListaCode(newQueueList);
+		try {
+			g.setNumeroGate(gate);
+		} catch (NonExistentGateException e) {
+			e.printStackTrace();
+		}
 		
 		//Create slot
 		Slot s = new Slot();

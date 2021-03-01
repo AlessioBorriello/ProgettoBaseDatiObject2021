@@ -93,10 +93,11 @@ public class GateDAO {
 	
 	/**
 	 * Get a gate instance by it's flight's id
+	 * @param con Connection to the database
 	 * @param ID ID of the flight the gate is linked to
 	 * @return The gate linked to the given id
 	 */
-	public Gate getGateByID(String ID) {
+	public Gate getGateByID(Connection con, String ID) {
 		
 		try {
 			
@@ -104,7 +105,6 @@ public class GateDAO {
 			
 			String connectionURL = MainController.URL; //Connection URL
 
-	        Connection con = DriverManager.getConnection(connectionURL, MainController.USER, MainController.PASSWORD); //Create connection
 			Statement st = con.createStatement(); //Create statement
 			ResultSet rs = st.executeQuery(q); //Execute query
 			
@@ -112,15 +112,13 @@ public class GateDAO {
 				
 				Gate g = new Gate();
 				g.setNumeroGate(rs.getInt("numeroGate"));
-				g.setListaCode(new CodaDAO().getQueueListByID(ID));
+				g.setListaCode(new CodaDAO().getQueueListByID(con, st, ID));
 				
 				return g;
 				
 			}else { //Gate not found
 				
-				con.close(); //Close connection
 				st.close(); //Close statement
-				
 				return null; //Return null
 			}
 			
@@ -143,7 +141,7 @@ public class GateDAO {
 			String q = "Select * from gate where numeroGate = " + gateNumber + ""; //Initialize query
 			String connectionURL = MainController.URL; //Connection URL
 
-	        Connection con = DriverManager.getConnection(connectionURL, MainController.USER, MainController.PASSWORD); //Create connection
+			Connection con = DriverManager.getConnection(connectionURL, MainController.USER, MainController.PASSWORD);  //Create connection
 			Statement st = con.createStatement(); //Create statement
 			ResultSet rs = st.executeQuery(q); //Execute query
 			
@@ -154,7 +152,7 @@ public class GateDAO {
 				
 				Gate g = new Gate();
 				g.setNumeroGate(gateNumber);
-				g.setListaCode(new CodaDAO().getQueueListByID(rs.getString("IDVolo")));
+				g.setListaCode(new CodaDAO().getQueueListByID(con, st, rs.getString("IDVolo")));
 				list.add(g);
 				
 			}

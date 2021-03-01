@@ -21,9 +21,12 @@ import java.util.Random;
 public class MainController {
 	
 	//PG URL: jdbc:postgresql://host:port/database
-	static String URL = "jdbc:mysql://localhost:3306/aereoporto?autoReconnect=true&useSSL=false"; //Database URL
+	static String URL = "jdbc:mysql://localhost:3306/aereoporto?autoReconnect=true&useSSL=false&maxReconnects=5"; //Database URL
 	static String PASSWORD = "password"; //Password
 	static String USER = "root"; //User name
+	
+	//Number of gates in the airport
+	static int gateAirportNumber = 12;
 	
 	//Fonts
 	static Font fontOne;
@@ -66,9 +69,9 @@ public class MainController {
 	static Color ryanairColor = new Color(0, 0, 180);
 	
 	//Flight statuses color
-	static Color flightProgrammedColor;
+	static Color flightProgrammedColor; //Set as foregroundColorThree in palette assignment
 	static Color flightTakenOffColor = new Color(0, 180, 0, 150);
-	static Color flightTakenOffLateColor = new Color(180, 180, 0, 150);
+	static Color flightTakenOffLateColor = new Color(234, 234, 0, 150);
 	static Color flightCancelledColor = new Color(180, 0, 0, 150);
 	
 	public static void main(String[] args) {

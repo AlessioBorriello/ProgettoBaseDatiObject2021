@@ -190,7 +190,7 @@ public class DashboardPanel extends JPanel {
 						searchPanel.searchFlights(); //Make search
 					}
 					
-					//Update dashboard
+					//Update dash board
 					searchPanel.toggleArchiveOnlyCheckBoxes(true);
 					repaint();
 					revalidate();

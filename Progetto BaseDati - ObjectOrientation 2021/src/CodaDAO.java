@@ -71,18 +71,18 @@ public class CodaDAO {
 	
 	/**
 	 * Get a list of the queues of a specified Flight
+	 * @param con Connection to the database
+	 * @param st Statement of the database
 	 * @param ID ID of the flight the user wants the queue of
 	 * @return List of queues of the specified Flight
 	 */
-	public ArrayList<Coda> getQueueListByID(String ID){
+	public ArrayList<Coda> getQueueListByID(Connection con, Statement st, String ID){
 		
 		try {
 			
 			String q = "Select * from coda where IDVolo = '" + ID + "'"; //Initialize query
 			String connectionURL = MainController.URL; //Connection URL
 
-	        Connection con = DriverManager.getConnection(connectionURL, MainController.USER, MainController.PASSWORD); //Create connection
-			Statement st = con.createStatement(); //Create statement
 			ResultSet rs = st.executeQuery(q); //Execute query
 			
 			ArrayList<Coda> list = new ArrayList<Coda>(); //Initialize a list of queues
@@ -99,8 +99,6 @@ public class CodaDAO {
 				list.add(c);
 			}
 			
-			con.close(); //Close connection
-			st.close(); //Close statement
 			return list; //Return list
 			
 		}catch(Exception e) { //Error catching

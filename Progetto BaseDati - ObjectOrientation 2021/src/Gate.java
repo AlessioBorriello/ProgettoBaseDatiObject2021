@@ -9,8 +9,13 @@ public class Gate {
 	public int getNumeroGate() {
 		return numeroGate;
 	}
-	public void setNumeroGate(int numeroGate) {
-		this.numeroGate = numeroGate;
+	public void setNumeroGate(int numeroGate) throws NonExistentGateException{
+		if(numeroGate < 1 || numeroGate > MainController.gateAirportNumber) {
+			this.numeroGate = 1; //Set gate to 1 by default
+			throw new NonExistentGateException("Il gate espresso non esiste");
+		}else {
+			this.numeroGate = numeroGate;
+		}
 	}
 	public ArrayList<Coda> getListaCode() {
 		return listaCode;

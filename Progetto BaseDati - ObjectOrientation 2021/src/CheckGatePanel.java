@@ -112,6 +112,7 @@ public class CheckGatePanel extends JPanel {
 		
 		JScrollPane scrollPanel = new JScrollPane();
 		scrollPanel.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+		scrollPanel.getVerticalScrollBar().setUnitIncrement(14); //Set scroll bar speed
 		scrollPanel.setBorder(null);
 		scrollPanel.setVerticalScrollBar(mainFrame.createCustomScrollbar());
 		flightsPanel.add(scrollPanel);

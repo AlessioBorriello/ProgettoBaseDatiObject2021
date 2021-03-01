@@ -191,6 +191,7 @@ public class CustomComboBox extends JComboBox<Object> {
 	        JScrollPane sp = new JScrollPane(list, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER); //Never utilize horizontal scroll bar
 	        sp.setHorizontalScrollBar(null); //Set horizontal scroll bar as null
 	        sp.setVerticalScrollBar(customScrollbar); //Set vertical scroll bar as custom scroll bar
+	        sp.getVerticalScrollBar().setUnitIncrement(14); //Set scroll bar speed
 	        return sp;
 	        
 	    }

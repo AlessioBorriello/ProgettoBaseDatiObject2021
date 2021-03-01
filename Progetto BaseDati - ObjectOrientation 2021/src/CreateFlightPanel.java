@@ -7,6 +7,7 @@ import javax.swing.JSpinner;
 import javax.swing.SpinnerDateModel;
 import java.util.Date;
 import java.util.Random;
+import java.util.Scanner;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.awt.BasicStroke;
@@ -33,6 +34,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -59,7 +61,7 @@ public class CreateFlightPanel extends JPanel {
 	
 	private int queueButtonDistance = 59; //Distance between the added queue buttons
 	
-	private int gatesNumber = 12; //How many gate there are in the airport
+	private int gatesNumber = MainController.gateAirportNumber; //How many gate there are in the airport
 	
 	/**
 	 * Panel where the user can create a new flight to add to the database
@@ -373,7 +375,11 @@ public class CreateFlightPanel extends JPanel {
 		for(String s : listaCode) {
 			Coda coda = new Coda();
 			coda.setPersoneInCoda(0);
-			coda.setTipo(s);
+			try {
+				coda.setTipo(s);
+			} catch (NonExistentQueueTypeException e) {
+				e.printStackTrace();
+			}
 			list.add(coda);
 		}
 		
@@ -386,7 +392,11 @@ public class CreateFlightPanel extends JPanel {
 		//Create gate
 		Gate g = new Gate();
 		g.setListaCode(list);
-		g.setNumeroGate(gate);
+		try {
+			g.setNumeroGate(gate);
+		} catch (NonExistentGateException e) {
+			e.printStackTrace();
+		}
 		
 		//Create slot
 		Slot s = new Slot();
@@ -409,13 +419,7 @@ public class CreateFlightPanel extends JPanel {
 		v.setOrarioDecollo(data);
 		v.setPartito(false);
 		v.setSlot(s);
-		
-		//Calculate number of bookings (sum of all the queues lengths)
-		int sum = 0;
-		for(Coda coda : v.getGate().getListaCode()) {
-			sum += coda.getPersoneInCoda();
-		}
-		v.setNumeroPrenotazioni(sum);
+		v.setNumeroPrenotazioni(0);
 		
 		//Insert in the database
 		VoloDAO dao = new VoloDAO();
@@ -429,9 +433,6 @@ public class CreateFlightPanel extends JPanel {
 				searchPanel.searchFlights(); //Make search (to possibly include this new flight)
 			}
 			
-			//Update minimum and max dates spinners
-			searchPanel.setMinimumAndMaxDatesAndUpdateSpinners(new VoloDAO().getMinAndMaxTakeOffTime());
-			
 			//Update dash board
 			searchPanel.toggleArchiveOnlyCheckBoxes(false);
 			repaint();
@@ -442,22 +443,23 @@ public class CreateFlightPanel extends JPanel {
 	}
 
 	/**
-	 * Add destinations in to a given combo box
+	 * Add destinations taken from the destinations.txt in to a given combo box
 	 * @param box The combo box to add the destinations to
 	 */
 	public void populateDestinationComboBox(CustomComboBox box) {
 		
-		box.addItem("Londra");
-		box.addItem("Roma");
-		box.addItem("Barcellona");
-		box.addItem("Parigi");
-		box.addItem("Pechino");
-		box.addItem("Il Cairo");
-		box.addItem("Washington");
-		box.addItem("Mosca");
-		box.addItem("Belgrado");
-		box.addItem("Dublino");
-		box.addItem("Berlino");
+		try {
+			//Open destination text file
+			File textFile = new File("txts/destinations.txt");
+			Scanner r = new Scanner(textFile); //Create scanner with the file as source
+			while (r.hasNextLine()) {
+				String destination = r.nextLine(); //Read next line in the file
+				box.addItem(destination); //Add item read to the box
+			}
+			  r.close();
+		} catch(FileNotFoundException e) {
+			e.printStackTrace();
+		}
 		
 	}
 

@@ -67,6 +67,7 @@ public class NotificationsPanel extends JPanel{
 		
 		scrollPanel = new JScrollPane(); //Create scroll panel
 		scrollPanel.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER); //Never use horizontal scroll bar
+		scrollPanel.getVerticalScrollBar().setUnitIncrement(14); //Set scroll bar speed
 		scrollPanel.setBorder(null); //Set border to null
 		scrollPanel.setVerticalScrollBar(mainFrame.createCustomScrollbar()); //Set vertical scroll bar to a custom scroll bar
 		scrollPanel.setBounds(4, 100, getWidth() - 6, minimumHeight - 102); //Set scroll panel bounds, it starts 100 pixels lower than the panel and it's height is the minimum - 102
@@ -133,7 +134,7 @@ public class NotificationsPanel extends JPanel{
 			buttonFlight.addMouseListener(new MouseAdapter() {
 				//When mouse clicked
 				public void mouseClicked(MouseEvent e) {
-					mainFrame.setContentPanelToViewFlightInfoPanel(new VoloDAO().getFlightByID(s), false); //Go to view flight info
+					mainFrame.setContentPanelToViewFlightInfoPanel(new VoloDAO().getFlightByID(mainFrame, s), false); //Go to view flight info
 					JLayeredPane centerPanel = (JLayeredPane)mainController.getComponentByName(mainFrame, "centerPanel"); //Get center panel
 					if(centerPanel != null) {
 						centerPanel.remove(thisPanel); //Remove this panel from the centerPanel

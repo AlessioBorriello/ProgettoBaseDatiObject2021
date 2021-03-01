@@ -10,7 +10,7 @@ import java.util.List;
 
 public class VoloDAO {
 	
-	private SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss"); //Date format
+	private SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm"); //Date format
 	
 	/**
 	 * Insert a flight into the database
@@ -45,8 +45,8 @@ public class VoloDAO {
 			//Insert gate
 			GateDAO daoGate = new GateDAO();
 			if(!daoGate.insertGate(mainFrame, v.getGate(), id)) {
-				//Gate not inserted, remove the flight just inserted (if found)
-				if(getFlightByID(id) != null) {
+				//Something went wrong when inserting the gate, therefore remove the flight just inserted (if found)
+				if(getFlightByID(mainFrame, id) != null) {
 					removeFlight(mainFrame, v);
 				}
 				mainFrame.createNotificationFrame("Qualcosa è andato storto!");
@@ -56,8 +56,8 @@ public class VoloDAO {
 			//Insert slot
 			SlotDAO daoSlot = new SlotDAO();
 			if(!daoSlot.insertSlot(mainFrame, v.getSlot(), id)) {
-				//Slot not inserted, remove the flight just inserted (if found)
-				if(getFlightByID(id) != null) {
+				//Something went wrong when inserting the slot, therefore remove the flight just inserted (if found)
+				if(getFlightByID(mainFrame, id) != null) {
 					removeFlight(mainFrame, v);
 				}
 				mainFrame.createNotificationFrame("Qualcosa è andato storto!");
@@ -160,10 +160,11 @@ public class VoloDAO {
 	
 	/**
 	 * Get a flight instance by it's ID
+	 * @param mainFrame Link to the mainFrame
 	 * @param ID ID of the flight to get
 	 * @return The flight with the given ID
 	 */
-	public Volo getFlightByID(String ID) {
+	public Volo getFlightByID(MainFrame mainFrame, String ID) {
 		
 		try {
 			
@@ -178,8 +179,19 @@ public class VoloDAO {
 			if(rs.next()) { //Flight found
 				
 				Volo v = new Volo();
-				v.setCompagnia(new CompagniaAereaDAO().getCompagniaAereaByNome(rs.getString("nomeCompagnia"))); //Get the company by its name
-				v.setGate(new GateDAO().getGateByID(ID)); //Get the gate by the ID
+
+				//Get company class from it's name
+				CompagniaAerea compagnia = null;
+				for(CompagniaAerea c : mainFrame.getListaCompagnie()) {
+					if(c.getNome().equals(rs.getString("nomeCompagnia"))) {
+						compagnia = c;
+						break;
+					}
+				}
+				
+				v.setCompagnia(compagnia); //Set company
+				
+				v.setGate(new GateDAO().getGateByID(con, ID)); //Get the gate by the ID
 				v.setID(ID);
 				v.setDestinazione(rs.getString("destinazione"));
 				v.setOrarioDecollo(rs.getTimestamp("dataPartenza"));
@@ -205,118 +217,6 @@ public class VoloDAO {
 				
 				return null; //Return null
 			}
-			
-		}catch(Exception e) { //Error catching
-			System.out.println(e);
-			return null; //Return null
-		}
-		
-	}
-	
-	/**
-	 * Get all the flights that are not archived (where 'partito' and 'cancellato' are false)
-	 * @return List of all the non taken off and non cancelled flights
-	 */
-	public ArrayList<Volo> getNonArchivedFlights(){
-		
-		try {
-			
-			String q = "Select * from volo where partito = " + false + " and cancellato = " + false + " ORDER BY dataPartenza ASC"; //Initialize query
-			String connectionURL = MainController.URL; //Connection URL
-
-	        Connection con = DriverManager.getConnection(connectionURL, MainController.USER, MainController.PASSWORD); //Create connection
-			Statement st = con.createStatement(); //Create statement
-			ResultSet rs = st.executeQuery(q); //Execute query
-			
-			ArrayList<Volo> list = new ArrayList<Volo>(); //Initialize a list of flights
-			
-			//Get all the flights
-			while(rs.next()) {
-				
-				Volo v = new Volo();
-				v.setCompagnia(new CompagniaAereaDAO().getCompagniaAereaByNome(rs.getString("nomeCompagnia"))); //Get the company by its name
-				v.setGate(new GateDAO().getGateByID(rs.getString("id"))); //Get the gate by the ID
-				v.setID(rs.getString("id"));
-				v.setDestinazione(rs.getString("destinazione"));
-				v.setOrarioDecollo(rs.getTimestamp("dataPartenza"));
-				boolean partito = (rs.getInt("partito") != 0)? true : false; //Set partito to true if the database has a different value than 0, otherwise set it to false
-				v.setPartito(partito);
-				boolean cancellato = (rs.getInt("cancellato") != 0)? true : false; //Set cancellato to true if the database has a different value than 0, otherwise set it to false
-				v.setCancellato(cancellato);
-				v.setSlot(new SlotDAO().getSlotByID(rs.getString("id"))); //Get the slot by the ID
-				
-				//Calculate number of bookings
-				int sum = 0;
-				for(Coda c : v.getGate().getListaCode()) {
-					sum += c.getPersoneInCoda();
-				}
-				v.setNumeroPrenotazioni(sum);
-				
-				list.add(v);
-				
-			}
-			
-			con.close(); //Close connection
-			st.close(); //Close statement
-			return list; //Return list
-			
-		}catch(Exception e) { //Error catching
-			System.out.println(e);
-			return null; //Return null
-		}
-		
-	}
-	
-	/**
-	 * Get all the flights that are archived (where 'partito' or 'cancellato' are true)
-	 * @return List of all the taken off or cancelled flights
-	 */
-	public ArrayList<Volo> getArchivedFlights(){
-		
-		try {
-			
-			String q = "Select * from volo where partito = " + true + " or cancellato = " + true + " ORDER BY dataPartenza ASC"; //Initialize query
-			String connectionURL = MainController.URL; //Connection URL
-
-	        Connection con = DriverManager.getConnection(connectionURL, MainController.USER, MainController.PASSWORD); //Create connection
-			Statement st = con.createStatement(); //Create statement
-			ResultSet rs = st.executeQuery(q); //Execute query
-			
-			ArrayList<Volo> list = new ArrayList<Volo>(); //Initialize a list of flights
-			
-			//Get all the flights
-			while(rs.next()) {
-				
-				Volo v = new Volo();
-				v.setCompagnia(new CompagniaAereaDAO().getCompagniaAereaByNome(rs.getString("nomeCompagnia"))); //Get the company by its name
-				v.setGate(new GateDAO().getGateByID(rs.getString("id"))); //Get the gate by the ID
-				v.setID(rs.getString("id"));
-				v.setDestinazione(rs.getString("destinazione"));
-				v.setOrarioDecollo(rs.getTimestamp("dataPartenza"));
-				boolean partito = (rs.getInt("partito") != 0)? true : false; //Set partito to true if the database has a different value than 0, otherwise set it to false
-				v.setPartito(partito);
-				boolean cancellato = (rs.getInt("cancellato") != 0)? true : false; //Set cancellato to true if the database has a different value than 0, otherwise set it to false
-				v.setCancellato(cancellato);
-				v.setSlot(new SlotDAO().getSlotByID(rs.getString("id"))); //Get the slot by the ID
-				//Check if the flight has taken off and if so check if it did so late
-				if(partito) {
-					v.setInRitardo(v.checkIfFlightTookOffLate());
-				}
-				
-				//Calculate number of bookings
-				int sum = 0;
-				for(Coda c : v.getGate().getListaCode()) {
-					sum += c.getPersoneInCoda();
-				}
-				v.setNumeroPrenotazioni(sum);
-				
-				list.add(v);
-				
-			}
-			
-			con.close(); //Close connection
-			st.close(); //Close statement
-			return list; //Return list
 			
 		}catch(Exception e) { //Error catching
 			System.out.println(e);
@@ -391,9 +291,10 @@ public class VoloDAO {
 	/**
 	 * Gets a list of Flights from the database that pass the given query
 	 * @param query Query to make to the database
+	 * @param mainFrame Link to the mainFrame
 	 * @return List of Flights that passed the query
 	 */
-	public ArrayList<Volo> searchFlight(String query){
+	public ArrayList<Volo> searchFlight(MainFrame mainFrame, String query){
 		
 		try {
 			
@@ -410,8 +311,18 @@ public class VoloDAO {
 			while(rs.next()) {
 				
 				Volo v = new Volo();
-				v.setCompagnia(new CompagniaAereaDAO().getCompagniaAereaByNome(rs.getString("nomeCompagnia"))); //Get the company by its name
-				v.setGate(new GateDAO().getGateByID(rs.getString("id"))); //Get the gate by the ID
+				
+				//Get company class from it's name
+				CompagniaAerea compagnia = null;
+				for(CompagniaAerea c : mainFrame.getListaCompagnie()) {
+					if(c.getNome().equals(rs.getString("nomeCompagnia"))) {
+						compagnia = c;
+						break;
+					}
+				}
+				
+				v.setCompagnia(compagnia); //Set company
+				v.setGate(new GateDAO().getGateByID(con, rs.getString("id"))); //Get the gate by the ID
 				v.setID(rs.getString("id"));
 				v.setDestinazione(rs.getString("destinazione"));
 				v.setOrarioDecollo(rs.getTimestamp("dataPartenza"));
@@ -445,10 +356,11 @@ public class VoloDAO {
 
 	/**
 	 * Get a flight instance by it's gate number
+	 * @param mainFrame Link to the mainFrame
 	 * @param gateNumber Gate number of the flight to get
 	 * @return The flight with the given gate number
 	 */
-	public ArrayList<Volo> getFlightsByGate(int gateNumber){
+	public ArrayList<Volo> getFlightsByGate(MainFrame mainFrame, int gateNumber){
 		
 		try {
 			
@@ -465,8 +377,19 @@ public class VoloDAO {
 			while(rs.next()) {
 				
 				Volo v = new Volo();
-				v.setCompagnia(new CompagniaAereaDAO().getCompagniaAereaByNome(rs.getString("nomeCompagnia"))); //Get the company by its name
-				v.setGate(new GateDAO().getGateByID(rs.getString("id"))); //Get the gate by the ID
+
+				//Get company class from it's name
+				CompagniaAerea compagnia = null;
+				for(CompagniaAerea c : mainFrame.getListaCompagnie()) {
+					if(c.getNome().equals(rs.getString("nomeCompagnia"))) {
+						compagnia = c;
+						break;
+					}
+				}
+				
+				v.setCompagnia(compagnia); //Set company
+				
+				v.setGate(new GateDAO().getGateByID(con, rs.getString("id"))); //Get the gate by the ID
 				v.setID(rs.getString("id"));
 				v.setDestinazione(rs.getString("destinazione"));
 				v.setOrarioDecollo(rs.getTimestamp("dataPartenza"));

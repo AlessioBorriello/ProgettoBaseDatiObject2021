@@ -26,6 +26,7 @@ import java.awt.event.KeyEvent;
 import javax.swing.SpinnerNumberModel;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -39,8 +40,6 @@ public class SearchPanel extends JPanel {
 	
 	private JPanel archiveOnlyPanel; //Panel that shows additional options if looking at an archive
 	private SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss"); //Date format
-	
-	private Date[] minimumAndMaxDates = new Date[2]; //Array of 2 dates containing the minimum and maximum dates in the flights that have not taken off yet (and are not cancelled)
 	
 	//Research elements
 	private JTextField idField;
@@ -101,7 +100,7 @@ public class SearchPanel extends JPanel {
 		spinnerGate = new CustomSpinner(MainController.backgroundColorOne, mainController.getDifferentAlphaColor(MainController.foregroundColorThree, 64), 
 				MainController.foregroundColorThree, 2, true, MainController.foregroundColorThree, 1); //Create spinner
 		spinnerGate.setName("spinnerGate"); //Set name
-		spinnerGate.setModel(new SpinnerNumberModel(new Integer(1), new Integer(1), new Integer(12), new Integer(1))); //Set spinner name
+		spinnerGate.setModel(new SpinnerNumberModel(new Integer(1), new Integer(1), new Integer(MainController.gateAirportNumber), new Integer(1))); //Set spinner name
 		spinnerGate.setEnabled(false); //Set enabled to false (not activated)
 		spinnerGate.setBounds(73, 145, 49, 24); //Set bounds
 		spinnerGate.setEditorBackgroundColor(MainController.backgroundColorOne);
@@ -144,15 +143,12 @@ public class SearchPanel extends JPanel {
 		chckbxRyanair.setBounds(10, 321, 120, 23); //Set bounds
 		add(chckbxRyanair); //Add check box
 		
-		//Get minimum and max dates in the flights that have not taken off yet (and are not cancelled)
-		minimumAndMaxDates = new VoloDAO().getMinAndMaxTakeOffTime();
-		
 		spinnerTimeLower = new CustomSpinner(MainController.backgroundColorOne, mainController.getDifferentAlphaColor(MainController.foregroundColorThree, 64), 
 				MainController.foregroundColorThree, 2, true, MainController.foregroundColorThree, 1); //Create spinner
 		spinnerTimeLower.setName("spinnerTimeLower"); //Set name
 		spinnerTimeLower.setEnabled(false); //Set enabled to false (not activated)
 		spinnerTimeLower.setBounds(37, 192, 104, 24); //Set bounds
-		spinnerTimeLower.setModel(new SpinnerDateModel(minimumAndMaxDates[0], minimumAndMaxDates[0], minimumAndMaxDates[1], Calendar.DAY_OF_YEAR)); //Set spinner model
+		spinnerTimeLower.setModel(new SpinnerDateModel(new Date(1612134000000L), null, null, Calendar.DAY_OF_YEAR)); //Set spinner model
 		spinnerTimeLower.setEditorBackgroundColor(MainController.backgroundColorOne);
 		spinnerTimeLower.setEditorForegroundColor(MainController.foregroundColorThree);
 		spinnerTimeLower.setEditorFont(new Font(MainController.fontOne.getFontName(), Font.PLAIN, 10));
@@ -163,7 +159,7 @@ public class SearchPanel extends JPanel {
 		spinnerTimeHigher.setName("spinnerTimeHigher"); //Set name
 		spinnerTimeHigher.setEnabled(false); //Set enabled to false (not activated)
 		spinnerTimeHigher.setBounds(167, 192, 104, 24); //Set bounds
-		spinnerTimeHigher.setModel(new SpinnerDateModel(minimumAndMaxDates[1], minimumAndMaxDates[0], minimumAndMaxDates[1], Calendar.DAY_OF_YEAR)); //Set spinner model
+		spinnerTimeHigher.setModel(new SpinnerDateModel(new Date(1612134000000L), null, null, Calendar.DAY_OF_YEAR)); //Set spinner model
 		spinnerTimeHigher.setEditorBackgroundColor(MainController.backgroundColorOne);
 		spinnerTimeHigher.setEditorForegroundColor(MainController.foregroundColorThree);
 		spinnerTimeHigher.setEditorFont(new Font(MainController.fontOne.getFontName(), Font.PLAIN, 10));
@@ -303,28 +299,6 @@ public class SearchPanel extends JPanel {
 		chckbxCancelled.show(active);
 		chckbxDelayed.show(active);
 		chckbxInTime.show(active);
-	}
-
-	/**
-	 * Set the minimum and maximum values of the spinners that allow the user to choose a time range to find flights
-	 * @param minimumAndMaxDates Array of 2 dates containing the minimum and maximum date to apply as min and max to the spinners
-	 */
-	public void setMinimumAndMaxDatesAndUpdateSpinners(Date[] minimumAndMaxDates) {
-		
-		this.minimumAndMaxDates = minimumAndMaxDates; //Update values
-		
-		spinnerTimeLower.setModel(new SpinnerDateModel(minimumAndMaxDates[0], minimumAndMaxDates[0], minimumAndMaxDates[1], Calendar.DAY_OF_YEAR)); //Set spinner model with the updated values
-		//Re apply custom background, foreground and font to the spinner
-		spinnerTimeLower.setEditorBackgroundColor(MainController.backgroundColorOne);
-		spinnerTimeLower.setEditorForegroundColor(MainController.foregroundColorThree);
-		spinnerTimeLower.setEditorFont(new Font(MainController.fontOne.getFontName(), Font.PLAIN, 10));
-		
-		//Re apply custom background, foreground and font to the spinner
-		spinnerTimeHigher.setModel(new SpinnerDateModel(minimumAndMaxDates[1], minimumAndMaxDates[0], minimumAndMaxDates[1], Calendar.DAY_OF_YEAR)); //Set spinner model with the updated values
-		spinnerTimeHigher.setEditorBackgroundColor(MainController.backgroundColorOne);
-		spinnerTimeHigher.setEditorForegroundColor(MainController.foregroundColorThree);
-		spinnerTimeHigher.setEditorFont(new Font(MainController.fontOne.getFontName(), Font.PLAIN, 10));
-		
 	}
 	
 }

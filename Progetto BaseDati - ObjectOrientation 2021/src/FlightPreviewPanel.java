@@ -319,5 +319,4 @@ public class FlightPreviewPanel extends JPanel {
 		
 	}
 
-
 }

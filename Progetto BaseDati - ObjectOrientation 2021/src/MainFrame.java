@@ -33,16 +33,23 @@ import java.awt.event.MouseMotionAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Random;
+import java.util.Scanner;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ThreadLocalRandom;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Graphics;
@@ -69,7 +76,7 @@ public class MainFrame extends JFrame {
 	private ArrayList<CompagniaAerea> listaCompagnie = new ArrayList<CompagniaAerea>(); //Array containing the companies
 	private DashboardPanel dashboardPanel; //Dash board panel
 	
-	private SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss"); //Date format
+	private SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm"); //Date format
 	
 	private boolean lookingAtArchive; //To differentiate when on the panel CheckFlightsPanel if looking at the archive or not (as they use the same panel type)
 	
@@ -303,6 +310,9 @@ public class MainFrame extends JFrame {
 		centerPanel.add(contentPanel); //Add the content panel to the center panel
 		contentPanel.setLayout(new BorderLayout(0, 0)); //Set content panel's layout
 		
+		//Generate debug random flights
+		//debugGenerateRandomFlights(30);
+		
 		//Start a research to get all of the flights (as the panel starts not looking at the archive (look line after next)) that have not taken off or have been cancelled
 		flightList = searchFlights("", "", -1, null, null, true, true, true, true, true, true, true);
 		
@@ -511,12 +521,6 @@ public class MainFrame extends JFrame {
 		
 		if(volo == null) {
 			return false;
-		}
-		
-		//Check if the current panel is already in place in the content panel (They have the same class name)
-		if(contentPanel != null && contentPanel.getClass().getName().equals("ViewFlightInfoPanel")) {
-			System.out.println("Already on this panel!");
-			return false; //Don't replace the content panel
 		}
 		
 		//If creating or editing a flight
@@ -758,7 +762,7 @@ public class MainFrame extends JFrame {
 		//System.out.println(query);
 		
 		//Execute query
-		ArrayList<Volo> newFlightList = (new VoloDAO().searchFlight(query));
+		ArrayList<Volo> newFlightList = (new VoloDAO().searchFlight(this, query));
 		
 		return newFlightList;
 		
@@ -918,6 +922,158 @@ public class MainFrame extends JFrame {
 	    
 	    return dyed;
 	  
+	}
+	
+	/**
+	 * Generate a given amount of random flights to add into the database
+	 * @param flightAmount The amount of flights to generate
+	 */
+	public void debugGenerateRandomFlights(int flightAmount) {
+		
+		//Create destinations array
+		ArrayList<String> destinations = new ArrayList<String>();
+		try {
+			File textFile = new File("txts/destinations.txt");
+			Scanner reader = new Scanner(textFile);
+			while (reader.hasNextLine()) {
+				destinations.add(reader.nextLine());
+			}
+			reader.close();
+		} catch(FileNotFoundException e) {
+			e.printStackTrace();
+		}
+		
+		//Create possible queue list
+		ArrayList<String> possibleQueues = new ArrayList<String>();
+		possibleQueues.add("Famiglia");
+		possibleQueues.add("Priority");
+		possibleQueues.add("Diversamente abili");
+		possibleQueues.add("Business Class");
+		possibleQueues.add("Standard Class");
+		possibleQueues.add("Economy Class");
+		
+		for(int i = 0; i < flightAmount; i++) {
+			
+			//Random generation
+			Random r = new Random();
+			
+			//Gate
+			int gate = r.nextInt((MainController.gateAirportNumber + 1) - 1) + 1; //Range 1 to 12
+			
+			//Company
+			int nomeCompagniaInt = r.nextInt(4); //Range 0 to 3
+			String nomeCompagnia;
+			switch(nomeCompagniaInt) {
+				case 0: nomeCompagnia = "AirFrance"; break;
+				case 1: nomeCompagnia = "Alitalia"; break;
+				case 2: nomeCompagnia = "EasyJet"; break;
+				case 3: nomeCompagnia = "Ryanair"; break;
+				default: nomeCompagnia = "AirFrance";
+			}
+			
+			//Destination
+			int destinationNumber = r.nextInt(destinations.size() - 1) + 1; //Range 1 to destination.size() - 1;
+			String destinazione = destinations.get(destinationNumber);
+			
+			//Take off date
+			Date date1 = null;
+		    Date date2 = null;
+			try {
+				date1 = new SimpleDateFormat("dd/MM/yyyy").parse("01/01/2019"); //Lower range
+				date2 = new SimpleDateFormat("dd/MM/yyyy").parse("01/01/2022"); //Higher range
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+		    
+			Date data = new Date(ThreadLocalRandom.current().nextLong(date1.getTime(), date2.getTime()));
+			
+			//String list of queues
+			ArrayList<String> listaCode = new ArrayList<String>();
+			Collections.shuffle(possibleQueues); //Shuffle possible queues
+			
+			int queueAmount = r.nextInt(7 - 1) + 1; //Range 1 to 6
+			//Add the first queueAmount of queues to the listaCode
+			for(int j = 0; j < queueAmount; j++) {
+				listaCode.add(possibleQueues.get(j));
+			}
+			
+			//Creation
+			//Get company class from it's name
+			CompagniaAerea compagnia = null;
+			for(CompagniaAerea c : getListaCompagnie()) {
+				if(c.getNome().equals(nomeCompagnia)) {
+					compagnia = c;
+					break;
+				}
+			}
+			
+			//Generate ID
+			String id = mainController.generateIDString(8);
+			
+			//Calculate the range of the slot
+			Calendar c = Calendar.getInstance(); //Create a calendar instance
+			c.setTime(data); //Set the calendar time to the passed date
+			
+			//Get lower range
+			c.add(Calendar.MINUTE, -5);
+			Date inizioTempoStimato = new Date();
+			inizioTempoStimato = c.getTime();
+			
+			//Get higher range
+			c.add(Calendar.MINUTE, 15);
+			Date fineTempoStimato = new Date();
+			fineTempoStimato = c.getTime();
+			
+			//Create queue list
+			ArrayList<Coda> list = new ArrayList<Coda>();
+			for(String s : listaCode) {
+				Coda coda = new Coda();
+				coda.setPersoneInCoda(r.nextInt(101)); //Range 0 to 100
+				try {
+					coda.setTipo(s);
+				} catch (NonExistentQueueTypeException e) {
+					e.printStackTrace();
+				}
+				list.add(coda);
+			}
+			
+			//Create gate
+			Gate g = new Gate();
+			g.setListaCode(list);
+			try {
+				g.setNumeroGate(gate);
+			} catch (NonExistentGateException e) {
+				e.printStackTrace();
+			}
+			
+			//Create slot
+			Slot s = new Slot();
+			s.setInizioTempoStimato(inizioTempoStimato);
+			s.setFineTempoStimato(fineTempoStimato);
+			
+			//Check if the gate at that slot is available
+			if(mainController.checkIfSlotIsTaken(s, gate, null)) {
+				break;
+			}
+			
+			//Create flight
+			Volo v = new Volo();
+			v.setID(id);
+			v.setCompagnia(compagnia);
+			compagnia.setNumeroVoli(compagnia.getNumeroVoli() + 1);
+			v.setGate(g);
+			v.setDestinazione(destinazione);
+			v.setOrarioDecollo(data);
+			v.setPartito(false);
+			v.setSlot(s);
+			v.setNumeroPrenotazioni(0);
+			
+			//Insert in the database
+			VoloDAO dao = new VoloDAO();
+			dao.insertFlight(this, v);
+			
+		}
+		
 	}
 	
 	//Setters and getters
