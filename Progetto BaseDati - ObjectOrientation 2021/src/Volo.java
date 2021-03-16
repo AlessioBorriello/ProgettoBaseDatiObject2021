@@ -21,12 +21,39 @@ public class Volo {
 	 */
 	public void printFlightInfo() {
 		
-		//Print it's info
-		System.out.println("ID: " + ID + " Compagnia: " + compagnia.getNome() + " Data: " + orarioDecollo + " gate: " + gate.getNumeroGate() + "\nSlot: " + slot.getInizioTempoStimato() + " - " + slot.getFineTempoStimato());
-		//Print queue info for each queue in the linked gate
-		for(Coda c : gate.getListaCode()) {
-			System.out.print(c.getTipo() + "-");
+		System.out.println("Volo:");
+		
+		String status = "Stato: ";
+		if(isPartito()) {
+			if(checkIfFlightTookOffLate()) {
+				status += "Partito in ritardo"; //Taken off late
+			}else {
+				status += "Partito"; //Taken off
+			}
+		}else {
+			if(isCancellato()) {
+				status += "Cancellato"; //Cancelled
+			}else {
+				status += "Programmato"; //Programmed
+			}
 		}
+		System.out.println(status);
+		
+		System.out.println("ID: " + getID());
+		System.out.println("Compagnia: " + getCompagnia().getNome());
+		System.out.println("Destinazione: " + getDestinazione());
+		System.out.println("Gate: " + getGate().getNumeroGate());
+		Slot flightSlot = getSlot();
+		System.out.println("Slot stimato: " + flightSlot.getInizioTempoStimato() + "-" + flightSlot.getFineTempoStimato());
+		if(flightSlot.getInizioTempoEffettivo() != null) {
+			System.out.println("Slot effettivo: " + flightSlot.getInizioTempoEffettivo() + "-" + flightSlot.getFineTempoEffettivo());
+		}
+		
+		String q = "Code: ";
+		for(Coda queue : getGate().getListaCode()) {
+			q += queue.getTipo() + "(" + queue.getPersoneInCoda() + ") / ";
+		}
+		System.out.println(q);
 		
 	}
 

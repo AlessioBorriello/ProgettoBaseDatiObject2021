@@ -189,14 +189,12 @@ public class ViewFlightInfoPanel extends JPanel {
 					
 					//Get lower range
 					c.add(Calendar.MINUTE, -5);
-					Date inizioTempoEffettivo = new Date();
-					inizioTempoEffettivo = c.getTime();
+					Date inizioTempoEffettivo = c.getTime();
 					s.setInizioTempoEffettivo(inizioTempoEffettivo);
 					
 					//Get higher range
 					c.add(Calendar.MINUTE, 15);
-					Date fineTempoEffettivo = new Date();
-					fineTempoEffettivo = c.getTime();
+					Date fineTempoEffettivo = c.getTime();
 					s.setFineTempoEffettivo(fineTempoEffettivo);
 					
 				}

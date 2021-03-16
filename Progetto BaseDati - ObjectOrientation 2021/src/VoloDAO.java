@@ -306,6 +306,7 @@ public class VoloDAO {
 			ResultSet rs = st.executeQuery(q); //Execute query
 			
 			ArrayList<Volo> list = new ArrayList<Volo>(); //Initialize a list of flights
+			long startTime = System.currentTimeMillis();
 			
 			//Get all the flights
 			while(rs.next()) {
@@ -321,16 +322,45 @@ public class VoloDAO {
 					}
 				}
 				
+				//Create gate
+				Gate g = new Gate();
+				g.setNumeroGate(rs.getInt("numeroGate"));
+				
+				//Create queue list
+				String currentID = rs.getString("id");
+				ArrayList<Coda> queues = new ArrayList<Coda>();
+				
+				//Go through all the results where the id is the same
+				while(rs.next() && rs.getString("id").equals(currentID)) {
+					
+					Coda c = new Coda();
+					c.setTipo(rs.getString("tipo"));
+					c.setPersoneInCoda(rs.getInt("lunghezza"));
+					queues.add(c);
+				}
+				
+				rs.previous(); //Go back once on the result set, to go back to the last result where the id is the same
+				
+				//Set the queue list
+				g.setListaCode(queues);
+				
+				//Create slot
+				Slot s = new Slot();
+				s.setInizioTempoStimato(rs.getTimestamp("inizioTempoStimato"));
+				s.setFineTempoStimato(rs.getTimestamp("fineTempoStimato"));
+				s.setInizioTempoEffettivo(rs.getTimestamp("inizioTempoEffettivo"));
+				s.setFineTempoEffettivo(rs.getTimestamp("fineTempoEffettivo"));
+				
 				v.setCompagnia(compagnia); //Set company
-				v.setGate(new GateDAO().getGateByID(con, rs.getString("id"))); //Get the gate by the ID
-				v.setID(rs.getString("id"));
+				v.setGate(g); //Set gate
+				v.setID(currentID);
 				v.setDestinazione(rs.getString("destinazione"));
 				v.setOrarioDecollo(rs.getTimestamp("dataPartenza"));
 				boolean partito = (rs.getInt("partito") != 0)? true : false; //Set partito to true if the database has a different value than 0, otherwise set it to false
 				v.setPartito(partito);
 				boolean cancellato = (rs.getInt("cancellato") != 0)? true : false; //Set cancellato to true if the database has a different value than 0, otherwise set it to false
 				v.setCancellato(cancellato);
-				v.setSlot(new SlotDAO().getSlotByID(rs.getString("id"))); //Get the slot by the ID
+				v.setSlot(s); //Set slot
 				
 				//Calculate number of bookings
 				int sum = 0;
@@ -342,6 +372,9 @@ public class VoloDAO {
 				list.add(v);
 				
 			}
+			
+			long stopTime = System.currentTimeMillis();
+			System.out.println("Search time: " + (stopTime - startTime) + "ms");
 			
 			con.close(); //Close connection
 			st.close(); //Close statement

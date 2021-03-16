@@ -216,7 +216,12 @@ public class SearchPanel extends JPanel {
 		//Add mouse listener to the button search
 		buttonSearch.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				searchFlights();
+				Thread queryThread = new Thread() {
+				      public void run() {
+				    	  searchFlights();
+				      }
+				};
+			    queryThread.start();
 			}
 		});
 		

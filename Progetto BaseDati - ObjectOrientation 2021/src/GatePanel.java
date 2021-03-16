@@ -56,8 +56,13 @@ public class GatePanel extends JPanel{
 			//When mouse clicked
 			public void mouseClicked(MouseEvent e) {
 				if(flightCount > 0) {
-					ArrayList<Volo> flightList = new VoloDAO().getFlightsByGate(mainFrame, gateNumber); //Get flights for this gate
-					mainFrame.setContentPanelToCheckGatePanel(flightList, gateNumber, false);
+					Thread queryThread = new Thread() {
+					      public void run() {
+					    	  ArrayList<Volo> flightList = new VoloDAO().getFlightsByGate(mainFrame, gateNumber); //Get flights for this gate
+					    	  mainFrame.setContentPanelToCheckGatePanel(flightList, gateNumber, false);
+					      }
+					};
+				    queryThread.start();
 				}else {
 					mainFrame.createNotificationFrame("Non ci sono voli che utilizzano questo gate!");
 				}

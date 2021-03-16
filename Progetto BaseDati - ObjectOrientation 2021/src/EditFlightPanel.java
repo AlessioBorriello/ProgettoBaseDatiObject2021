@@ -237,7 +237,12 @@ public class EditFlightPanel extends JPanel {
 				int gate = (int)spinnerGate.getValue();
 				String destinazione = (String)cBoxDestination.getSelectedItem();
 				
-				editFlight(v, nomeCompagnia, data, gate, destinazione); //Update flight with the gathered data
+				Thread queryThread = new Thread() {
+				      public void run() {
+				    	  editFlight(v, nomeCompagnia, data, gate, destinazione); //Update flight with the gathered data
+				      }
+				};
+			    queryThread.start();
 			
 			}
 		});

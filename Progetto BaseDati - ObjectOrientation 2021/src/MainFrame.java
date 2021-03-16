@@ -171,7 +171,8 @@ public class MainFrame extends JFrame {
 				g2d.drawImage(bellImage, buttonOpenNotificationsBounds.x + 4, buttonOpenNotificationsBounds.y + 4, buttonOpenNotificationsBounds.x + buttonOpenNotificationsBounds.width - 4, buttonOpenNotificationsBounds.y + buttonOpenNotificationsBounds.height - 4, 0, 0, bellImage.getWidth(null), bellImage.getHeight(null), this);
 				
 				//Draw notification number
-				if(notificationsList.size() > 0) {
+				if(notificationsList != null && notificationsList.size() > 0) {
+					
 					g2d.setColor(new Color(180, 0, 0));
 					int circleSize = 14;
 					int circleOffset = 6;
@@ -313,8 +314,14 @@ public class MainFrame extends JFrame {
 		//Generate debug random flights
 		//debugGenerateRandomFlights(30);
 		
-		//Start a research to get all of the flights (as the panel starts not looking at the archive (look line after next)) that have not taken off or have been cancelled
-		flightList = searchFlights("", "", -1, null, null, true, true, true, true, true, true, true);
+		//Start a research to get all of the flights (as the panel starts not looking at the archive (setContentPanelToCheckFlightsPanel(false, false) on next line)) that have not taken off or have been cancelled
+		Thread queryThread = new Thread() {
+		      public void run() {
+		    	  flightList = searchFlights("", "", -1, null, null, true, true, true, true, true, true, true);
+		    	  redrawCheckFlightsPanel();
+		      }
+		};
+	    queryThread.start();
 		
 		setContentPanelToCheckFlightsPanel(false, false); //Set content panel at the start of the application to the CheckFlightsPanel, not looking at the archive
 		
@@ -705,7 +712,7 @@ public class MainFrame extends JFrame {
 		String dateStartString = (dateStart != null)? dateTimeFormat.format(dateStart) : null; //If the date is not null get it's string version, set the string as null otherwise
 		String dateEndString = (dateEnd != null)? dateTimeFormat.format(dateEnd) : null; //If the date is not null get it's string version, set the string as null otherwise
 		
-		String query = "SELECT * FROM volo INNER JOIN gate ON volo.id = gate.IDVolo INNER JOIN slot ON volo.id = slot.IDVolo WHERE ("; //Initialize query string
+		String query = "SELECT * FROM volo INNER JOIN gate ON volo.id = gate.IDVolo INNER JOIN slot ON volo.id = slot.IDVolo INNER JOIN coda ON volo.id = coda.IDVolo WHERE ("; //Initialize query string
 		
 		//ID field
 		String idQuery;
@@ -1071,6 +1078,79 @@ public class MainFrame extends JFrame {
 			//Insert in the database
 			VoloDAO dao = new VoloDAO();
 			dao.insertFlight(this, v);
+			
+			//Chance to make the flight taken off or cancelled
+			boolean allowTakenOffOrCancelled = true;
+			if(allowTakenOffOrCancelled) {
+				
+				int chance = r.nextInt(101 - 1) + 1; //Range 1 to 100
+
+				//Cancelled flights (15%)
+				if(chance <= 15) {
+					
+					new VoloDAO().setFlightAsCancelled(this, v);
+					v.setCancellato(true);
+					
+				}else if(chance <= 50) { //Taken off flights (35%)
+					
+					//Generate take off date
+					Date takeOffDate = v.getOrarioDecollo();
+					Calendar calendar = Calendar.getInstance(); //Create a calendar instance
+					calendar.setTime(takeOffDate);
+					//30% chance to add something to the take off date to make the flight take off late
+					if((r.nextInt(101 - 1) + 1) <= 30) {
+						
+						int minutesToAdd = r.nextInt(301 - 15) + 15; //Add from between 15 and 300 minutes to the take off date
+						calendar.add(Calendar.MINUTE, minutesToAdd); //Add minutes
+						takeOffDate = calendar.getTime(); //Set the modified date as the new take off time
+						
+					}
+					
+					//Get flight's slot
+					Slot slot = (new SlotDAO().getSlotByID(v.getID()));
+					
+					//If the flight took off in the estimated slot time
+					if(takeOffDate.before(slot.getFineTempoStimato())) {
+						
+						//Effective and estimated times coincide
+						slot.setInizioTempoEffettivo(slot.getInizioTempoStimato());
+						slot.setFineTempoEffettivo(slot.getFineTempoStimato());
+						
+					}else { //Otherwise
+						
+						//The flight took off later than the end of the estimated slot, therefore it did so in another slot time, calculate it
+						calendar.setTime(takeOffDate); //Set the calendar time to the passed date
+						
+						//Get lower range
+						calendar.add(Calendar.MINUTE, -5);
+						Date inizioTempoEffettivo = new Date();
+						inizioTempoEffettivo = calendar.getTime();
+						slot.setInizioTempoEffettivo(inizioTempoEffettivo);
+						
+						//Get higher range
+						calendar.add(Calendar.MINUTE, 15);
+						Date fineTempoEffettivo = new Date();
+						fineTempoEffettivo = calendar.getTime();
+						slot.setFineTempoEffettivo(fineTempoEffettivo);
+						
+					}
+					
+					v.setSlot(slot);
+					
+					//Update slot in database
+					SlotDAO daoSlot = new SlotDAO();
+					daoSlot.updateTempoEffettivo(this, slot, v.getID());
+					
+					//Update flight in database
+					new VoloDAO().setFlightAsTakenOff(this, v);
+					v.setPartito(true);
+				}
+				
+			}
+			
+			//Print flight info
+			v.printFlightInfo();
+			System.out.println("");
 			
 		}
 		

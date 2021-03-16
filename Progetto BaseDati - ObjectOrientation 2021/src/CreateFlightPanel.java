@@ -63,6 +63,8 @@ public class CreateFlightPanel extends JPanel {
 	
 	private int gatesNumber = MainController.gateAirportNumber; //How many gate there are in the airport
 	
+	private ArrayList<CompagniaAerea> companies; //ArrayList containing the companies
+	
 	/**
 	 * Panel where the user can create a new flight to add to the database
 	 * @param bounds Bounds of the contentPanel that contains this panel (to give it the contentPanel's dimensions)
@@ -111,11 +113,14 @@ public class CreateFlightPanel extends JPanel {
 		});
 		add(cBoxCompany); //Add to panel
 		//Populate combo box
-		for(CompagniaAerea comp : mainFrame.getListaCompagnie()) {
-			//Add each member of the array listaCompagnie to the combo box
-			cBoxCompany.addItem(comp.getNome());
+		companies = mainFrame.getListaCompagnie(); //Take companies from mainFrame
+		if(companies != null) {
+			for(CompagniaAerea comp : companies) {
+				//Add each member of the array listaCompagnie to the combo box
+				cBoxCompany.addItem(comp.getNome());
+			}
 		}
-		
+			
 		CustomSpinner spinnerTakeOffDate = new CustomSpinner(MainController.backgroundColorOne, mainController.getDifferentAlphaColor(MainController.foregroundColorThree, 64), 
 				MainController.foregroundColorThree, 2, true, MainController.foregroundColorThree, 1); //Create spinner to declare the take off date
 		spinnerTakeOffDate.setModel(new SpinnerDateModel(Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant()), null, null, Calendar.DAY_OF_YEAR)); //Set spinner model
@@ -210,7 +215,12 @@ public class CreateFlightPanel extends JPanel {
 				int gate = (int)spinnerGate.getValue();
 				String destinazione = (String)cBoxDestination.getSelectedItem();
 				
-				createFlight(nomeCompagnia, data, gate, destinazione); //Create flight with the gathered data
+				Thread queryThread = new Thread() {
+				      public void run() {
+				    	  createFlight(nomeCompagnia, data, gate, destinazione); //Create flight with the gathered data
+				      }
+				};
+			    queryThread.start();
 				
 			}
 		});
@@ -485,16 +495,20 @@ public class CreateFlightPanel extends JPanel {
 	    g2d.drawString("Crea un nuovo volo", 40, 120);
 		
 	    //Draw company image
-	    g2d.drawImage(currentLogoImage, 35, (getHeight()/2) - (currentLogoImage.getHeight(null)/2) - 30, 285, (getHeight()/2) - (currentLogoImage.getHeight(null)/2) + 250 - 30, 0, 0, currentLogoImage.getWidth(null), currentLogoImage.getHeight(null), this);
-	    g2d.setStroke(new BasicStroke(4));
-	    g2d.setColor(MainController.foregroundColorThree);
-	    g2d.drawRoundRect(35, (getHeight()/2) - (currentLogoImage.getHeight(null)/2) - 30, 250, 250, 110, 110);
-	    
-	    //Company string
 	    g2d.setFont(new Font(MainController.fontOne.getFontName(), Font.BOLD, 22));
-	    String companyString = "Inserisci compagnia";
-	    int companyStringLenght = g2d.getFontMetrics(g2d.getFont()).stringWidth(companyString);
-	    g2d.drawString(companyString, 35 + (currentLogoImage.getWidth(null)/2) - (companyStringLenght/2), 468);
+	    if(currentLogoImage != null) {
+	    	
+		    g2d.drawImage(currentLogoImage, 35, (getHeight()/2) - (currentLogoImage.getHeight(null)/2) - 30, 285, (getHeight()/2) - (currentLogoImage.getHeight(null)/2) + 250 - 30, 0, 0, currentLogoImage.getWidth(null), currentLogoImage.getHeight(null), this);
+		    g2d.setStroke(new BasicStroke(4));
+		    g2d.setColor(MainController.foregroundColorThree);
+		    g2d.drawRoundRect(35, (getHeight()/2) - (currentLogoImage.getHeight(null)/2) - 30, 250, 250, 110, 110);
+	    
+		    //Company string
+		    String companyString = "Inserisci compagnia";
+		    int companyStringLenght = g2d.getFontMetrics(g2d.getFont()).stringWidth(companyString);
+		    g2d.drawString(companyString, 35 + (currentLogoImage.getWidth(null)/2) - (companyStringLenght/2), 468);
+	    
+	    }
 	    
 	    //Spinner and combo boxes strings
 	    g2d.drawString("Orario", 472, 251);
@@ -520,6 +534,8 @@ public class CreateFlightPanel extends JPanel {
 	}
 	
 }
+
+
 
 //Disable typing in the spinner
 /*

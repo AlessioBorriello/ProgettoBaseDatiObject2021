@@ -152,7 +152,12 @@ public class DashboardPanel extends JPanel {
 					
 					SearchPanel searchPanel = (SearchPanel)mainController.getComponentByName(mainFrame, "searchPanel"); //Get searchPanel from the mainFrame
 					if(searchPanel != null) { //If the searchPanel gets found
-						searchPanel.searchFlights(); //Make search
+						Thread queryThread = new Thread() {
+						      public void run() {
+						    	  searchPanel.searchFlights(); //Make search
+						      }
+						};
+					    queryThread.start();
 					}
 					
 					//Update dash board
@@ -187,7 +192,12 @@ public class DashboardPanel extends JPanel {
 					
 					SearchPanel searchPanel = (SearchPanel)mainController.getComponentByName(mainFrame, "searchPanel"); //Get searchPanel from the mainFrame
 					if(searchPanel != null) { //If the searchPanel gets found
-						searchPanel.searchFlights(); //Make search
+						Thread queryThread = new Thread() {
+						      public void run() {
+						    	  searchPanel.searchFlights(); //Make search
+						      }
+						};
+					    queryThread.start();
 					}
 					
 					//Update dash board
@@ -218,8 +228,10 @@ public class DashboardPanel extends JPanel {
 			public void actionPerformed(ActionEvent e) {
 			
 				//Set panel on main frame to the correct panel
-				mf.setContentPanelToCreateFlightsPanel(true);
-			
+				if(mf.getListaCompagnie() != null) {
+					mf.setContentPanelToCreateFlightsPanel(true);
+				}
+				
 			}
 		});
 		buttonCreateNewFlight.setName("buttonCreateNewFlight"); //Set component name
