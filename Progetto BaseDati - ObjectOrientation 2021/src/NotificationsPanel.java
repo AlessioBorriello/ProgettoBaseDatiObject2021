@@ -1,26 +1,25 @@
 import java.awt.BasicStroke;
-import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import javax.swing.GroupLayout;
 import javax.swing.JPanel;
-import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.JLayeredPane;
 
+@SuppressWarnings("serial")
 public class NotificationsPanel extends JPanel{
 
 	private MainController mainController;
@@ -134,10 +133,12 @@ public class NotificationsPanel extends JPanel{
 			buttonFlight.addMouseListener(new MouseAdapter() {
 				//When mouse clicked
 				public void mouseClicked(MouseEvent e) {
-					mainFrame.setContentPanelToViewFlightInfoPanel(new VoloDAO().getFlightByID(mainFrame, s), false); //Go to view flight info
-					JLayeredPane centerPanel = (JLayeredPane)mainController.getComponentByName(mainFrame, "centerPanel"); //Get center panel
-					if(centerPanel != null) {
-						centerPanel.remove(thisPanel); //Remove this panel from the centerPanel
+					//Go to view flight info
+					if(mainFrame.changeContentPanel(new ViewFlightInfoPanel(new Rectangle(72, 2, 1124, 666), mainFrame, mainController, new VoloDAO().getFlightByID(mainFrame, s)), false)) {
+						JLayeredPane centerPanel = (JLayeredPane)mainController.getComponentByName(mainFrame, "centerPanel"); //Get center panel
+						if(centerPanel != null) {
+							centerPanel.remove(thisPanel); //Remove this panel from the centerPanel
+						}
 					}
 					
 				}

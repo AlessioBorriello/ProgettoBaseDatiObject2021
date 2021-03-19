@@ -81,7 +81,6 @@ public class CodaDAO {
 		try {
 			
 			String q = "Select * from coda where IDVolo = '" + ID + "'"; //Initialize query
-			String connectionURL = MainController.URL; //Connection URL
 
 			ResultSet rs = st.executeQuery(q); //Execute query
 			

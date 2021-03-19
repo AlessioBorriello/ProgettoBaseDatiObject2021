@@ -1,7 +1,6 @@
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Cursor;
 import java.awt.Font;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
@@ -14,16 +13,13 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 
 import javax.swing.GroupLayout;
-import javax.swing.JButton;
 import javax.swing.JDialog;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.SwingConstants;
 import javax.swing.GroupLayout.Alignment;
-import javax.swing.border.EtchedBorder;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.JComboBox;
 
+@SuppressWarnings("serial")
 public class AddQueueFrame extends JDialog {
 	
 	private MainFrame mainFrame; //Link to the mainFrame
@@ -209,6 +205,7 @@ public class AddQueueFrame extends JDialog {
 	 * @param queue Queue type to add
 	 * @param queueList List of the queues already added to the flight being edited/created
 	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void comboBoxAddItemIfNotPresent(JComboBox c, String queue, ArrayList<String> queueList) {
 		
 		for(String q : queueList) {

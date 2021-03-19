@@ -1,21 +1,15 @@
 import javax.swing.JPanel;
-import java.awt.Color;
 import java.awt.Font;
-import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseMotionAdapter;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Random;
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import javax.swing.JScrollPane;
@@ -23,15 +17,17 @@ import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
 import javax.imageio.ImageIO;
 import javax.swing.GroupLayout;
-import javax.swing.JButton;
 import javax.swing.GroupLayout.Alignment;
 
+@SuppressWarnings("serial")
 public class CheckFlightsPanel extends JPanel {
 	
 	private MainFrame mainFrame; //Main panel
 	private MainController mainController; //Main controller
 	
 	private JPanel gridPanel; //Panel containing the FlightPreviewPanels in a grid
+	
+	private boolean lookingAtArchive; //If looking at archive
 	
 	//Images of the company
 	private Image airfranceLogoImage;
@@ -50,6 +46,7 @@ public class CheckFlightsPanel extends JPanel {
 		
 		mainFrame = mf; //Link main frame
 		mainController = c; //Link main controller
+		this.lookingAtArchive = lookingAtArchive;
 		
 		//Load company images
 		try {                
@@ -212,4 +209,14 @@ public class CheckFlightsPanel extends JPanel {
 		return gridPanel;
 	}
 
+	
+	/**
+	 * Get looking at archive variable
+	 * @return looking at archive variable
+	 */
+	public boolean isLookingAtArchive() {
+		return lookingAtArchive;
+	}
+
+	
 }

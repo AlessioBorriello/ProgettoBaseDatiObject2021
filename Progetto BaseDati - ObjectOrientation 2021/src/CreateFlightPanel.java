@@ -2,32 +2,19 @@ import java.awt.Rectangle;
 import java.awt.RenderingHints;
 
 import javax.swing.JPanel;
-import javax.swing.JLabel;
-import javax.swing.JSpinner;
 import javax.swing.SpinnerDateModel;
 import java.util.Date;
-import java.util.Random;
 import java.util.Scanner;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 
-import javax.swing.JComboBox;
-import javax.swing.SwingConstants;
 import javax.swing.SpinnerNumberModel;
-import javax.swing.JButton;
-import javax.swing.UIManager;
-import javax.swing.border.BevelBorder;
-import javax.swing.text.DateFormatter;
 import javax.imageio.ImageIO;
-import javax.swing.BoxLayout;
-import java.awt.Component;
-import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -36,13 +23,11 @@ import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 
-import javax.swing.JTable;
 
+@SuppressWarnings("serial")
 public class CreateFlightPanel extends JPanel {
 
 	private MainFrame mainFrame; //Main panel
@@ -71,6 +56,7 @@ public class CreateFlightPanel extends JPanel {
 	 * @param mf Link to the MainFrame
 	 * @param c Link to the MainController
 	 */
+	@SuppressWarnings("deprecation")
 	public CreateFlightPanel(Rectangle bounds, MainFrame mf, MainController c) {
 		
 		mainFrame = mf; //Link main frame
@@ -259,6 +245,7 @@ public class CreateFlightPanel extends JPanel {
 	 * Add a queue to the panelQueues
 	 * @param type Type of the queue to add to the queue list
 	 */
+	@SuppressWarnings("deprecation")
 	public void addQueue(String type) {
 		
 		int yOffset = queueButtonDistance * (listaCode.size());
@@ -307,6 +294,7 @@ public class CreateFlightPanel extends JPanel {
 	 * Remove a queue from the panelQueues containing the queues
 	 * @param queueButton What queue button to remove
 	 */
+	@SuppressWarnings("deprecation")
 	public void removeQueue(CustomButton queueButton) {
 		
 		ConfirmationFrame frame = new ConfirmationFrame("Sei sicuro di voler rimuovere questa coda?", mainFrame); //Create confirmation frame
@@ -436,7 +424,7 @@ public class CreateFlightPanel extends JPanel {
 		dao.insertFlight(mainFrame, v);
 		
 		//Go to checkFlightsPanel
-		if(mainFrame.setContentPanelToCheckFlightsPanel(false, false)) { //If the panel successfully gets changed
+		if(mainFrame.changeContentPanel(new CheckFlightsPanel(new Rectangle(72, 2, 1124, 666), mainFrame, mainController, false), false)) { //If the panel successfully gets changed
 			
 			SearchPanel searchPanel = (SearchPanel)mainController.getComponentByName(mainFrame, "searchPanel"); //Get searchPanel from the mainFrame
 			if(searchPanel != null) { //If the searchPanel gets found

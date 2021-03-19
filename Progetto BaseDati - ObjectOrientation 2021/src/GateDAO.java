@@ -3,7 +3,6 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.Date;
 
 public class GateDAO {
 	
@@ -102,8 +101,6 @@ public class GateDAO {
 		try {
 			
 			String q = "Select * from gate where IDVolo = '" + ID + "'"; //Initialize query
-			
-			String connectionURL = MainController.URL; //Connection URL
 
 			Statement st = con.createStatement(); //Create statement
 			ResultSet rs = st.executeQuery(q); //Execute query

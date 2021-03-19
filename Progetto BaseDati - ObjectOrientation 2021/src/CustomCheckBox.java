@@ -9,6 +9,7 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 
+@SuppressWarnings("serial")
 public class CustomCheckBox extends JButton{
 	
 	private String s; //String of the check box

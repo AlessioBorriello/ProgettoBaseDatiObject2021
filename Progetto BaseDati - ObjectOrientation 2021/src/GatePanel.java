@@ -4,6 +4,7 @@ import java.awt.Font;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -13,10 +14,10 @@ import java.util.TimerTask;
 
 import javax.swing.JPanel;
 
+@SuppressWarnings("serial")
 public class GatePanel extends JPanel{
 	
 	private int gateNumber;
-	private MainController mainController;
 	private MainFrame mainFrame;
 	
 	private int flightCount; //Number of flights in this gate
@@ -39,7 +40,6 @@ public class GatePanel extends JPanel{
 	 */
 	public GatePanel(MainController mainController, MainFrame mainFrame, int gateNumber) {
 		
-		this.mainController = mainController;
 		this.mainFrame = mainFrame;
 		this.gateNumber = gateNumber;
 		
@@ -59,7 +59,7 @@ public class GatePanel extends JPanel{
 					Thread queryThread = new Thread() {
 					      public void run() {
 					    	  ArrayList<Volo> flightList = new VoloDAO().getFlightsByGate(mainFrame, gateNumber); //Get flights for this gate
-					    	  mainFrame.setContentPanelToCheckGatePanel(flightList, gateNumber, false);
+					    	  mainFrame.changeContentPanel(new CheckGatePanel(new Rectangle(72, 2, 1124, 666), mainFrame, mainController, flightList, gateNumber), false);
 					      }
 					};
 				    queryThread.start();

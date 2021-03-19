@@ -1,7 +1,6 @@
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Cursor;
 import java.awt.Font;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
@@ -15,18 +14,13 @@ import java.util.Calendar;
 import java.util.Date;
 
 import javax.swing.GroupLayout;
-import javax.swing.JButton;
 import javax.swing.JDialog;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.SwingConstants;
 import javax.swing.GroupLayout.Alignment;
-import javax.swing.border.EtchedBorder;
 import javax.swing.LayoutStyle.ComponentPlacement;
-import javax.swing.JComboBox;
-import javax.swing.JSpinner;
 import javax.swing.SpinnerDateModel;
 
+@SuppressWarnings("serial")
 public class SetTakeOffTimeFrame extends JDialog {
 	
 	private MainFrame mainFrame; //Link to the mainFrame

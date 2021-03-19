@@ -1,13 +1,9 @@
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.FlowLayout;
 
-import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
-import javax.swing.border.EmptyBorder;
-import java.awt.GridLayout;
 import java.awt.RenderingHints;
 
 import javax.swing.JLabel;
@@ -26,13 +22,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 
-import javax.swing.border.BevelBorder;
-import javax.swing.border.EtchedBorder;
-import javax.swing.border.LineBorder;
-
-import java.awt.Window.Type;
-import java.awt.Cursor;
-
+@SuppressWarnings("serial")
 public class NotificationFrame extends JDialog {
 
 	private MainFrame mainFrame;

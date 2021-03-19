@@ -1,36 +1,25 @@
 import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
-import java.awt.EventQueue;
 import java.awt.Toolkit;
 
 import javax.imageio.ImageIO;
-import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import javax.swing.border.EmptyBorder;
 import java.awt.Dimension;
-import javax.swing.border.BevelBorder;
-import javax.swing.border.MatteBorder;
 
 import java.awt.Color;
-import javax.swing.SpringLayout;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
-import java.awt.GridLayout;
 import java.awt.Image;
-import java.awt.Insets;
 import java.awt.MouseInfo;
 import java.awt.Point;
 
-import javax.swing.JLabel;
-import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
-import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -41,7 +30,6 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Random;
@@ -50,23 +38,16 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadLocalRandom;
-import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.GridBagLayout;
-import java.awt.GridBagConstraints;
-import java.awt.CardLayout;
 import javax.swing.JLayeredPane;
 import java.awt.SystemColor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ContainerAdapter;
-import java.awt.event.ContainerEvent;
 
 
+@SuppressWarnings("serial")
 public class MainFrame extends JFrame {
 
 	private MainController mainController; //Linked controller
@@ -136,6 +117,7 @@ public class MainFrame extends JFrame {
 		Rectangle buttonMinimizeBounds = new Rectangle(frameWidth - 60, 2, 26, 26); //Button minimize position on the upper panel
 		Rectangle buttonCloseBounds = new Rectangle(frameWidth - 30, 2, 26, 26); //Button close position on the upper panel
 		Rectangle buttonOpenNotificationsBounds = new Rectangle(frameWidth - 90, 2, 26, 26); //Button open notification position on the upper panel
+		
 		JPanel upperPanel = (new JPanel() {
 			
 			public void paintComponent(Graphics g) {
@@ -311,7 +293,7 @@ public class MainFrame extends JFrame {
 		centerPanel.add(contentPanel); //Add the content panel to the center panel
 		contentPanel.setLayout(new BorderLayout(0, 0)); //Set content panel's layout
 		
-		//Generate debug random flights
+		//Generate random flights
 		//debugGenerateRandomFlights(30);
 		
 		//Start a research to get all of the flights (as the panel starts not looking at the archive (setContentPanelToCheckFlightsPanel(false, false) on next line)) that have not taken off or have been cancelled
@@ -323,7 +305,7 @@ public class MainFrame extends JFrame {
 		};
 	    queryThread.start();
 		
-		setContentPanelToCheckFlightsPanel(false, false); //Set content panel at the start of the application to the CheckFlightsPanel, not looking at the archive
+	    changeContentPanel(new CheckFlightsPanel(new Rectangle(72, 2, 1124, 666), this, mainController, false), false); //Set contentPanel to CheckFlightsPanel, not looking at archive
 		
 		//Check if the dash board has not closed correctly every 1000ms (if mouse exited event gets skipped)
 		checkDashboardStatus(1000);
@@ -377,283 +359,94 @@ public class MainFrame extends JFrame {
 	}
 	
 	/**
-	 * Set contentPanel to the CheckFlightsPanel
-	 * @param lookingAtArchive If the panel has to show the archive of the flights (where 'partito' or 'cancellato' = 1)
+	 * Change content panel to the given new panel
+	 * @param newPanel the panel to change the content panel to
 	 * @param askConfirmation If before changing the user should be prompted with a confirmation frame, it does so only if the user is currently
 	 * on a create flight or edit flight panel
 	 * @return If the panel got changed
 	 */
-	public boolean setContentPanelToCheckFlightsPanel(boolean lookingAtArchive, boolean askConfirmation) {
-		
+	public boolean changeContentPanel(JPanel newPanel, boolean askConfirmation) {
+	
 		//Check if the current panel is already in place in the content panel (They have the same class name)
-		if(contentPanel != null && contentPanel.getClass().getName().equals("CheckFlightsPanel")) {
-			//Differentiate if looking at the archive or not
-			if(this.lookingAtArchive == lookingAtArchive) { //Already looking at the same type of CheckFlightsPanel (lookingAtArchive here and the one passed are the same)
+		if(contentPanel != null && contentPanel.getClass().getName().equals(newPanel.getClass().getName())) {
+			
+			//Differentiate if looking at the archive or not (if new panel is CheckFlightsPanel)
+			if(newPanel.getClass().getName().equals("CheckFlightsPanel")) {
+				
+				CheckFlightsPanel checkFlightsPanel = (CheckFlightsPanel)newPanel; //Cast to CheckFlightsPanel class
+				if(this.lookingAtArchive == checkFlightsPanel.isLookingAtArchive()) { //Already looking at the same type of CheckFlightsPanel (lookingAtArchive on main frame and the one in the new panel are the same)
+					
+					System.out.println("Already on this panel!");
+					return false; //Don't replace the content panel
+				
+				}
+				
+			//Differentiate if looking at the same flight or not (if the new panel is ViewFlightInfoPanel)
+			}else if(newPanel.getClass().getName().equals("ViewFlightInfoPanel")) {
+				
+				ViewFlightInfoPanel newViewFlightInfoPanel = (ViewFlightInfoPanel)newPanel; //Cast the new panel to ViewFlightInfoPanel class
+				ViewFlightInfoPanel oldViewFlightInfoPanel = (ViewFlightInfoPanel)contentPanel; //Cast the content panel (the one to be substituted if this check is false) to ViewFlightInfoPanel class
+				if(newViewFlightInfoPanel.getFlightBeingViewed().getID().equals(oldViewFlightInfoPanel.getFlightBeingViewed().getID())) {
+					
+					System.out.println("Already on this panel!");
+					return false; //Don't replace the content panel
+					
+				}
+				
+			}else { //New panel is not CheckFlightsPanel nor ViewFlightInfoPanel, don't change the panel
+				
 				System.out.println("Already on this panel!");
 				return false; //Don't replace the content panel
+				
 			}
+			
 		}
 		
 		//If creating or editing a flight
 		if(askConfirmation) {
+			
 			if(contentPanel != null && contentPanel.getClass().getName().equals("CreateFlightPanel")) {
+				
 				if(!createConfirmationFrame("Stai creando un volo, sei sicuro di voler uscire dalla pagina di creazione?")) {
 					return false;
 				}
+				
 			}
 			if(contentPanel != null && contentPanel.getClass().getName().equals("EditFlightPanel")) {
+				
 				if(!createConfirmationFrame("Stai modificando un volo, sei sicuro di voler uscire dalla pagina di modifica?")) {
 					return false;
 				}
+				
 			}
+			
 		}
 		
 		Rectangle bounds = new Rectangle(contentPanel.getBounds()); //Get bounds of the content panel
 		centerPanel.remove(contentPanel); //Remove content panel from the center panel
 		
-		contentPanel = new CheckFlightsPanel(bounds, this, mainController, lookingAtArchive); //Create new panel and store it in the contentPanel
+		contentPanel = newPanel; //Create new panel and store it in the contentPanel
+		
+		String name = newPanel.getClass().getName();
+		name = name.substring(0, 1).toLowerCase() + name.substring(1); //Change first letter of the name to lower case
 		
 		contentPanel.setBounds(bounds); //Position the content panel based on the bounds gathered beforehand
-		contentPanel.setName("checkFlightsPanel"); //Set name
+		contentPanel.setName(name); //Set name
 		centerPanel.add(contentPanel); //Add new content panel to the center panel
 		
 		centerPanel.repaint(); //Repaint center panel
 		contentPanel.repaint(); //Repaint content panel
 		contentPanel.revalidate(); //Re validate content panel
 		
-		this.lookingAtArchive = lookingAtArchive; //Set if looking at the archive or not
-		
-		dashboardPanel.toggleSearchPanel(true); //Show search panel on dash board
-		
-		return true;
-		
-	}
-
-	/**
-	 * Set contentPanel to the CreateFlightsPanel
-	 * @param askConfirmation If before changing the user should be prompted with a confirmation frame, it does so only if the user is currently
-	 * on a create flight or edit flight panel
-	 * @return If the panel got changed
-	 */
-	public boolean setContentPanelToCreateFlightsPanel(boolean askConfirmation) {
-		
-		//Check if the current panel is already in place in the content panel (They have the same class name)
-		if(contentPanel != null && contentPanel.getClass().getName().equals("CreateFlightPanel")) {
-			System.out.println("Already on this panel!");
-			return false; //Don't replace the content panel
+		//Update looking at archive here if the new panel is a check flights panel
+		if(newPanel.getClass().getName().equals("CheckFlightsPanel")) {
+			
+			CheckFlightsPanel checkFlightsPanel = (CheckFlightsPanel)newPanel; //Cast to CheckFlightsPanel class
+			this.lookingAtArchive = checkFlightsPanel.isLookingAtArchive(); //Set if looking at the archive or not
+			
 		}
 		
-		//If editing a flight
-		if(askConfirmation) {
-			if(contentPanel != null && contentPanel.getClass().getName().equals("EditFlightPanel")) {
-				if(!createConfirmationFrame("Stai modificando un volo, sei sicuro di voler uscire dalla pagina di modifica?")) {
-					return false;
-				}
-			}
-		}
-		
-		Rectangle bounds = new Rectangle(contentPanel.getBounds()); //Get bounds of the content panel
-		centerPanel.remove(contentPanel); //Remove content panel from the center panel
-		
-		contentPanel = new CreateFlightPanel(bounds, this, mainController); //Create new panel and store it in the contentPanel
-		
-		contentPanel.setBounds(bounds); //Position the content panel based on the bounds gathered beforehand
-		contentPanel.setName("createFlightsPanel"); //Set name
-		centerPanel.add(contentPanel); //Add new content panel to the center panel
-		
-		contentPanel.repaint(); //Repaint content panel
-		contentPanel.revalidate(); //Re validate content panel
-		centerPanel.repaint(); //Repaint center panel
-		
-		dashboardPanel.toggleSearchPanel(false); //Hide search panel on dash board
-		
-		return true;
-		
-	}
-	
-	/**
-	 * Set contentPanel to the EditFlightPanel
-	 * @param askConfirmation If before changing the user should be prompted with a confirmation frame, it does so only if the user is currently
-	 * on a create flight or edit flight panel
-	 * @return If the panel got changed
-	 */
-	public boolean setContentPanelToEditFlightPanel(Volo flightToUpdate, boolean askConfirmation) {
-		
-		if(flightToUpdate == null) {
-			return false;
-		}
-		
-		//Check if the current panel is already in place in the content panel (They have the same class name)
-		if(contentPanel != null && contentPanel.getClass().getName().equals("EditFlightPanel")) {
-			System.out.println("Already on this panel!");
-			return false; //Don't replace the content panel
-		}
-		
-		//If creating a flight
-		if(askConfirmation) {
-			if(contentPanel != null && contentPanel.getClass().getName().equals("CreateFlightPanel")) {
-				if(!createConfirmationFrame("Stai creando un volo, sei sicuro di voler uscire dalla pagina di creazione?")) {
-					return false;
-				}
-			}
-		}
-		
-		Rectangle bounds = new Rectangle(contentPanel.getBounds()); //Get bounds of the content panel
-		centerPanel.remove(contentPanel); //Remove content panel from the center panel
-		
-		contentPanel = new EditFlightPanel(bounds, this, mainController, flightToUpdate); //Create new panel and store it in the contentPanel
-		
-		contentPanel.setBounds(bounds); //Position the content panel based on the bounds gathered beforehand
-		contentPanel.setName("editFlightPanel"); //Set name
-		centerPanel.add(contentPanel); //Add new content panel to the center panel
-		
-		contentPanel.repaint(); //Repaint content panel
-		contentPanel.revalidate(); //Re validate content panel
-		centerPanel.repaint(); //Repaint center panel
-		
-		dashboardPanel.toggleSearchPanel(false); //Hide search panel on dash board
-		
-		return true;
-		
-	}
-
-	/**
-	 * Set contentPanel to the ViewFlightInfoPanel
-	 * @param volo The flight the panel should show the info of
-	 * @param askConfirmation If before changing the user should be prompted with a confirmation frame, it does so only if the user is currently
-	 * on a create flight or edit flight panel
-	 * @return If the panel got changed
-	 */
-	public boolean setContentPanelToViewFlightInfoPanel(Volo volo, boolean askConfirmation) {
-		
-		if(volo == null) {
-			return false;
-		}
-		
-		//If creating or editing a flight
-		if(askConfirmation) {
-			if(contentPanel != null && contentPanel.getClass().getName().equals("CreateFlightPanel")) {
-				if(!createConfirmationFrame("Stai creando un volo, sei sicuro di voler uscire dalla pagina di creazione?")) {
-					return false;
-				}
-			}
-			if(contentPanel != null && contentPanel.getClass().getName().equals("EditFlightPanel")) {
-				if(!createConfirmationFrame("Stai modificando un volo, sei sicuro di voler uscire dalla pagina di modifica?")) {
-					return false;
-				}
-			}
-		}
-		
-		Rectangle bounds = new Rectangle(contentPanel.getBounds()); //Get bounds of the content panel
-		centerPanel.remove(contentPanel); //Remove content panel from the center panel
-		
-		contentPanel = new ViewFlightInfoPanel(bounds, this, mainController, volo); //Create new panel and store it in the contentPanel
-		
-		contentPanel.setBounds(bounds); //Position the content panel based on the bounds gathered beforehand
-		contentPanel.setName("viewFlightsPanel"); //Set name
-		centerPanel.add(contentPanel); //Add new content panel to the center panel
-		
-		contentPanel.repaint(); //Repaint content panel
-		contentPanel.revalidate(); //Re validate content panel
-		centerPanel.repaint(); //Repaint center panel
-		
-		dashboardPanel.toggleSearchPanel(false); //Hide search panel on dash board
-		
-		return true;
-		
-	}
-	
-	/**
-	 * Set contentPanel to the StatisticsPanel
-	 * @param askConfirmation If before changing the user should be prompted with a confirmation frame, it does so only if the user is currently
-	 * on a create flight or edit flight panel
-	 * @return If the panel got changed
-	 */
-	public boolean setContentPanelToStatisticsPanel(boolean askConfirmation) {
-		
-		//Check if the current panel is already in place in the content panel (They have the same class name)
-		if(contentPanel != null && contentPanel.getClass().getName().equals("StatisticsPanel")) {
-			System.out.println("Already on this panel!");
-			return false; //Don t replace the content panel
-		}
-		
-		//If creating or editing a flight
-		if(askConfirmation) {
-			if(contentPanel != null && contentPanel.getClass().getName().equals("CreateFlightPanel")) {
-				if(!createConfirmationFrame("Stai creando un volo, sei sicuro di voler uscire dalla pagina di creazione?")) {
-					return false;
-				}
-			}
-			if(contentPanel != null && contentPanel.getClass().getName().equals("EditFlightPanel")) {
-				if(!createConfirmationFrame("Stai modificando un volo, sei sicuro di voler uscire dalla pagina di modifica?")) {
-					return false;
-				}
-			}
-		}
-		
-		Rectangle bounds = new Rectangle(contentPanel.getBounds()); //Get bounds of the content panel
-		centerPanel.remove(contentPanel); //Remove content panel from the center panel
-		
-		contentPanel = new StatisticsPanel(bounds, this, mainController); //Create new panel and store it in the contentPanel
-		
-		contentPanel.setBounds(bounds); //Position the content panel based on the bounds gathered beforehand
-		contentPanel.setName("statisticsPanel"); //Set name
-		centerPanel.add(contentPanel); //Add new content panel to the center panel
-		
-		contentPanel.repaint(); //Repaint content panel
-		contentPanel.revalidate(); //Re validate content panel
-		centerPanel.repaint(); //Repaint center panel
-		
-		dashboardPanel.toggleSearchPanel(false); //Hide search panel on dash board
-		
-		return true;
-		
-	}
-	
-	/**
-	 * Set contentPanel to the CheckGatePanel
-	 * @param flightList List of the flights that use this gate
-	 * @param gateNumber The number identifying the gate
-	 * @param askConfirmation If before changing the user should be prompted with a confirmation frame, it does so only if the user is currently
-	 * on a create flight or edit flight panel
-	 * @return If the panel got changed
-	 */
-	public boolean setContentPanelToCheckGatePanel(ArrayList<Volo> flightList, int gateNumber, boolean askConfirmation) {
-		
-		//Check if the current panel is already in place in the content panel (They have the same class name)
-		if(contentPanel != null && contentPanel.getClass().getName().equals("CheckGatePanel")) {
-			System.out.println("Already on this panel!");
-			return false; //Don t replace the content panel
-		}
-		
-		//If creating or editing a flight
-		if(askConfirmation) {
-			if(contentPanel != null && contentPanel.getClass().getName().equals("CreateFlightPanel")) {
-				if(!createConfirmationFrame("Stai creando un volo, sei sicuro di voler uscire dalla pagina di creazione?")) {
-					return false;
-				}
-			}
-			if(contentPanel != null && contentPanel.getClass().getName().equals("EditFlightPanel")) {
-				if(!createConfirmationFrame("Stai modificando un volo, sei sicuro di voler uscire dalla pagina di modifica?")) {
-					return false;
-				}
-			}
-		}
-		
-		Rectangle bounds = new Rectangle(contentPanel.getBounds()); //Get bounds of the content panel
-		centerPanel.remove(contentPanel); //Remove content panel from the center panel
-		
-		contentPanel = new CheckGatePanel(bounds, this, mainController, flightList, gateNumber); //Create new panel and store it in the contentPanel
-		
-		contentPanel.setBounds(bounds); //Position the content panel based on the bounds gathered beforehand
-		contentPanel.setName("checkGatePanel"); //Set name
-		centerPanel.add(contentPanel); //Add new content panel to the center panel
-		
-		contentPanel.repaint(); //Repaint content panel
-		contentPanel.revalidate(); //Re validate content panel
-		centerPanel.repaint(); //Repaint center panel
-		
-		dashboardPanel.toggleSearchPanel(false); //Hide search panel on dash board
+		dashboardPanel.toggleSearchPanel((newPanel.getClass().getName().equals("CheckFlightsPanel"))? true : false); //Show search panel on dash board if the new panel is of the CheckFlightsPanel class
 		
 		return true;
 		
@@ -1187,4 +980,3 @@ enum hoveringAnimationStatus {
 	unselecting //Mouse not hovering on panel, animation in progress
 	
 }
-

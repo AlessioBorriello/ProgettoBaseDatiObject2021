@@ -1,33 +1,26 @@
 import javax.swing.JPanel;
-import java.awt.SystemColor;
-import javax.swing.JButton;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.MouseInfo;
 
-import javax.swing.JLabel;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.RenderingHints;
 
-import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
-import javax.swing.border.LineBorder;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
 
+@SuppressWarnings("serial")
 public class DashboardPanel extends JPanel {
 
 	private MainFrame mainFrame; //Main frame
@@ -148,7 +141,7 @@ public class DashboardPanel extends JPanel {
 			public void actionPerformed(ActionEvent e) {
 				
 				//Set panel on main frame to the correct panel (not looking at the archive)
-				if(mf.setContentPanelToCheckFlightsPanel(false, true)) { //If the panel gets changed
+				if(mf.changeContentPanel(new CheckFlightsPanel(new Rectangle(72, 2, 1124, 666), mf, mainController, false), true)) { //If the panel gets changed
 					
 					SearchPanel searchPanel = (SearchPanel)mainController.getComponentByName(mainFrame, "searchPanel"); //Get searchPanel from the mainFrame
 					if(searchPanel != null) { //If the searchPanel gets found
@@ -188,7 +181,7 @@ public class DashboardPanel extends JPanel {
 			public void actionPerformed(ActionEvent e) {
 				
 				//Set panel on main frame to the correct panel (looking at the archive)
-				if(mf.setContentPanelToCheckFlightsPanel(true, true)) { //If the panel gets changed
+				if(mf.changeContentPanel(new CheckFlightsPanel(new Rectangle(72, 2, 1124, 666), mf, mainController, true), true)) { //If the panel gets changed
 					
 					SearchPanel searchPanel = (SearchPanel)mainController.getComponentByName(mainFrame, "searchPanel"); //Get searchPanel from the mainFrame
 					if(searchPanel != null) { //If the searchPanel gets found
@@ -229,7 +222,7 @@ public class DashboardPanel extends JPanel {
 			
 				//Set panel on main frame to the correct panel
 				if(mf.getListaCompagnie() != null) {
-					mf.setContentPanelToCreateFlightsPanel(true);
+					mf.changeContentPanel(new CreateFlightPanel(new Rectangle(72, 2, 1124, 666), mf, mainController), true);
 				}
 				
 			}
@@ -253,7 +246,7 @@ public class DashboardPanel extends JPanel {
 			public void actionPerformed(ActionEvent e) {
 			
 				//Set panel on main frame to the correct panel
-				mf.setContentPanelToStatisticsPanel(true);
+				mf.changeContentPanel(new StatisticsPanel(new Rectangle(72, 2, 1124, 666), mf, mainController), true);
 			
 			}
 		});
@@ -430,6 +423,7 @@ public class DashboardPanel extends JPanel {
 	 * Toggle between showing and not showing the searchPanel
 	 * @param active If the panel should be shown or not
 	 */
+	@SuppressWarnings("deprecation")
 	public void toggleSearchPanel(boolean active) {
 		searchPanel.show(active);
 	}

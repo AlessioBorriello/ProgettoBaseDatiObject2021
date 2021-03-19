@@ -15,6 +15,7 @@ import javax.swing.JScrollBar;
 import javax.swing.UIManager;
 import javax.swing.plaf.basic.BasicScrollBarUI;
 
+@SuppressWarnings("serial")
 public class CustomScrollBar extends JScrollBar {
 	
 	//Bar variables

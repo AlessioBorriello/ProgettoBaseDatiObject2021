@@ -4,12 +4,12 @@ import java.awt.Cursor;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.RenderingHints;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import javax.swing.JButton;
 
+@SuppressWarnings("serial")
 public class CustomButton extends JButton{
 	
 	private String s; //String to display in the middle of the button

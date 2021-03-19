@@ -1,4 +1,5 @@
 
+@SuppressWarnings("serial")
 public class NonExistentQueueTypeException extends Exception{
 
 	public NonExistentQueueTypeException(String message) {

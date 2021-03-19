@@ -2,11 +2,8 @@ import java.awt.Rectangle;
 import java.awt.RenderingHints;
 
 import javax.swing.JPanel;
-import javax.swing.JLabel;
-import javax.swing.JSpinner;
 import javax.swing.SpinnerDateModel;
 import java.util.Date;
-import java.util.Random;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.awt.BasicStroke;
@@ -15,17 +12,8 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 
-import javax.swing.JComboBox;
-import javax.swing.SwingConstants;
 import javax.swing.SpinnerNumberModel;
-import javax.swing.JButton;
-import javax.swing.UIManager;
-import javax.swing.border.BevelBorder;
-import javax.swing.text.DateFormatter;
 import javax.imageio.ImageIO;
-import javax.swing.BoxLayout;
-import java.awt.Component;
-import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -33,10 +21,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import javax.swing.JTable;
 
+@SuppressWarnings("serial")
 public class EditFlightPanel extends JPanel {
 
 	private MainFrame mainFrame; //Main panel
@@ -65,6 +51,7 @@ public class EditFlightPanel extends JPanel {
 	 * @param c Link to the MainController
 	 * @param v Flight to edit
 	 */
+	@SuppressWarnings("deprecation")
 	public EditFlightPanel(Rectangle bounds, MainFrame mf, MainController c, Volo v) {
 		
 		mainFrame = mf; //Link main frame
@@ -281,6 +268,7 @@ public class EditFlightPanel extends JPanel {
 	 * Add a queue to the panelQueues
 	 * @param type Type of the queue to add to the queue list
 	 */
+	@SuppressWarnings("deprecation")
 	public void addQueue(String type) {
 		
 		int yOffset = queueButtonDistance * (listaCode.size());
@@ -329,6 +317,7 @@ public class EditFlightPanel extends JPanel {
 	 * Remove a queue from the panelQueues containing the queues
 	 * @param queueButton What queue button to remove
 	 */
+	@SuppressWarnings("deprecation")
 	public void removeQueue(CustomButton queueButton) {
 		
 		String type = queueButton.getText(); //Type of the queue being removed
@@ -487,7 +476,7 @@ public class EditFlightPanel extends JPanel {
 		daoCompany.increaseCompagniaAereaFlightCount(mainFrame, editedVolo.getCompagnia().getNome()); //Increase new company count
 		
 		//Change panel to the ViewFlightPanel
-		mainFrame.setContentPanelToViewFlightInfoPanel(editedVolo, false);
+		mainFrame.changeContentPanel(new ViewFlightInfoPanel(new Rectangle(72, 2, 1124, 666), mainFrame, mainController, editedVolo), false);
 		
 	}
 

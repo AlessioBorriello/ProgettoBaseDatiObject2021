@@ -1,5 +1,4 @@
 import java.awt.BasicStroke;
-import java.awt.BorderLayout;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.text.SimpleDateFormat;
@@ -8,21 +7,14 @@ import java.util.Calendar;
 import java.util.Date;
 
 import javax.swing.JPanel;
-import javax.swing.JLabel;
-import javax.swing.SwingConstants;
 import java.awt.Font;
-import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Color;
-import javax.swing.border.LineBorder;
-import javax.swing.text.DateFormatter;
 
-import java.awt.GridLayout;
 import java.awt.Image;
 
 import javax.imageio.ImageIO;
-import javax.swing.JButton;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -31,6 +23,7 @@ import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
 
+@SuppressWarnings("serial")
 public class ViewFlightInfoPanel extends JPanel {
 
 	private MainFrame mainFrame; //Main panel
@@ -138,7 +131,7 @@ public class ViewFlightInfoPanel extends JPanel {
 		//Add action listener
 		buttonEditFlight.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				mainFrame.setContentPanelToEditFlightPanel(v, false);
+				mainFrame.changeContentPanel(new EditFlightPanel(new Rectangle(72, 2, 1124, 666), mainFrame, mainController, volo), false);
 			}
 		});
 		buttonEditFlight.setBounds(805, 548, 210, 74); //Set bound
@@ -364,6 +357,14 @@ public class ViewFlightInfoPanel extends JPanel {
 			index++;
 		}
 	    
+	}
+	
+	/**
+	 * Get the flight being displayed currently in the panel
+	 * @return The flight being displayed currently in the panel
+	 */
+	public Volo getFlightBeingViewed() {
+		return this.volo;
 	}
 	
 }

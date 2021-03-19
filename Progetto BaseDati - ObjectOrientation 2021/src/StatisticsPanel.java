@@ -1,34 +1,18 @@
 import java.awt.BasicStroke;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Font;
-import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Insets;
-import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.geom.AffineTransform;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Timer;
-import java.util.TimerTask;
 
-import javax.swing.GroupLayout;
-import javax.swing.JButton;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.ScrollPaneConstants;
-import javax.swing.GroupLayout.Alignment;
-import javax.swing.border.Border;
 
-import javax.swing.SwingConstants;
-
+@SuppressWarnings("serial")
 public class StatisticsPanel extends JPanel {
 
 	private MainFrame mainFrame; //Main panel
@@ -63,20 +47,11 @@ public class StatisticsPanel extends JPanel {
 		public int getValue() {
 			return value;
 		}
-		public void setValue(int value) {
-			this.value = value;
-		}
 		public Color getColor() {
 			return color;
 		}
-		public void setColor(Color color) {
-			this.color = color;
-		}
 		public String getName() {
 			return name;
-		}
-		public void setName(String name) {
-			this.name = name;
 		}
 		
 	}
@@ -109,7 +84,7 @@ public class StatisticsPanel extends JPanel {
 	}
 
 	/**
-	 * 
+	 * Create a grid of GatePanels, one for each of the 12 gates in the airport
 	 * @param gatesNumber Amount of panels to create
 	 * @param columns How many panels per row
 	 * @param hgap Horizontal gap between each panel

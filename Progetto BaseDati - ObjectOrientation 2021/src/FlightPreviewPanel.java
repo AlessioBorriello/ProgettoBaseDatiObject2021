@@ -1,8 +1,4 @@
-import javax.imageio.ImageIO;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.border.BevelBorder;
-import javax.swing.border.LineBorder;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -11,17 +7,16 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
 import java.awt.Cursor;
 import java.awt.Font;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.Rectangle;
 import java.awt.RenderingHints;
 
+@SuppressWarnings("serial")
 public class FlightPreviewPanel extends JPanel {
 	
 	private MainFrame mainFrame; //Main panel
@@ -82,7 +77,7 @@ public class FlightPreviewPanel extends JPanel {
 			//Mouse clicked
 			public void mouseClicked(MouseEvent e) {
 				//Change panel to the ViewFlightPanel
-				mainFrame.setContentPanelToViewFlightInfoPanel(v, false);
+				mainFrame.changeContentPanel(new ViewFlightInfoPanel(new Rectangle(72, 2, 1124, 666), mainFrame, mainController, volo), false);
 			}
 			//Mouse entered
 			public void mouseEntered(MouseEvent e) {

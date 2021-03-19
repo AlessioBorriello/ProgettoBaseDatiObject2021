@@ -1,20 +1,12 @@
 import java.awt.BasicStroke;
-import java.awt.Color;
 import java.awt.Dimension;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SpinnerDateModel;
-import javax.swing.JCheckBox;
-import javax.swing.JSpinner;
-import javax.swing.JLabel;
-import javax.swing.JSlider;
-import javax.swing.SwingConstants;
 import javax.swing.border.LineBorder;
-import javax.swing.JButton;
 import java.awt.Font;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
@@ -26,21 +18,15 @@ import java.awt.event.KeyEvent;
 import javax.swing.SpinnerNumberModel;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
 
+@SuppressWarnings("serial")
 public class SearchPanel extends JPanel {
 	
 	private MainFrame mainFrame; //Main panel
 	private MainController mainController; //Main controller
-	
-	private JPanel archiveOnlyPanel; //Panel that shows additional options if looking at an archive
-	private SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss"); //Date format
-	
+		
 	//Research elements
 	private JTextField idField;
 	private JTextField destinationField;
@@ -60,6 +46,7 @@ public class SearchPanel extends JPanel {
 	 * @param mc Link to the mainController
 	 * @param mf Link to the mainFrame
 	 */
+	@SuppressWarnings("deprecation")
 	public SearchPanel(MainController mc, MainFrame mf) {
 		
 		mainFrame = mf; //Set the main frame
@@ -300,6 +287,7 @@ public class SearchPanel extends JPanel {
 	 * Toggle between showing and not showing the archive only check boxes
 	 * @param active If the archive only check boxes should be shown or not
 	 */
+	@SuppressWarnings("deprecation")
 	public void toggleArchiveOnlyCheckBoxes(boolean active) {
 		chckbxCancelled.show(active);
 		chckbxDelayed.show(active);

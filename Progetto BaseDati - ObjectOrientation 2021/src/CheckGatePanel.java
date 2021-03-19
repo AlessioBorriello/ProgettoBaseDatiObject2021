@@ -5,29 +5,22 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.geom.AffineTransform;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.time.Duration;
-import java.time.Instant;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import javax.swing.JPanel;
 import javax.imageio.ImageIO;
 import javax.swing.GroupLayout;
-import javax.swing.JLabel;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
-import java.awt.MouseInfo;
 import java.awt.Point;
 
 import javax.swing.JScrollPane;
@@ -36,12 +29,10 @@ import javax.swing.ScrollPaneConstants;
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Cursor;
 
-import javax.swing.SwingConstants;
 import javax.swing.GroupLayout.Alignment;
-import javax.swing.border.LineBorder;
 
+@SuppressWarnings("serial")
 public class CheckGatePanel extends JPanel {
 	
 	private MainFrame mainFrame; //Main panel
@@ -238,7 +229,7 @@ public class CheckGatePanel extends JPanel {
 			buttonFlight.addMouseListener(new MouseAdapter() {
 				//When mouse clicked
 				public void mouseClicked(MouseEvent e) {
-					mainFrame.setContentPanelToViewFlightInfoPanel(v, false); //Go to the view flight info panel, without asking for confirmation
+					mainFrame.changeContentPanel(new ViewFlightInfoPanel(new Rectangle(72, 2, 1124, 666), mainFrame, mainController, v), false); //Go to the view flight info panel, without asking for confirmation
 				}
 			});
 			flightListPanel.add(buttonFlight);
