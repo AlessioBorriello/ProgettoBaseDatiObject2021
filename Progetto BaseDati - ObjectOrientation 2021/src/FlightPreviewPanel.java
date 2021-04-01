@@ -77,7 +77,8 @@ public class FlightPreviewPanel extends JPanel {
 			//Mouse clicked
 			public void mouseClicked(MouseEvent e) {
 				//Change panel to the ViewFlightPanel
-				mainFrame.changeContentPanel(new ViewFlightInfoPanel(new Rectangle(72, 2, 1124, 666), mainFrame, mainController, volo), false);
+				unselectAnimation(8);
+				mainFrame.changeContentPanel(new ViewFlightInfoPanel(new Rectangle(72, 2, 1124, 666), mainFrame, mainController, volo), false, false);
 			}
 			//Mouse entered
 			public void mouseEntered(MouseEvent e) {

@@ -141,9 +141,8 @@ public class DashboardPanel extends JPanel {
 			public void actionPerformed(ActionEvent e) {
 				
 				//Set panel on main frame to the correct panel (not looking at the archive)
-				if(mf.changeContentPanel(new CheckFlightsPanel(new Rectangle(72, 2, 1124, 666), mf, mainController, false), true)) { //If the panel gets changed
+				if(mf.changeContentPanel(new CheckFlightsPanel(new Rectangle(72, 2, 1124, 666), mf, mainController, false), true, false)) { //If the panel gets changed
 					
-					SearchPanel searchPanel = (SearchPanel)mainController.getComponentByName(mainFrame, "searchPanel"); //Get searchPanel from the mainFrame
 					if(searchPanel != null) { //If the searchPanel gets found
 						Thread queryThread = new Thread() {
 						      public void run() {
@@ -181,7 +180,7 @@ public class DashboardPanel extends JPanel {
 			public void actionPerformed(ActionEvent e) {
 				
 				//Set panel on main frame to the correct panel (looking at the archive)
-				if(mf.changeContentPanel(new CheckFlightsPanel(new Rectangle(72, 2, 1124, 666), mf, mainController, true), true)) { //If the panel gets changed
+				if(mf.changeContentPanel(new CheckFlightsPanel(new Rectangle(72, 2, 1124, 666), mf, mainController, true), true, false)) { //If the panel gets changed
 					
 					SearchPanel searchPanel = (SearchPanel)mainController.getComponentByName(mainFrame, "searchPanel"); //Get searchPanel from the mainFrame
 					if(searchPanel != null) { //If the searchPanel gets found
@@ -222,7 +221,7 @@ public class DashboardPanel extends JPanel {
 			
 				//Set panel on main frame to the correct panel
 				if(mf.getListaCompagnie() != null) {
-					mf.changeContentPanel(new CreateFlightPanel(new Rectangle(72, 2, 1124, 666), mf, mainController), true);
+					mf.changeContentPanel(new CreateFlightPanel(new Rectangle(72, 2, 1124, 666), mf, mainController), true, false);
 				}
 				
 			}
@@ -246,7 +245,7 @@ public class DashboardPanel extends JPanel {
 			public void actionPerformed(ActionEvent e) {
 			
 				//Set panel on main frame to the correct panel
-				mf.changeContentPanel(new StatisticsPanel(new Rectangle(72, 2, 1124, 666), mf, mainController), true);
+				mf.changeContentPanel(new StatisticsPanel(new Rectangle(72, 2, 1124, 666), mf, mainController), true, false);
 			
 			}
 		});
@@ -414,6 +413,11 @@ public class DashboardPanel extends JPanel {
 		
 	}
 
+	//Getter search panel
+	public SearchPanel getSearchPanel() {
+		return searchPanel;
+	}
+	
 	//Getter animation status
 	public dashboardAnimationStatus getAnimationStatus() {
 		return status;

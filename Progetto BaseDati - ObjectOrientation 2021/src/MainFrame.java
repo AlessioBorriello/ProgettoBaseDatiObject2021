@@ -57,6 +57,9 @@ public class MainFrame extends JFrame {
 	private ArrayList<CompagniaAerea> listaCompagnie = new ArrayList<CompagniaAerea>(); //Array containing the companies
 	private DashboardPanel dashboardPanel; //Dash board panel
 	
+	final private int backPanelsStackMaxSize = 4; //Max amount of stored panels
+	private ArrayList<JPanel> backPanelsStack = new ArrayList<JPanel>(); //Stack containing the panels being discarded when the content panel gets changed
+	
 	private SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm"); //Date format
 	
 	private boolean lookingAtArchive; //To differentiate when on the panel CheckFlightsPanel if looking at the archive or not (as they use the same panel type)
@@ -116,7 +119,8 @@ public class MainFrame extends JFrame {
 		
 		Rectangle buttonMinimizeBounds = new Rectangle(frameWidth - 60, 2, 26, 26); //Button minimize position on the upper panel
 		Rectangle buttonCloseBounds = new Rectangle(frameWidth - 30, 2, 26, 26); //Button close position on the upper panel
-		Rectangle buttonOpenNotificationsBounds = new Rectangle(frameWidth - 90, 2, 26, 26); //Button open notification position on the upper panel
+		Rectangle buttonBackBounds = new Rectangle(frameWidth - 90, 2, 26, 26); //Button back position on the upper panel
+		Rectangle buttonOpenNotificationsBounds = new Rectangle(frameWidth - 120, 2, 26, 26); //Button open notification position on the upper panel
 		
 		JPanel upperPanel = (new JPanel() {
 			
@@ -148,6 +152,13 @@ public class MainFrame extends JFrame {
 				
 				//Draw minimize button icon
 				g2d.drawLine(buttonMinimizeBounds.x + 6, buttonMinimizeBounds.y + buttonMinimizeBounds.height - 6, buttonMinimizeBounds.x + buttonMinimizeBounds.width - 6, buttonMinimizeBounds.y + buttonMinimizeBounds.height - 6);
+				
+				//Draw back button icon
+				g2d.drawLine(buttonBackBounds.x + 6, buttonBackBounds.y + (buttonBackBounds.height/2), buttonBackBounds.x + buttonBackBounds.width - 6, buttonBackBounds.y + (buttonBackBounds.height/2));
+				g2d.drawLine(buttonBackBounds.x + 6, buttonBackBounds.y + (buttonBackBounds.height/2), buttonBackBounds.x + (buttonBackBounds.width/2), buttonBackBounds.y + 6);
+				g2d.drawLine(buttonBackBounds.x + 6, buttonBackBounds.y + (buttonBackBounds.height/2), buttonBackBounds.x + (buttonBackBounds.width/2), buttonBackBounds.y + buttonBackBounds.height - 6);
+				
+				g2d.setColor(MainController.foregroundColorThree);
 				
 				//Draw notification bell icon
 				g2d.drawImage(bellImage, buttonOpenNotificationsBounds.x + 4, buttonOpenNotificationsBounds.y + 4, buttonOpenNotificationsBounds.x + buttonOpenNotificationsBounds.width - 4, buttonOpenNotificationsBounds.y + buttonOpenNotificationsBounds.height - 4, 0, 0, bellImage.getWidth(null), bellImage.getHeight(null), this);
@@ -239,6 +250,33 @@ public class MainFrame extends JFrame {
 			}
 		});
 		
+		CustomButton buttonBack = new CustomButton("", null, mainController.getDifferentAlphaColor(MainController.foregroundColorThree, 64), 
+				MainController.foregroundColorThree, 21, true, MainController.foregroundColorThree, 2); //Create close button
+		buttonBack.setBounds(buttonBackBounds); //Set the button position to the previously defined position
+		buttonBack.setName("buttonBack"); //Name component
+		upperPanel.add(buttonBack); //Add close button to the control panel
+		//Mouse listeners of close button
+		buttonBack.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if(backPanelsStack.size() > 0) {
+					JPanel p = backPanelsStack.get(backPanelsStack.size() - 1);
+					changeContentPanel(p, true, true); //Go back
+					backPanelsStack.remove(backPanelsStack.size() - 1);
+				}
+			}
+		});
+		buttonBack.addMouseListener(new MouseAdapter() {
+			public void mouseEntered(MouseEvent e) {
+				if(backPanelsStack.size() > 0) {
+					buttonBack.selectAnimation(8);
+				}
+			}
+
+			public void mouseExited(MouseEvent e) {
+				buttonBack.unselectAnimation(8);
+			}
+		});
+		
 		CustomButton buttonOpenNotifications = new CustomButton("", null, mainController.getDifferentAlphaColor(MainController.foregroundColorThree, 64), 
 				MainController.foregroundColorThree, 21, false, null, 0); //Create close button
 		buttonOpenNotifications.setBounds(buttonOpenNotificationsBounds); //Set the button position to the previously defined position
@@ -294,7 +332,7 @@ public class MainFrame extends JFrame {
 		contentPanel.setLayout(new BorderLayout(0, 0)); //Set content panel's layout
 		
 		//Generate random flights
-		//debugGenerateRandomFlights(30);
+		//debugGenerateRandomFlights(10);
 		
 		//Start a research to get all of the flights (as the panel starts not looking at the archive (setContentPanelToCheckFlightsPanel(false, false) on next line)) that have not taken off or have been cancelled
 		Thread queryThread = new Thread() {
@@ -305,7 +343,8 @@ public class MainFrame extends JFrame {
 		};
 	    queryThread.start();
 		
-	    changeContentPanel(new CheckFlightsPanel(new Rectangle(72, 2, 1124, 666), this, mainController, false), false); //Set contentPanel to CheckFlightsPanel, not looking at archive
+	    changeContentPanel(new CheckFlightsPanel(new Rectangle(72, 2, 1124, 666), this, mainController, false), false, false); //Set contentPanel to CheckFlightsPanel, not looking at archive
+	    contentPanel = (CheckFlightsPanel)contentPanel; //Cast content panel to the correct panel type (only necessary in this case)
 		
 		//Check if the dash board has not closed correctly every 1000ms (if mouse exited event gets skipped)
 		checkDashboardStatus(1000);
@@ -362,13 +401,14 @@ public class MainFrame extends JFrame {
 	 * Change content panel to the given new panel
 	 * @param newPanel the panel to change the content panel to
 	 * @param askConfirmation If before changing the user should be prompted with a confirmation frame, it does so only if the user is currently
+	 * @param fromBackButton if the method gets called from the back button, does not add the panel being replaced to the backPanelsStack
 	 * on a create flight or edit flight panel
 	 * @return If the panel got changed
 	 */
-	public boolean changeContentPanel(JPanel newPanel, boolean askConfirmation) {
+	public boolean changeContentPanel(JPanel newPanel, boolean askConfirmation, boolean fromBackButton) {
 	
 		//Check if the current panel is already in place in the content panel (They have the same class name)
-		if(contentPanel != null && contentPanel.getClass().getName().equals(newPanel.getClass().getName())) {
+		if(contentPanel.getClass().getName().equals(newPanel.getClass().getName())) {
 			
 			//Differentiate if looking at the archive or not (if new panel is CheckFlightsPanel)
 			if(newPanel.getClass().getName().equals("CheckFlightsPanel")) {
@@ -381,7 +421,7 @@ public class MainFrame extends JFrame {
 				
 				}
 				
-			//Differentiate if looking at the same flight or not (if the new panel is ViewFlightInfoPanel)
+			//Differentiate if looking at the same flight or not (if the new panel and old panel are ViewFlightInfoPanel)
 			}else if(newPanel.getClass().getName().equals("ViewFlightInfoPanel")) {
 				
 				ViewFlightInfoPanel newViewFlightInfoPanel = (ViewFlightInfoPanel)newPanel; //Cast the new panel to ViewFlightInfoPanel class
@@ -405,14 +445,14 @@ public class MainFrame extends JFrame {
 		//If creating or editing a flight
 		if(askConfirmation) {
 			
-			if(contentPanel != null && contentPanel.getClass().getName().equals("CreateFlightPanel")) {
+			if(contentPanel.getClass().getName().equals("CreateFlightPanel")) {
 				
 				if(!createConfirmationFrame("Stai creando un volo, sei sicuro di voler uscire dalla pagina di creazione?")) {
 					return false;
 				}
 				
 			}
-			if(contentPanel != null && contentPanel.getClass().getName().equals("EditFlightPanel")) {
+			if(contentPanel.getClass().getName().equals("EditFlightPanel")) {
 				
 				if(!createConfirmationFrame("Stai modificando un volo, sei sicuro di voler uscire dalla pagina di modifica?")) {
 					return false;
@@ -424,6 +464,11 @@ public class MainFrame extends JFrame {
 		
 		Rectangle bounds = new Rectangle(contentPanel.getBounds()); //Get bounds of the content panel
 		centerPanel.remove(contentPanel); //Remove content panel from the center panel
+		
+		//Add panel being removed (currently stored in contentPanel) to the stack (exclude when contentPanel is of the class JPanel as it is the first panel being added to the contentPanel)
+		if(!contentPanel.getClass().toString().equals("class javax.swing.JPanel") && !fromBackButton) {
+			addPanelToBackPanelsStack(contentPanel);
+		}
 		
 		contentPanel = newPanel; //Create new panel and store it in the contentPanel
 		
@@ -445,10 +490,35 @@ public class MainFrame extends JFrame {
 			this.lookingAtArchive = checkFlightsPanel.isLookingAtArchive(); //Set if looking at the archive or not
 			
 		}
-		
+
 		dashboardPanel.toggleSearchPanel((newPanel.getClass().getName().equals("CheckFlightsPanel"))? true : false); //Show search panel on dash board if the new panel is of the CheckFlightsPanel class
 		
+		//If coming from the back button and the class is a CheckFlightsPanel, update the archive only check boxes in the search panel (they are normally updated when the buttons on the dash board are pressed)
+		if(fromBackButton && newPanel.getClass().getName().equals("CheckFlightsPanel")) {
+			CheckFlightsPanel checkFlightsPanel = (CheckFlightsPanel)newPanel; //Cast to CheckFlightsPanel class
+			dashboardPanel.getSearchPanel().toggleArchiveOnlyCheckBoxes(checkFlightsPanel.isLookingAtArchive());
+		}
+		
 		return true;
+		
+	}
+	
+	/**
+	 * Add a panel to the back panels stack
+	 * @param p The panel to add
+	 */
+	public void addPanelToBackPanelsStack(JPanel p) {
+		
+		if(backPanelsStack.size() < backPanelsStackMaxSize) {
+			backPanelsStack.add(p); //Stack not full, simply add on top
+		}else {
+			//Shift all the panels down once
+			for(int i = 0; i < backPanelsStack.size() - 1; i++) {
+				backPanelsStack.set(i, backPanelsStack.get(i + 1));
+			}
+			//Set highest of the stack as the new panel
+			backPanelsStack.set(backPanelsStack.size() - 1, p);
+		}
 		
 	}
 	

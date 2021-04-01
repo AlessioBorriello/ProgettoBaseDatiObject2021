@@ -459,6 +459,8 @@ public class EditFlightPanel extends JPanel {
 		editedVolo.setPartito(false);
 		editedVolo.setSlot(s);
 		
+		editedVolo.printFlightInfo();
+		
 		//Calculate number of bookings
 		int sum = 0;
 		for(Coda coda : v.getGate().getListaCode()) {
@@ -468,7 +470,7 @@ public class EditFlightPanel extends JPanel {
 		
 		//Update in the database
 		VoloDAO dao = new VoloDAO();
-		dao.updateFlight(mainFrame, v, editedVolo);
+		dao.updateFlight(mainFrame, editedVolo);
 		
 		//Update company flight count
 		CompagniaAereaDAO daoCompany = new CompagniaAereaDAO();
@@ -476,7 +478,7 @@ public class EditFlightPanel extends JPanel {
 		daoCompany.increaseCompagniaAereaFlightCount(mainFrame, editedVolo.getCompagnia().getNome()); //Increase new company count
 		
 		//Change panel to the ViewFlightPanel
-		mainFrame.changeContentPanel(new ViewFlightInfoPanel(new Rectangle(72, 2, 1124, 666), mainFrame, mainController, editedVolo), false);
+		mainFrame.changeContentPanel(new ViewFlightInfoPanel(new Rectangle(72, 2, 1124, 666), mainFrame, mainController, editedVolo), false, false);
 		
 	}
 

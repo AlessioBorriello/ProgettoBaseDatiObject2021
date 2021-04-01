@@ -229,7 +229,7 @@ public class CheckGatePanel extends JPanel {
 			buttonFlight.addMouseListener(new MouseAdapter() {
 				//When mouse clicked
 				public void mouseClicked(MouseEvent e) {
-					mainFrame.changeContentPanel(new ViewFlightInfoPanel(new Rectangle(72, 2, 1124, 666), mainFrame, mainController, v), false); //Go to the view flight info panel, without asking for confirmation
+					mainFrame.changeContentPanel(new ViewFlightInfoPanel(new Rectangle(72, 2, 1124, 666), mainFrame, mainController, v), false, false); //Go to the view flight info panel, without asking for confirmation
 				}
 			});
 			flightListPanel.add(buttonFlight);
@@ -412,7 +412,7 @@ public class CheckGatePanel extends JPanel {
 				case "AirFrance": companyIndex = 0; break;
 				case "Alitalia": companyIndex = 1; break;
 				case "EasyJet": companyIndex = 2; break;
-				case "RyanAir": companyIndex = 3; break;
+				case "Ryanair": companyIndex = 3; break;
 				default: companyIndex = 0;
 			}
 			

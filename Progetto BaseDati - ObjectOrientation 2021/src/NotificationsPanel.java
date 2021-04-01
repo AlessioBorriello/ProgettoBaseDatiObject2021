@@ -134,7 +134,7 @@ public class NotificationsPanel extends JPanel{
 				//When mouse clicked
 				public void mouseClicked(MouseEvent e) {
 					//Go to view flight info
-					if(mainFrame.changeContentPanel(new ViewFlightInfoPanel(new Rectangle(72, 2, 1124, 666), mainFrame, mainController, new VoloDAO().getFlightByID(mainFrame, s)), false)) {
+					if(mainFrame.changeContentPanel(new ViewFlightInfoPanel(new Rectangle(72, 2, 1124, 666), mainFrame, mainController, new VoloDAO().getFlightByID(mainFrame, s)), false, false)) {
 						JLayeredPane centerPanel = (JLayeredPane)mainController.getComponentByName(mainFrame, "centerPanel"); //Get center panel
 						if(centerPanel != null) {
 							centerPanel.remove(thisPanel); //Remove this panel from the centerPanel

@@ -424,7 +424,7 @@ public class CreateFlightPanel extends JPanel {
 		dao.insertFlight(mainFrame, v);
 		
 		//Go to checkFlightsPanel
-		if(mainFrame.changeContentPanel(new CheckFlightsPanel(new Rectangle(72, 2, 1124, 666), mainFrame, mainController, false), false)) { //If the panel successfully gets changed
+		if(mainFrame.changeContentPanel(new CheckFlightsPanel(new Rectangle(72, 2, 1124, 666), mainFrame, mainController, false), false, false)) { //If the panel successfully gets changed
 			
 			SearchPanel searchPanel = (SearchPanel)mainController.getComponentByName(mainFrame, "searchPanel"); //Get searchPanel from the mainFrame
 			if(searchPanel != null) { //If the searchPanel gets found
@@ -522,13 +522,4 @@ public class CreateFlightPanel extends JPanel {
 	}
 	
 }
-
-
-
-//Disable typing in the spinner
-/*
-DateFormatter formatter = (DateFormatter)editor.getTextField().getFormatter();
-formatter.setAllowsInvalid(false);
-formatter.setOverwriteMode(true);
-*/
 

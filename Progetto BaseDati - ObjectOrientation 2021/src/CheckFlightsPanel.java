@@ -208,7 +208,6 @@ public class CheckFlightsPanel extends JPanel {
 	public JPanel getGridPanel() {
 		return gridPanel;
 	}
-
 	
 	/**
 	 * Get looking at archive variable

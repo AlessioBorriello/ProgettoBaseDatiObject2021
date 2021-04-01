@@ -36,7 +36,6 @@ public class CustomSpinner extends JSpinner{
 	 * @param borderThickness Thickness of the border
 	 */
 	public CustomSpinner(Color buttonBackgroundColor, Color buttonHoveringColor, Color arrowColor, int arrowThickness, boolean border, Color borderColor, int borderThickness) {
-        
 		
 		this.buttonBackgroundColor = buttonBackgroundColor;
 		this.arrowColor = arrowColor;

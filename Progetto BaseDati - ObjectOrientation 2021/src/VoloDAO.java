@@ -80,15 +80,14 @@ public class VoloDAO {
 	/**
 	 * Update a flight into the database
 	 * @param mainFrame Link to the mainFrame
-	 * @param oldFlight Instance of the old flight
 	 * @param newFlight Instance of the updated flight
 	 * @return If the update operation was successful
 	 */
-	public boolean updateFlight(MainFrame mainFrame, Volo oldFlight, Volo newFlight) {
+	public boolean updateFlight(MainFrame mainFrame, Volo newFlight) {
 		
 		String compagnia = newFlight.getCompagnia().getNome();
 		Date orarioDecollo = newFlight.getOrarioDecollo();
-		String id = oldFlight.getID();
+		String id = newFlight.getID();
 		String destinazione = newFlight.getDestinazione();
 		
 		//Convert date format to a usable format in the database
@@ -329,13 +328,12 @@ public class VoloDAO {
 				ArrayList<Coda> queues = new ArrayList<Coda>();
 				
 				//Go through all the results where the id is the same
-				while(rs.next() && rs.getString("id").equals(currentID)) {
-					
+				do {
 					Coda c = new Coda();
 					c.setTipo(rs.getString("tipo"));
 					c.setPersoneInCoda(rs.getInt("lunghezza"));
 					queues.add(c);
-				}
+				}while(rs.next() && rs.getString("id").equals(currentID));
 				
 				rs.previous(); //Go back once on the result set, to go back to the last result where the id is the same
 				

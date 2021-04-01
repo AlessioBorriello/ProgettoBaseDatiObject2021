@@ -59,7 +59,8 @@ public class GatePanel extends JPanel{
 					Thread queryThread = new Thread() {
 					      public void run() {
 					    	  ArrayList<Volo> flightList = new VoloDAO().getFlightsByGate(mainFrame, gateNumber); //Get flights for this gate
-					    	  mainFrame.changeContentPanel(new CheckGatePanel(new Rectangle(72, 2, 1124, 666), mainFrame, mainController, flightList, gateNumber), false);
+					    	  mainFrame.changeContentPanel(new CheckGatePanel(new Rectangle(72, 2, 1124, 666), mainFrame, mainController, flightList, gateNumber), false, false);
+					    	  unselectAnimation(8);
 					      }
 					};
 				    queryThread.start();

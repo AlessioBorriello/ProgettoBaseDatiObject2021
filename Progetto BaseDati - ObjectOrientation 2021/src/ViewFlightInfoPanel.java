@@ -131,7 +131,7 @@ public class ViewFlightInfoPanel extends JPanel {
 		//Add action listener
 		buttonEditFlight.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				mainFrame.changeContentPanel(new EditFlightPanel(new Rectangle(72, 2, 1124, 666), mainFrame, mainController, volo), false);
+				mainFrame.changeContentPanel(new EditFlightPanel(new Rectangle(72, 2, 1124, 666), mainFrame, mainController, volo), false, false);
 			}
 		});
 		buttonEditFlight.setBounds(805, 548, 210, 74); //Set bound
