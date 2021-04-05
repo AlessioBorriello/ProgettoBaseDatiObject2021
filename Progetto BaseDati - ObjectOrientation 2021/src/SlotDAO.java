@@ -24,7 +24,7 @@ public class SlotDAO {
 		
 		try {
 			
-			String q = "INSERT INTO slot(IDVolo, inizioTempoStimato, fineTempoStimato)\r\n" + 
+			String q = "INSERT INTO slot(IDVolo, \"inizioTempoStimato\", \"fineTempoStimato\")\r\n" + 
 					"VALUES ('" + id + "','" + inizioTempoStimato + "','" + fineTempoStimato + "');"; //Initialize query
 			String connectionURL = MainController.URL; //Connection URL
 	
@@ -59,7 +59,7 @@ public class SlotDAO {
 		
 		try {
 			
-			String q = "UPDATE slot SET inizioTempoStimato = '" + inizioTempoStimato + "', fineTempoStimato = '" + fineTempoStimato + "' WHERE IDVolo = '" + id + "'"; //Initialize query
+			String q = "UPDATE slot SET \"inizioTempoStimato\" = '" + inizioTempoStimato + "', \"fineTempoStimato\" = '" + fineTempoStimato + "' WHERE IDVolo = '" + id + "'"; //Initialize query
 			String connectionURL = MainController.URL; //Connection URL
 	
 	        Connection con = DriverManager.getConnection(connectionURL, MainController.USER, MainController.PASSWORD);  //Create connection
@@ -135,7 +135,7 @@ public class SlotDAO {
 		
 		try {
 			
-			String q = "UPDATE slot SET inizioTempoEffettivo = '" + inizioTempoEffettivo + "', fineTempoEffettivo = '" + fineTempoEffettivo + "' WHERE IDVolo = '" + id + "'"; //Initialize query
+			String q = "UPDATE slot SET \"inizioTempoEffettivo\" = '" + inizioTempoEffettivo + "', \"fineTempoEffettivo\" = '" + fineTempoEffettivo + "' WHERE IDVolo = '" + id + "'"; //Initialize query
 			
 			String connectionURL = MainController.URL; //Connection URL
 

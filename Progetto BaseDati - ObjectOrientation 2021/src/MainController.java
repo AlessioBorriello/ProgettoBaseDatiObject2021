@@ -15,9 +15,10 @@ import java.util.Random;
 public class MainController {
 	
 	//PG URL: jdbc:postgresql://host:port/database
-	static String URL = "jdbc:mysql://localhost:3306/aereoporto?autoReconnect=true&useSSL=false&maxReconnects=5"; //Database URL
+	//static String URL = "jdbc:mysql://localhost:3306/aereoporto?autoReconnect=true&useSSL=false&maxReconnects=5"; //Database URL
+	static String URL = "jdbc:postgresql://localhost:5432/aereoporto"; //Database URL
 	static String PASSWORD = "password"; //Password
-	static String USER = "root"; //User name
+	static String USER = "postgres"; //User name
 	
 	//Number of gates in the airport
 	static int gateAirportNumber = 12;

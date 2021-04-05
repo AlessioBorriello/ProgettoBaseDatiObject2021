@@ -29,7 +29,7 @@ public class VoloDAO {
 		
 		try {
 			
-			String q = "INSERT INTO volo(id, nomeCompagnia, dataPartenza, destinazione, partito, cancellato)\r\n" + 
+			String q = "INSERT INTO volo(idvolo, nomeCompagnia, dataPartenza, destinazione, partito, cancellato)\r\n" + 
 					"VALUES ('" + id + "','" + compagnia + "','"+ dataString + "', '" + destinazione + "','" +  0 + "','" + 0 + "');"; //Initialize query
 			String connectionURL = MainController.URL; //Connection URL
 	
@@ -95,7 +95,7 @@ public class VoloDAO {
 		
 		try {
 			
-			String q = "UPDATE volo SET nomeCompagnia = '" + compagnia + "', dataPartenza = '" + dataString + "', destinazione = '" + destinazione + "' WHERE id = '" + id + "'"; //Initialize query
+			String q = "UPDATE volo SET nomeCompagnia = '" + compagnia + "', dataPartenza = '" + dataString + "', destinazione = '" + destinazione + "' WHERE idvolo = '" + id + "'"; //Initialize query
 			String connectionURL = MainController.URL; //Connection URL
 	
 	        Connection con = DriverManager.getConnection(connectionURL, MainController.USER, MainController.PASSWORD);  //Create connection
@@ -135,7 +135,7 @@ public class VoloDAO {
 		
 		try {
 			
-			String q = "DELETE FROM volo WHERE id = " + v.getID(); //Initialize query
+			String q = "DELETE FROM volo WHERE idvolo = " + v.getID(); //Initialize query
 			
 			String connectionURL = MainController.URL; //Connection URL
 	
@@ -165,7 +165,7 @@ public class VoloDAO {
 		
 		try {
 			
-			String q = "Select * from volo where id = '" + ID + "' ORDER BY dataPartenza ASC" ; //Initialize query
+			String q = "Select * from volo where idvolo = '" + ID + "' ORDER BY dataPartenza ASC" ; //Initialize query
 			
 			String connectionURL = MainController.URL; //Connection URL
 
@@ -232,7 +232,7 @@ public class VoloDAO {
 		
 		try {
 			
-			String q = "UPDATE volo SET partito = '1' where id = '" + v.getID() + "'"; //Initialize query
+			String q = "UPDATE volo SET partito = '1' where idvolo = '" + v.getID() + "'"; //Initialize query
 			
 			String connectionURL = MainController.URL; //Connection URL
 
@@ -262,7 +262,7 @@ public class VoloDAO {
 		
 		try {
 			
-			String q = "UPDATE volo SET cancellato = '1' where id = '" + v.getID() + "'"; //Initialize query
+			String q = "UPDATE volo SET cancellato = '1' where idvolo = '" + v.getID() + "'"; //Initialize query
 			
 			String connectionURL = MainController.URL; //Connection URL
 
@@ -299,7 +299,7 @@ public class VoloDAO {
 			String connectionURL = MainController.URL; //Connection URL
 
 	        Connection con = DriverManager.getConnection(connectionURL, MainController.USER, MainController.PASSWORD); //Create connection
-			Statement st = con.createStatement(); //Create statement
+			Statement st = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE); //Create statement
 			ResultSet rs = st.executeQuery(q); //Execute query
 			
 			ArrayList<Volo> list = new ArrayList<Volo>(); //Initialize a list of flights
@@ -324,7 +324,7 @@ public class VoloDAO {
 				g.setNumeroGate(rs.getInt("numeroGate"));
 				
 				//Create queue list
-				String currentID = rs.getString("id");
+				String currentID = rs.getString("idvolo");
 				ArrayList<Coda> queues = new ArrayList<Coda>();
 				
 				//Go through all the results where the id is the same
@@ -333,7 +333,7 @@ public class VoloDAO {
 					c.setTipo(rs.getString("tipo"));
 					c.setPersoneInCoda(rs.getInt("lunghezza"));
 					queues.add(c);
-				}while(rs.next() && rs.getString("id").equals(currentID));
+				}while(rs.next() && rs.getString("idvolo").equals(currentID));
 				
 				rs.previous(); //Go back once on the result set, to go back to the last result where the id is the same
 				
@@ -393,7 +393,7 @@ public class VoloDAO {
 		
 		try {
 			
-			String q = "SELECT * FROM volo INNER JOIN gate ON volo.id = gate.IDVolo WHERE numeroGate = " + gateNumber + " ORDER BY dataPartenza ASC"; //Initialize query
+			String q = "SELECT * FROM volo INNER JOIN gate ON volo.idvolo = gate.IDVolo WHERE numeroGate = " + gateNumber + " ORDER BY dataPartenza ASC"; //Initialize query
 			String connectionURL = MainController.URL; //Connection URL
 
 	        Connection con = DriverManager.getConnection(connectionURL, MainController.USER, MainController.PASSWORD); //Create connection
@@ -418,15 +418,15 @@ public class VoloDAO {
 				
 				v.setCompagnia(compagnia); //Set company
 				
-				v.setGate(new GateDAO().getGateByID(con, rs.getString("id"))); //Get the gate by the ID
-				v.setID(rs.getString("id"));
+				v.setGate(new GateDAO().getGateByID(con, rs.getString("idvolo"))); //Get the gate by the ID
+				v.setID(rs.getString("idvolo"));
 				v.setDestinazione(rs.getString("destinazione"));
 				v.setOrarioDecollo(rs.getTimestamp("dataPartenza"));
 				boolean partito = (rs.getInt("partito") != 0)? true : false; //Set partito to true if the database has a different value than 0, otherwise set it to false
 				v.setPartito(partito);
 				boolean cancellato = (rs.getInt("cancellato") != 0)? true : false; //Set cancellato to true if the database has a different value than 0, otherwise set it to false
 				v.setCancellato(cancellato);
-				v.setSlot(new SlotDAO().getSlotByID(rs.getString("id"))); //Get the slot by the ID
+				v.setSlot(new SlotDAO().getSlotByID(rs.getString("idvolo"))); //Get the slot by the ID
 				
 				//Calculate number of bookings
 				int sum = 0;
@@ -462,7 +462,7 @@ public class VoloDAO {
 		
 		try {
 			
-			String q = "Select id from volo where partito = false AND cancellato = false AND dataPartenza <= '" + dateString + "' ORDER BY dataPartenza ASC" ; //Initialize query
+			String q = "Select idvolo from volo where partito = 0 AND cancellato = 0 AND dataPartenza <= '" + dateString + "' ORDER BY dataPartenza ASC" ; //Initialize query
 			
 			String connectionURL = MainController.URL; //Connection URL
 
@@ -474,7 +474,7 @@ public class VoloDAO {
 			
 			while(rs.next()) {
 				
-				idList.add(rs.getString("id"));
+				idList.add(rs.getString("idvolo"));
 				
 			}
 			

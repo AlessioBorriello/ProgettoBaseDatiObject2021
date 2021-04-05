@@ -85,7 +85,7 @@ public class AddQueueFrame extends JDialog {
 		//Populate combo box
 		comboBoxAddItemIfNotPresent(cBoxAddQueue, "Famiglia", queueList);
 		comboBoxAddItemIfNotPresent(cBoxAddQueue, "Priority", queueList);
-		comboBoxAddItemIfNotPresent(cBoxAddQueue, "Diversamente abili", queueList);
+		comboBoxAddItemIfNotPresent(cBoxAddQueue, "Diversamente Abili", queueList);
 		comboBoxAddItemIfNotPresent(cBoxAddQueue, "Business Class", queueList);
 		comboBoxAddItemIfNotPresent(cBoxAddQueue, "Standard Class", queueList);
 		comboBoxAddItemIfNotPresent(cBoxAddQueue, "Economy Class", queueList);

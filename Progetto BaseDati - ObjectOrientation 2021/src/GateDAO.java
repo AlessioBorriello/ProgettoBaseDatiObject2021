@@ -174,7 +174,7 @@ public class GateDAO {
 		
 		try {
 			
-			String q = "Select IDVolo, partito, cancellato from gate inner join volo on gate.IDVolo = volo.id where numeroGate = " + gateNumber + " AND partito = 0 and cancellato = 0"; //Initialize query
+			String q = "Select gate.IDVolo, partito, cancellato from gate inner join volo on gate.IDVolo = volo.idvolo where numeroGate = " + gateNumber + " AND partito = 0 and cancellato = 0"; //Initialize query
 			String connectionURL = MainController.URL; //Connection URL
 
 	        Connection con = DriverManager.getConnection(connectionURL, MainController.USER, MainController.PASSWORD); //Create connection
@@ -210,7 +210,7 @@ public class GateDAO {
 		
 		try {
 			
-			String q = "SELECT COUNT(IDVolo) AS amount FROM gate INNER JOIN volo ON volo.id = gate.IDVolo WHERE cancellato = 0 AND numeroGate = " + gateNumber; //Initialize query
+			String q = "SELECT COUNT(gate.IDVolo) AS amount FROM gate INNER JOIN volo ON volo.idvolo = gate.IDVolo WHERE cancellato = 0 AND numeroGate = " + gateNumber; //Initialize query
 			String connectionURL = MainController.URL; //Connection URL
 
 	        Connection con = DriverManager.getConnection(connectionURL, MainController.USER, MainController.PASSWORD); //Create connection

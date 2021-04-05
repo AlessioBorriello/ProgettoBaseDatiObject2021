@@ -208,7 +208,7 @@ public class MainFrame extends JFrame {
 				MainController.foregroundColorThree, 21, true, MainController.foregroundColorThree, 2); //Create minimize button
 		buttonMinimize.setBounds(buttonMinimizeBounds); //Set the button position to the previously defined position
 		buttonMinimize.setName("buttonMinimize"); //Name component
-		upperPanel.add(buttonMinimize); //Add minimize button to the control panel
+		upperPanel.add(buttonMinimize); //Add minimize button to the upper panel
 		//Mouse listeners of minimize button
 		buttonMinimize.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -229,7 +229,7 @@ public class MainFrame extends JFrame {
 				MainController.foregroundColorThree, 21, true, MainController.foregroundColorThree, 2); //Create close button
 		buttonClose.setBounds(buttonCloseBounds); //Set the button position to the previously defined position
 		buttonClose.setName("buttonClose"); //Name component
-		upperPanel.add(buttonClose); //Add close button to the control panel
+		upperPanel.add(buttonClose); //Add close button to the upper panel
 		//Mouse listeners of close button
 		buttonClose.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -281,7 +281,7 @@ public class MainFrame extends JFrame {
 				MainController.foregroundColorThree, 21, false, null, 0); //Create close button
 		buttonOpenNotifications.setBounds(buttonOpenNotificationsBounds); //Set the button position to the previously defined position
 		buttonOpenNotifications.setName("buttonOpenNotifications"); //Name component
-		upperPanel.add(buttonOpenNotifications); //Add button to the control panel
+		upperPanel.add(buttonOpenNotifications); //Add button to the upper panel
 		buttonOpenNotifications.addMouseListener(new MouseAdapter() {
 			public void mouseEntered(MouseEvent e) {
 				buttonOpenNotifications.selectAnimation(8);
@@ -575,14 +575,14 @@ public class MainFrame extends JFrame {
 		String dateStartString = (dateStart != null)? dateTimeFormat.format(dateStart) : null; //If the date is not null get it's string version, set the string as null otherwise
 		String dateEndString = (dateEnd != null)? dateTimeFormat.format(dateEnd) : null; //If the date is not null get it's string version, set the string as null otherwise
 		
-		String query = "SELECT * FROM volo INNER JOIN gate ON volo.id = gate.IDVolo INNER JOIN slot ON volo.id = slot.IDVolo INNER JOIN coda ON volo.id = coda.IDVolo WHERE ("; //Initialize query string
+		String query = "SELECT * FROM volo INNER JOIN gate ON volo.idvolo = gate.IDVolo INNER JOIN slot ON volo.idvolo = slot.IDVolo INNER JOIN coda ON volo.idvolo = coda.IDVolo WHERE ("; //Initialize query string
 		
 		//ID field
 		String idQuery;
 		if(idField != null){
-			idQuery = "(id LIKE '%" + idField + "%' OR '" + idField + "' IS NULL)"; //If idField was not empty
+			idQuery = "(volo.idvolo LIKE '%" + idField + "%' OR '" + idField + "' IS NULL)"; //If idField was not empty
 		}else{
-			idQuery = "(id LIKE '" + idField + "' OR " + idField + " IS NULL)"; //If idField was empty (this is always true)
+			idQuery = "(volo.idvolo LIKE '" + idField + "' OR " + idField + " IS NULL)"; //If idField was empty (this is always true)
 		}
 		
 		//Destination field
@@ -817,7 +817,7 @@ public class MainFrame extends JFrame {
 		ArrayList<String> possibleQueues = new ArrayList<String>();
 		possibleQueues.add("Famiglia");
 		possibleQueues.add("Priority");
-		possibleQueues.add("Diversamente abili");
+		possibleQueues.add("Diversamente Abili");
 		possibleQueues.add("Business Class");
 		possibleQueues.add("Standard Class");
 		possibleQueues.add("Economy Class");

@@ -9,7 +9,7 @@ public class Coda {
 		return tipo;
 	}
 	public void setTipo(String tipo) throws NonExistentQueueTypeException{
-		if(!tipo.equals("Famiglia") && !tipo.equals("Priority") && !tipo.equals("Diversamente abili") && !tipo.equals("Business Class") && !tipo.equals("Standard Class") && !tipo.equals("Economy Class")) {
+		if(!tipo.equals("Famiglia") && !tipo.equals("Priority") && !tipo.equals("Diversamente Abili") && !tipo.equals("Business Class") && !tipo.equals("Standard Class") && !tipo.equals("Economy Class")) {
 			this.tipo = "Famiglia"; //Set queue type to 'Famiglia' by default
 			throw new NonExistentQueueTypeException("Questo tipo di coda non esiste: " + tipo);
 		}else {
