@@ -136,6 +136,12 @@ public class VoloDAO {
 		
 	}
 	
+	/**
+	 * Revert flight values
+	 * @param mainFrame Link to mainFrame
+	 * @param backupFlight The flight to revert the values from
+	 * @return If the Update was successful
+	 */
 	public boolean revertFlightValues(MainFrame mainFrame, Volo backupFlight) {
 		
 		String compagnia = backupFlight.getCompagnia().getNome();
