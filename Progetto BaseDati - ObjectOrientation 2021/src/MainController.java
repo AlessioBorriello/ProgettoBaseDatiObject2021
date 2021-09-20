@@ -9,8 +9,6 @@ import java.io.IOException;
 
 public class MainController {
 	
-	//PG URL: jdbc:postgresql://host:port/database
-	//static String URL = "jdbc:mysql://localhost:3306/aeroporto?autoReconnect=true&useSSL=false&maxReconnects=5"; //Database URL
 	static String URL = "jdbc:postgresql://localhost:5432/aeroporto"; //Database URL
 	static String PASSWORD = "password"; //Password
 	static String USER = "postgres"; //User name
