@@ -20,7 +20,6 @@ import java.awt.RenderingHints;
 public class FlightPreviewPanel extends JPanel {
 	
 	private MainFrame mainFrame; //Main panel
-	private MainController mainController; //Main controller
 
 	//Flight instance to show its info
 	private Volo volo;
@@ -49,14 +48,13 @@ public class FlightPreviewPanel extends JPanel {
 	/**
 	 * Panel showing the preview info of a given flight
 	 * @param mf Link to the MainFrame
-	 * @param c Link to the MainController
 	 * @param v Flight to show the info of
 	 * @param companyLogoImage Image of the company of the flight
 	 */
-	public FlightPreviewPanel(MainFrame mf, MainController c, Volo v, Image companyLogoImage) {
+	public FlightPreviewPanel(MainFrame mf, Volo v, Image companyLogoImage) {
 		
 		mainFrame = mf; //Link main frame
-		mainController = c; //Link main controller
+		//mainController = c; //Link main controller
 		volo = v; //Flight instance to show its info
 		
 		//Determine border color and flight status string
@@ -78,7 +76,7 @@ public class FlightPreviewPanel extends JPanel {
 			public void mouseClicked(MouseEvent e) {
 				//Change panel to the ViewFlightPanel
 				unselectAnimation(8);
-				mainFrame.changeContentPanel(new ViewFlightInfoPanel(new Rectangle(72, 2, 1124, 666), mainFrame, mainController, volo), false, false);
+				mainFrame.changeContentPanel(new ViewFlightInfoPanel(new Rectangle(72, 2, 1124, 666), mainFrame, volo), false, false);
 			}
 			//Mouse entered
 			public void mouseEntered(MouseEvent e) {

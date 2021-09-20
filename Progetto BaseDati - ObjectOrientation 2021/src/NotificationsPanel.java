@@ -22,7 +22,6 @@ import javax.swing.JLayeredPane;
 @SuppressWarnings("serial")
 public class NotificationsPanel extends JPanel{
 
-	private MainController mainController;
 	private MainFrame mainFrame;
 
 	DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yy-MM-dd HH:mm:ss");  
@@ -38,13 +37,11 @@ public class NotificationsPanel extends JPanel{
 	
 	/**
 	 * Panel showing the current system time and in a list all the flights in the database that should have taken off already (take off time < current time)
-	 * @param mainController Link to the MainController
 	 * @param mainFrame Link to the MainFrame
 	 * @param flightIDList List of the ID's of the flights in the database whose take off time is < than the current time
 	 */
 	public NotificationsPanel(MainController mainController, MainFrame mainFrame, ArrayList<String> flightIDList) {
 		
-		this.mainController = mainController;
 		this.mainFrame = mainFrame;
 		this.flightIDList = flightIDList;
 		
@@ -117,7 +114,7 @@ public class NotificationsPanel extends JPanel{
 		//For every string in the id list
 		for(String s : flightIDList) {
 			//Create a custom button
-			CustomButton buttonFlight = new CustomButton(s, null, mainController.getDifferentAlphaColor(MainController.foregroundColorThree, 48), 
+			CustomButton buttonFlight = new CustomButton(s, null, mainFrame.getDifferentAlphaColor(MainController.foregroundColorThree, 48), 
 					MainController.foregroundColorThree, 18, true, MainController.foregroundColorThree, 2); //Create button create flight
 			buttonFlight.setName("buttonFlight"); //Name component
 			buttonFlight.setBounds(0, 0 + ((height + vGap) * index), getWidth() - 8, height); //Set bounds
@@ -134,8 +131,8 @@ public class NotificationsPanel extends JPanel{
 				//When mouse clicked
 				public void mouseClicked(MouseEvent e) {
 					//Go to view flight info
-					if(mainFrame.changeContentPanel(new ViewFlightInfoPanel(new Rectangle(72, 2, 1124, 666), mainFrame, mainController, new VoloDAO().getFlightByID(mainFrame, s)), false, false)) {
-						JLayeredPane centerPanel = (JLayeredPane)mainController.getComponentByName(mainFrame, "centerPanel"); //Get center panel
+					if(mainFrame.changeContentPanel(new ViewFlightInfoPanel(new Rectangle(72, 2, 1124, 666), mainFrame, new VoloDAO().getFlightByID(mainFrame, s)), false, false)) {
+						JLayeredPane centerPanel = (JLayeredPane)mainFrame.getComponentByName(mainFrame, "centerPanel"); //Get center panel
 						if(centerPanel != null) {
 							centerPanel.remove(thisPanel); //Remove this panel from the centerPanel
 						}

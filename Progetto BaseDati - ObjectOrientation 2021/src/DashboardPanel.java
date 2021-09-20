@@ -24,7 +24,6 @@ import java.awt.event.ActionEvent;
 public class DashboardPanel extends JPanel {
 
 	private MainFrame mainFrame; //Main frame
-	private MainController mainController; //Main controller
 	
 	private SearchPanel searchPanel; //Search panel, declared here to be accessed by methods
 	
@@ -43,18 +42,16 @@ public class DashboardPanel extends JPanel {
 	 * Dash board on the side with controls the user can interact with
 	 * @param h Dash board height
 	 * @param mf Link to the mainFrame
-	 * @param mc Link to the mainController
 	 */
-	public DashboardPanel(int h, MainFrame mf, MainController mc) {
+	public DashboardPanel(int h, MainFrame mf) {
 		
 		mainFrame = mf; //Set the main frame
-		mainController = mc; //Set the main controller
 		
 		setBounds(startingPositionX,  2,  300, 670); //Position board in the starting position
 		setLayout(null); //Set layout to absolute
 		
 		//Create panel that allows the user to do a research in the database
-		searchPanel = new SearchPanel(mainController, mainFrame);
+		searchPanel = new SearchPanel(mainFrame);
 		searchPanel.setLocation(new Point(2, 2)); //Position panel
 		searchPanel.setSize(new Dimension(294, 401)); //Set size
 		searchPanel.setName("searchPanel"); //Set component name
@@ -124,7 +121,7 @@ public class DashboardPanel extends JPanel {
 		add(dashboardControlPanel); //Add dash board control panel to the dash board
 		dashboardControlPanel.setLayout(null); //Set the dash board control's layout to absolute
 		
-		CustomButton buttonCheckFlights = new CustomButton("Controlla voli", null, mainController.getDifferentAlphaColor(MainController.foregroundColorThree, 64), 
+		CustomButton buttonCheckFlights = new CustomButton("Controlla voli", null, mainFrame.getDifferentAlphaColor(MainController.foregroundColorThree, 64), 
 				MainController.foregroundColorThree, 22, false, null, 0); //Create check flights button
 		buttonCheckFlights.addMouseListener(new MouseAdapter() {
 			public void mouseEntered(MouseEvent e) {
@@ -141,7 +138,7 @@ public class DashboardPanel extends JPanel {
 			public void actionPerformed(ActionEvent e) {
 				
 				//Set panel on main frame to the correct panel (not looking at the archive)
-				if(mf.changeContentPanel(new CheckFlightsPanel(new Rectangle(72, 2, 1124, 666), mf, mainController, false), true, false)) { //If the panel gets changed
+				if(mf.changeContentPanel(new CheckFlightsPanel(new Rectangle(72, 2, 1124, 666), mf, false), true, false)) { //If the panel gets changed
 					
 					if(searchPanel != null) { //If the searchPanel gets found
 						Thread queryThread = new Thread() {
@@ -164,7 +161,7 @@ public class DashboardPanel extends JPanel {
 		buttonCheckFlights.setBounds(10, 11, 276, 50); //Set position and bounds
 		dashboardControlPanel.add(buttonCheckFlights); //Add to dashboardControlPanel
 		
-		CustomButton buttonFlightsArchive = new CustomButton("Archivio voli", null, mainController.getDifferentAlphaColor(MainController.foregroundColorThree, 64), 
+		CustomButton buttonFlightsArchive = new CustomButton("Archivio voli", null, mainFrame.getDifferentAlphaColor(MainController.foregroundColorThree, 64), 
 				MainController.foregroundColorThree, 22, false, null, 0); //Create check flights archive button
 		buttonFlightsArchive.addMouseListener(new MouseAdapter() {
 			public void mouseEntered(MouseEvent e) {
@@ -180,9 +177,9 @@ public class DashboardPanel extends JPanel {
 			public void actionPerformed(ActionEvent e) {
 				
 				//Set panel on main frame to the correct panel (looking at the archive)
-				if(mf.changeContentPanel(new CheckFlightsPanel(new Rectangle(72, 2, 1124, 666), mf, mainController, true), true, false)) { //If the panel gets changed
+				if(mf.changeContentPanel(new CheckFlightsPanel(new Rectangle(72, 2, 1124, 666), mf, true), true, false)) { //If the panel gets changed
 					
-					SearchPanel searchPanel = (SearchPanel)mainController.getComponentByName(mainFrame, "searchPanel"); //Get searchPanel from the mainFrame
+					SearchPanel searchPanel = (SearchPanel)mainFrame.getComponentByName(mainFrame, "searchPanel"); //Get searchPanel from the mainFrame
 					if(searchPanel != null) { //If the searchPanel gets found
 						Thread queryThread = new Thread() {
 						      public void run() {
@@ -205,7 +202,7 @@ public class DashboardPanel extends JPanel {
 		buttonFlightsArchive.setBounds(10, 72, 276, 50); //Set position and bounds
 		dashboardControlPanel.add(buttonFlightsArchive); //Add to dashboardControlPanel
 		
-		CustomButton buttonCreateNewFlight = new CustomButton("Crea nuovo volo", null, mainController.getDifferentAlphaColor(MainController.foregroundColorThree, 64), 
+		CustomButton buttonCreateNewFlight = new CustomButton("Crea nuovo volo", null, mainFrame.getDifferentAlphaColor(MainController.foregroundColorThree, 64), 
 				MainController.foregroundColorThree, 22, false, null, 0); //Create create new flight button
 		buttonCreateNewFlight.addMouseListener(new MouseAdapter() {
 			public void mouseEntered(MouseEvent e) {
@@ -221,7 +218,7 @@ public class DashboardPanel extends JPanel {
 			
 				//Set panel on main frame to the correct panel
 				if(mf.getListaCompagnie() != null) {
-					mf.changeContentPanel(new CreateFlightPanel(new Rectangle(72, 2, 1124, 666), mf, mainController), true, false);
+					mf.changeContentPanel(new CreateFlightPanel(new Rectangle(72, 2, 1124, 666), mf), true, false);
 				}
 				
 			}
@@ -230,7 +227,7 @@ public class DashboardPanel extends JPanel {
 		buttonCreateNewFlight.setBounds(10, 133, 276, 50); //Set position and bounds
 		dashboardControlPanel.add(buttonCreateNewFlight); //Add to dashboardControlPanel
 		
-		CustomButton buttonCheckStatistics = new CustomButton("Statistiche aereoporto", null, mainController.getDifferentAlphaColor(MainController.foregroundColorThree, 64), 
+		CustomButton buttonCheckStatistics = new CustomButton("Statistiche aereoporto", null, mainFrame.getDifferentAlphaColor(MainController.foregroundColorThree, 64), 
 				MainController.foregroundColorThree, 19, false, null, 0); //Create check statistics button
 		buttonCheckStatistics.addMouseListener(new MouseAdapter() {
 			public void mouseEntered(MouseEvent e) {
@@ -245,7 +242,7 @@ public class DashboardPanel extends JPanel {
 			public void actionPerformed(ActionEvent e) {
 			
 				//Set panel on main frame to the correct panel
-				mf.changeContentPanel(new StatisticsPanel(new Rectangle(72, 2, 1124, 666), mf, mainController), true, false);
+				mf.changeContentPanel(new StatisticsPanel(new Rectangle(72, 2, 1124, 666), mf), true, false);
 			
 			}
 		});

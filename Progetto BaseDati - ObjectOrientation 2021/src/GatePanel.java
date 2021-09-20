@@ -34,11 +34,10 @@ public class GatePanel extends JPanel{
 	
 	/**
 	 * Panel showing the number of flights that take place in a given gate
-	 * @param mainController Link to the MainFrame
 	 * @param mainFrame Link to the MainController
 	 * @param gateNumber Number that identifies the gate
 	 */
-	public GatePanel(MainController mainController, MainFrame mainFrame, int gateNumber) {
+	public GatePanel(MainFrame mainFrame, int gateNumber) {
 		
 		this.mainFrame = mainFrame;
 		this.gateNumber = gateNumber;
@@ -59,7 +58,7 @@ public class GatePanel extends JPanel{
 					Thread queryThread = new Thread() {
 					      public void run() {
 					    	  ArrayList<Volo> flightList = new VoloDAO().getFlightsByGate(mainFrame, gateNumber); //Get flights for this gate
-					    	  mainFrame.changeContentPanel(new CheckGatePanel(new Rectangle(72, 2, 1124, 666), mainFrame, mainController, flightList, gateNumber), false, false);
+					    	  mainFrame.changeContentPanel(new CheckGatePanel(new Rectangle(72, 2, 1124, 666), mainFrame, flightList, gateNumber), false, false);
 					    	  unselectAnimation(8);
 					      }
 					};

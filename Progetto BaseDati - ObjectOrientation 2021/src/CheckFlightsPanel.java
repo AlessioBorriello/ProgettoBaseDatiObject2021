@@ -23,7 +23,6 @@ import javax.swing.GroupLayout.Alignment;
 public class CheckFlightsPanel extends JPanel {
 	
 	private MainFrame mainFrame; //Main panel
-	private MainController mainController; //Main controller
 	
 	private JPanel gridPanel; //Panel containing the FlightPreviewPanels in a grid
 	
@@ -39,13 +38,12 @@ public class CheckFlightsPanel extends JPanel {
 	 * Panel containing the grid of the FlightPreviewPanels
 	 * @param bounds Bounds of the contentPanel that contains this panel
 	 * @param mf Link to the MainFrame
-	 * @param c Link to the MainController
 	 * @param lookingAtArchive If the panel is displaying the archive of the flights (the flights where 'partito' = 1)
 	 */
-	public CheckFlightsPanel(Rectangle bounds, MainFrame mf, MainController c, boolean lookingAtArchive) {
+	public CheckFlightsPanel(Rectangle bounds, MainFrame mf, boolean lookingAtArchive) {
 		
 		mainFrame = mf; //Link main frame
-		mainController = c; //Link main controller
+		//mainController = c; //Link main controller
 		this.lookingAtArchive = lookingAtArchive;
 		
 		//Load company images
@@ -170,7 +168,7 @@ public class CheckFlightsPanel extends JPanel {
 			}
 			
 			//Create panel
-			FlightPreviewPanel f = new FlightPreviewPanel(mainFrame, mainController, array.get(i), companyImage); //Create new panel
+			FlightPreviewPanel f = new FlightPreviewPanel(mainFrame, array.get(i), companyImage); //Create new panel
 			
 			//Get width and height of the panel
 			width = f.getWidth();

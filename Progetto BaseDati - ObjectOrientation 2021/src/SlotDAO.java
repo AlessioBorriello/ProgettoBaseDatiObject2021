@@ -1,6 +1,7 @@
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.SimpleDateFormat;
 
@@ -37,8 +38,13 @@ public class SlotDAO {
 			
 			return true; //Operation successful
 		
-		}catch(Exception e) { //Error catching
+		}catch(SQLException e) { //Error catching
 			System.out.println(e);
+			if(e.getSQLState().toString().equals("42069")) {
+				mainFrame.createNotificationFrame("Un gate puo' avere solo un volo contemporaneamente!");
+				return false; //Operation failed
+			}
+			mainFrame.createNotificationFrame("Qualcosa e' andato storto!: " + e + "");
 			return false; //Operation failed
 		}
 		
@@ -73,6 +79,7 @@ public class SlotDAO {
 		
 		}catch(Exception e) { //Error catching
 			System.out.println(e);
+			mainFrame.createNotificationFrame("Qualcosa e' andato storto!: " + e + "");
 			return false; //Operation failed
 		}
 		

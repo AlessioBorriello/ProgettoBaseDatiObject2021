@@ -35,6 +35,7 @@ public class CodaDAO {
 		
 		}catch(Exception e) { //Error catching
 			System.out.println(e);
+			mainFrame.createNotificationFrame("Qualcosa e' andato storto!: " + e + "");
 			return false; //Operation failed
 		}
 		
@@ -64,6 +65,7 @@ public class CodaDAO {
 		
 		}catch(Exception e) { //Error catching
 			System.out.println(e);
+			mainFrame.createNotificationFrame("Qualcosa e' andato storto!: " + e + "");
 			return false; //Operation failed
 		}
 		

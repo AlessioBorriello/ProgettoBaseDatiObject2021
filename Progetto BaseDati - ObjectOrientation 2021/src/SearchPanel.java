@@ -25,7 +25,6 @@ import java.awt.event.ActionListener;
 public class SearchPanel extends JPanel {
 	
 	private MainFrame mainFrame; //Main panel
-	private MainController mainController; //Main controller
 		
 	//Research elements
 	private JTextField idField;
@@ -43,14 +42,12 @@ public class SearchPanel extends JPanel {
 
 	/**
 	 * Panel where the user can make researches to be shown in the checkFlightsPanel
-	 * @param mc Link to the mainController
 	 * @param mf Link to the mainFrame
 	 */
 	@SuppressWarnings("deprecation")
-	public SearchPanel(MainController mc, MainFrame mf) {
+	public SearchPanel(MainFrame mf) {
 		
 		mainFrame = mf; //Set the main frame
-		mainController = mc; //Set the main controller
 		
 		setSize(new Dimension(294, 401)); //Set size
 		setLayout(null); //Set layout
@@ -84,7 +81,7 @@ public class SearchPanel extends JPanel {
 		destinationField.setBounds(115, 98, 122, 20); //Set bounds
 		add(destinationField); //Add text field
 		
-		spinnerGate = new CustomSpinner(MainController.backgroundColorOne, mainController.getDifferentAlphaColor(MainController.foregroundColorThree, 64), 
+		spinnerGate = new CustomSpinner(MainController.backgroundColorOne, mainFrame.getDifferentAlphaColor(MainController.foregroundColorThree, 64), 
 				MainController.foregroundColorThree, 2, true, MainController.foregroundColorThree, 1); //Create spinner
 		spinnerGate.setName("spinnerGate"); //Set name
 		spinnerGate.setModel(new SpinnerNumberModel(new Integer(1), new Integer(1), new Integer(MainController.gateAirportNumber), new Integer(1))); //Set spinner name
@@ -130,7 +127,7 @@ public class SearchPanel extends JPanel {
 		chckbxRyanair.setBounds(10, 321, 120, 23); //Set bounds
 		add(chckbxRyanair); //Add check box
 		
-		spinnerTimeLower = new CustomSpinner(MainController.backgroundColorOne, mainController.getDifferentAlphaColor(MainController.foregroundColorThree, 64), 
+		spinnerTimeLower = new CustomSpinner(MainController.backgroundColorOne, mainFrame.getDifferentAlphaColor(MainController.foregroundColorThree, 64), 
 				MainController.foregroundColorThree, 2, true, MainController.foregroundColorThree, 1); //Create spinner
 		spinnerTimeLower.setName("spinnerTimeLower"); //Set name
 		spinnerTimeLower.setEnabled(false); //Set enabled to false (not activated)
@@ -141,7 +138,7 @@ public class SearchPanel extends JPanel {
 		spinnerTimeLower.setEditorFont(new Font(MainController.fontOne.getFontName(), Font.PLAIN, 10));
 		add(spinnerTimeLower); //Add spinner
 		
-		spinnerTimeHigher = new CustomSpinner(MainController.backgroundColorOne, mainController.getDifferentAlphaColor(MainController.foregroundColorThree, 64), 
+		spinnerTimeHigher = new CustomSpinner(MainController.backgroundColorOne, mainFrame.getDifferentAlphaColor(MainController.foregroundColorThree, 64), 
 				MainController.foregroundColorThree, 2, true, MainController.foregroundColorThree, 1); //Create spinner
 		spinnerTimeHigher.setName("spinnerTimeHigher"); //Set name
 		spinnerTimeHigher.setEnabled(false); //Set enabled to false (not activated)
@@ -165,7 +162,7 @@ public class SearchPanel extends JPanel {
 		chckbxTime.setBounds(10, 192, 21, 23); //Set bounds
 		add(chckbxTime); //Add check box
 		
-		CustomButton buttonSearch = new CustomButton("Cerca", null, mainController.getDifferentAlphaColor(MainController.foregroundColorThree, 64), 
+		CustomButton buttonSearch = new CustomButton("Cerca", null, mainFrame.getDifferentAlphaColor(MainController.foregroundColorThree, 64), 
 				MainController.foregroundColorThree, 21, true, MainController.foregroundColorThree, 2); //Create search button
 		buttonSearch.addMouseListener(new MouseAdapter() {
 			public void mouseEntered(MouseEvent e) {

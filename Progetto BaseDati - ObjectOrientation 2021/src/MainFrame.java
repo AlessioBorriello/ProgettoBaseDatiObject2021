@@ -9,6 +9,8 @@ import javax.swing.JPanel;
 import java.awt.Dimension;
 
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.Container;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.Image;
@@ -32,6 +34,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
 import java.util.Timer;
@@ -90,7 +93,7 @@ public class MainFrame extends JFrame {
 		listaCompagnie = new CompagniaAereaDAO().getAllCompagniaAerea();
 		
 		//Load notification bell image
-		try {                
+		try {
 			bufferedBellImage = ImageIO.read(new File("imgs/bell.png"));
 		} catch (IOException e) {
 			System.out.println(e);
@@ -204,7 +207,7 @@ public class MainFrame extends JFrame {
 		    }
 		});
 		
-		CustomButton buttonMinimize = new CustomButton("", null, mainController.getDifferentAlphaColor(MainController.foregroundColorThree, 64), 
+		CustomButton buttonMinimize = new CustomButton("", null, getDifferentAlphaColor(MainController.foregroundColorThree, 64), 
 				MainController.foregroundColorThree, 21, true, MainController.foregroundColorThree, 2); //Create minimize button
 		buttonMinimize.setBounds(buttonMinimizeBounds); //Set the button position to the previously defined position
 		buttonMinimize.setName("buttonMinimize"); //Name component
@@ -225,7 +228,7 @@ public class MainFrame extends JFrame {
 			}
 		});
 		
-		CustomButton buttonClose = new CustomButton("", null, mainController.getDifferentAlphaColor(MainController.foregroundColorThree, 64), 
+		CustomButton buttonClose = new CustomButton("", null, getDifferentAlphaColor(MainController.foregroundColorThree, 64), 
 				MainController.foregroundColorThree, 21, true, MainController.foregroundColorThree, 2); //Create close button
 		buttonClose.setBounds(buttonCloseBounds); //Set the button position to the previously defined position
 		buttonClose.setName("buttonClose"); //Name component
@@ -250,7 +253,7 @@ public class MainFrame extends JFrame {
 			}
 		});
 		
-		CustomButton buttonBack = new CustomButton("", null, mainController.getDifferentAlphaColor(MainController.foregroundColorThree, 64), 
+		CustomButton buttonBack = new CustomButton("", null, getDifferentAlphaColor(MainController.foregroundColorThree, 64), 
 				MainController.foregroundColorThree, 21, true, MainController.foregroundColorThree, 2); //Create close button
 		buttonBack.setBounds(buttonBackBounds); //Set the button position to the previously defined position
 		buttonBack.setName("buttonBack"); //Name component
@@ -277,7 +280,7 @@ public class MainFrame extends JFrame {
 			}
 		});
 		
-		CustomButton buttonOpenNotifications = new CustomButton("", null, mainController.getDifferentAlphaColor(MainController.foregroundColorThree, 64), 
+		CustomButton buttonOpenNotifications = new CustomButton("", null, getDifferentAlphaColor(MainController.foregroundColorThree, 64), 
 				MainController.foregroundColorThree, 21, false, null, 0); //Create close button
 		buttonOpenNotifications.setBounds(buttonOpenNotificationsBounds); //Set the button position to the previously defined position
 		buttonOpenNotifications.setName("buttonOpenNotifications"); //Name component
@@ -320,7 +323,7 @@ public class MainFrame extends JFrame {
 		mainPanel.add(centerPanel); //Add center panel to the main panel
 		
 		//Panel hanging on the side of the center panel until the mouse hovers over it, it then animates to open
-		dashboardPanel = new DashboardPanel(centerPanel.getPreferredSize().height, this, mainController);
+		dashboardPanel = new DashboardPanel(centerPanel.getPreferredSize().height, this);
 		dashboardPanel.setName("dashboardPanel");
 		centerPanel.add(dashboardPanel);
 		
@@ -343,7 +346,7 @@ public class MainFrame extends JFrame {
 		};
 	    queryThread.start();
 		
-	    changeContentPanel(new CheckFlightsPanel(new Rectangle(72, 2, 1124, 666), this, mainController, false), false, false); //Set contentPanel to CheckFlightsPanel, not looking at archive
+	    changeContentPanel(new CheckFlightsPanel(new Rectangle(72, 2, 1124, 666), this, false), false, false); //Set contentPanel to CheckFlightsPanel, not looking at archive
 	    contentPanel = (CheckFlightsPanel)contentPanel; //Cast content panel to the correct panel type (only necessary in this case)
 		
 		//Check if the dash board has not closed correctly every 1000ms (if mouse exited event gets skipped)
@@ -643,7 +646,7 @@ public class MainFrame extends JFrame {
 	 */
 	public void redrawCheckFlightsPanel() {
 		
-		CheckFlightsPanel flightPanel = (CheckFlightsPanel)mainController.getComponentByName(this, "checkFlightsPanel"); //Get panel
+		CheckFlightsPanel flightPanel = (CheckFlightsPanel)getComponentByName(this, "checkFlightsPanel"); //Get panel
 		if(flightPanel != null) { //If it has been found
 			flightPanel.populateGrid(flightList, 4, 15, 15, 25, 95); //Populate grid with the mainFrame's flight list
 			repaint();
@@ -693,7 +696,7 @@ public class MainFrame extends JFrame {
 									true, MainController.foregroundColorTwo, 1, //Thumb border boolean, color and thickness
 									false, null, //Highlight track boolean and color
 									MainController.backgroundColorOne, //Buttons background color
-									mainController.getDifferentAlphaColor(MainController.foregroundColorThree, 64), //hovering color
+									getDifferentAlphaColor(MainController.foregroundColorThree, 64), //hovering color
 									true, MainController.foregroundColorThree, 2); //Border boolean, border color and border thickness
 		
 	}
@@ -706,7 +709,7 @@ public class MainFrame extends JFrame {
 		
 		//Create the combo box with these default settings and return it
 		return new CustomComboBox(MainController.foregroundColorThree, 2,
-				MainController.backgroundColorOne, mainController.getDifferentAlphaColor(MainController.foregroundColorThree, 64),
+				MainController.backgroundColorOne, getDifferentAlphaColor(MainController.foregroundColorThree, 64),
 				createCustomScrollbar(), MainController.backgroundColorOne, MainController.foregroundColorThree,
 				new Font(MainController.fontOne.getFontName(), Font.PLAIN, 14));
 		
@@ -795,6 +798,320 @@ public class MainFrame extends JFrame {
 	}
 	
 	/**
+	 * Create a frame prompting the user to choose a queue to add
+	 * @param listaCode The list containing the queues that have to be added to the frame's combo box
+	 */
+	public String createAddQueueFrame(ArrayList<String> listaCode) {
+		
+		AddQueueFrame frame = new AddQueueFrame(this, listaCode); //Create a pop up panel
+		frame.setVisible(true); //Make it visible
+		String choice = frame.getChoice(); //Get the choice taken from the frame
+		
+		return choice;
+		
+	}
+	
+	/**
+	 * Create a flight and add it to the database
+	 * @param nomeCompagnia Company name of the flight
+	 * @param data Take off date of the flight
+	 * @param gate Gate where the flight's embark takes place
+	 * @param destinazione Destination of the flight
+	 * @param listaCode Flight's queue list
+	 */
+	public void createFlight(String nomeCompagnia, Date data, int gate, String destinazione, ArrayList<String> listaCode) {
+		
+		//Get company class from it's name
+		CompagniaAerea compagnia = null;
+		for(CompagniaAerea c : getListaCompagnie()) {
+			if(c.getNome().equals(nomeCompagnia)) {
+				compagnia = c;
+				break;
+			}
+		}
+		
+		//Generate ID
+		String id = generateIDString(8);
+		
+		//Calculate the range of the slot
+		Calendar c = Calendar.getInstance(); //Create a calendar instance
+		c.setTime(data); //Set the calendar time to the passed date
+		
+		//Get lower range
+		c.add(Calendar.MINUTE, -5);
+		Date inizioTempoStimato = new Date();
+		inizioTempoStimato = c.getTime();
+		
+		//Get higher range
+		c.add(Calendar.MINUTE, 15);
+		Date fineTempoStimato = new Date();
+		fineTempoStimato = c.getTime();
+		
+		//Create queue list
+		ArrayList<Coda> list = new ArrayList<Coda>();
+		for(String s : listaCode) {
+			Coda coda = new Coda();
+			coda.setPersoneInCoda(0);
+			try {
+				coda.setTipo(s);
+			} catch (NonExistentQueueTypeException e) {
+				e.printStackTrace();
+			}
+			list.add(coda);
+		}
+		
+		//Check if there is at least one queue
+		if(list.size() == 0) {
+			createNotificationFrame("Seleziona almeno una coda!");
+			return;
+		}
+		
+		//Create gate
+		Gate g = new Gate();
+		g.setListaCode(list);
+		try {
+			g.setNumeroGate(gate);
+		} catch (NonExistentGateException e) {
+			e.printStackTrace();
+		}
+		
+		//Create slot
+		Slot s = new Slot();
+		s.setInizioTempoStimato(inizioTempoStimato);
+		s.setFineTempoStimato(fineTempoStimato);
+		
+		//Check if the gate at that slot is available
+		if(checkIfSlotIsTaken(s, gate, null)) {
+			createNotificationFrame("Il gate selezionato non e' disponibile a quell'ora!");
+			return;
+		}
+		
+		//Create flight
+		Volo v = new Volo();
+		v.setID(id);
+		v.setCompagnia(compagnia);
+		compagnia.setNumeroVoli(compagnia.getNumeroVoli() + 1);
+		v.setGate(g);
+		v.setDestinazione(destinazione);
+		v.setOrarioDecollo(data);
+		v.setPartito(false);
+		v.setSlot(s);
+		v.setNumeroPrenotazioni(0);
+		
+		//Insert in the database
+		VoloDAO dao = new VoloDAO();
+		dao.insertFlight(this, v);
+		
+		//Go to checkFlightsPanel
+		if(changeContentPanel(new CheckFlightsPanel(new Rectangle(72, 2, 1124, 666), this, false), false, false)) { //If the panel successfully gets changed
+			
+			SearchPanel searchPanel = (SearchPanel)getComponentByName(this, "searchPanel"); //Get searchPanel from the mainFrame
+			if(searchPanel != null) { //If the searchPanel gets found
+				searchPanel.searchFlights(); //Make search (to possibly include this new flight)
+			}
+			
+			//Update dash board
+			searchPanel.toggleArchiveOnlyCheckBoxes(false);
+			repaint();
+			revalidate();
+			
+		}
+		
+	}
+	
+	/**
+	 * Update the passed flight in the database
+	 * @param v Old flight instance to update
+	 * @param nomeCompagnia Company name of the updated flight
+	 * @param data Take off date of the updated flight
+	 * @param gate Gate where the updated flight's embark takes place
+	 * @param listaCode Flight's queue list
+	 */
+	public void editFlight(Volo v, String nomeCompagnia, Date data, int gate, String destinazione, ArrayList<String> listaCode) {
+		
+		//Get company class from it's name
+		CompagniaAerea compagnia = null;
+		for(CompagniaAerea c : getListaCompagnie()) {
+			if(c.getNome().equals(nomeCompagnia)) {
+				compagnia = c;
+				break;
+			}
+		}
+		
+		//Calculate the range of the slot
+		Calendar c = Calendar.getInstance(); //Create a calendar instance
+		c.setTime(data); //Set the calendar time to the passed date
+		
+		//Get lower range
+		c.add(Calendar.MINUTE, -5);
+		Date inizioTempoStimato = new Date();
+		inizioTempoStimato = c.getTime();
+		
+		//Get higher range
+		c.add(Calendar.MINUTE, 15);
+		Date fineTempoStimato = new Date();
+		fineTempoStimato = c.getTime();
+		
+		//Create queue list
+		ArrayList<Coda> newQueueList = new ArrayList<Coda>();
+		for(String s : listaCode) {
+			Coda coda = new Coda();
+			try {
+				coda.setTipo(s);
+			} catch (NonExistentQueueTypeException e) {
+				e.printStackTrace();
+			}
+			coda.setPersoneInCoda(0);
+			
+			//Get queues of the non updated flight
+			for(Coda oldCoda : v.getGate().getListaCode()) {
+				
+				if(coda.getTipo().equals(oldCoda.getTipo())) { //If one of the queues in the updated flight was already in the non updated one
+					coda.setPersoneInCoda(oldCoda.getPersoneInCoda()); //Set it's length (to not loose bookings)
+				}
+				
+			}
+			
+			newQueueList.add(coda);
+			
+		}
+		
+		//Check if there is at least one queue
+		if(newQueueList.size() == 0) {
+			createNotificationFrame("Seleziona almeno una coda!");
+			return;
+		}
+		
+		//Create gate
+		Gate g = new Gate();
+		g.setListaCode(newQueueList);
+		try {
+			g.setNumeroGate(gate);
+		} catch (NonExistentGateException e) {
+			e.printStackTrace();
+		}
+		
+		//Create slot
+		Slot s = new Slot();
+		s.setInizioTempoStimato(inizioTempoStimato);
+		s.setFineTempoStimato(fineTempoStimato);
+		
+		//Check if the gate at that slot is available
+		if(checkIfSlotIsTaken(s, gate, v)) {
+			createNotificationFrame("Il gate selezionato non e' disponibile a quell'ora!");
+			return;
+		}
+		
+		//Create edited flight
+		Volo editedVolo = new Volo();
+		editedVolo.setID(v.getID());
+		editedVolo.setCompagnia(compagnia);
+		editedVolo.setGate(g);
+		editedVolo.setDestinazione(destinazione);
+		editedVolo.setOrarioDecollo(data);
+		editedVolo.setPartito(false);
+		editedVolo.setSlot(s);
+		
+		editedVolo.printFlightInfo();
+		
+		//Calculate number of bookings
+		int sum = 0;
+		for(Coda coda : v.getGate().getListaCode()) {
+			sum += coda.getPersoneInCoda();
+		}
+		editedVolo.setNumeroPrenotazioni(sum);
+		
+		//Update in the database
+		VoloDAO dao = new VoloDAO();
+		if(!dao.updateFlight(this, editedVolo, v)) {
+			return;
+		}
+		
+		//Update company flight count
+		CompagniaAereaDAO daoCompany = new CompagniaAereaDAO();
+		daoCompany.decreaseCompagniaAereaFlightCount(this, v.getCompagnia().getNome()); //Decrease old company count
+		daoCompany.increaseCompagniaAereaFlightCount(this, editedVolo.getCompagnia().getNome()); //Increase new company count
+		
+		//Change panel to the ViewFlightPanel
+		changeContentPanel(new ViewFlightInfoPanel(new Rectangle(72, 2, 1124, 666), this, editedVolo), false, false);
+		
+	}
+	
+	/**
+	 * Generate a random alphanumeric string of a specified length
+	 * @param lenght Length of the string
+	 * @return Generated string
+	 */
+	public String generateIDString(int length) {
+		
+	    int leftLimit = 48; //Numeral '0'
+	    int rightLimit = 122; //Letter 'z'
+	    int targetStringLength = length; //Length of the generated string 
+	    
+	    Random random = new Random(); //Create random instance
+
+	    String generatedString = random.ints(leftLimit, rightLimit + 1)
+	      .filter(i -> (i <= 57 || i >= 65) && (i <= 90 || i >= 97))
+	      .limit(targetStringLength)
+	      .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
+	      .toString(); //Create string
+
+	    return generatedString;
+	    
+	}
+	
+	/**
+	 * Checks if a gate is free in a given slot of time or if it's already in use at that moment
+	 * @param s The new slot to check if its available
+	 * @param gateNumber The gate number where the slot takes place
+	 * @param volo If the check is being done updating a flight (set to null otherwise) gets it's ID and removes it from the list of IDs so the updated flight can have the same slot without returning true
+	 * @return If the given gate is taken in the given slot of time
+	 */
+	public boolean checkIfSlotIsTaken(Slot s, int gateNumber, Volo volo) {
+		
+		ArrayList<String> idList = (new GateDAO().getFlightIdByGateNumber(gateNumber));
+		
+		//If an id has been passed then we are updating a flight, therefore remove it from the array of IDs (If the gate of the new flight (gateNumber) is the same as the old one (volo.getGate().getNumeroGate()))
+		if(volo != null && volo.getGate().getNumeroGate() == gateNumber) {
+			int index = idList.indexOf(volo.getID()); //Get the index of the ID in the list
+			if(index != -1) { //If the ID has been found (it always should be)
+				idList.remove(index); //Remove it from the list
+			}
+		}
+		
+		for(String idString : idList) { //For all of the flights id where the gate number is the gate selected in the flight creation
+			Slot slotToCheck = (new SlotDAO().getSlotByID(idString)); //Get the slot with that id
+			
+			/*
+			 *  	|-----| slot to insert (passed as argument)
+			 *   |-----|	  slot to check
+			 */
+			boolean condition1 = (slotToCheck.getInizioTempoStimato().before(s.getInizioTempoStimato()) && slotToCheck.getFineTempoStimato().after(s.getInizioTempoStimato()));
+			
+			/*
+			 *  	|-----| 		  slot to insert (passed as argument)
+			 *   		|-----|	  slot to check
+			 */
+			boolean condition2 = (slotToCheck.getInizioTempoStimato().before(s.getFineTempoStimato()) && slotToCheck.getFineTempoStimato().after(s.getFineTempoStimato()));
+			
+			/*
+			 *  	|-----|   slot to insert (passed as argument)
+			 *   	|-----|	  slot to check
+			 */
+			boolean condition3 = (slotToCheck.getInizioTempoStimato().compareTo(s.getInizioTempoStimato()) == 0 && slotToCheck.getFineTempoStimato().compareTo(s.getFineTempoStimato()) == 0); //Dates are the same
+
+			
+			if(condition1 || condition2 || condition3) { //If any of the above condition is true
+				//The slot s is taken
+				return true;
+			}
+		}
+		
+		return false; //The slot is not taken
+		
+	}
+	
+	/**
 	 * Generate a given amount of random flights to add into the database
 	 * @param flightAmount The amount of flights to generate
 	 */
@@ -878,7 +1195,7 @@ public class MainFrame extends JFrame {
 			}
 			
 			//Generate ID
-			String id = mainController.generateIDString(8);
+			String id = generateIDString(8);
 			
 			//Calculate the range of the slot
 			Calendar c = Calendar.getInstance(); //Create a calendar instance
@@ -922,7 +1239,7 @@ public class MainFrame extends JFrame {
 			s.setFineTempoStimato(fineTempoStimato);
 			
 			//Check if the gate at that slot is available
-			if(mainController.checkIfSlotIsTaken(s, gate, null)) {
+			if(checkIfSlotIsTaken(s, gate, null)) {
 				break;
 			}
 			
@@ -1017,6 +1334,59 @@ public class MainFrame extends JFrame {
 			
 		}
 		
+	}
+	
+	/**
+	 * Get the color passed as argument with a different specified alpha
+	 * @param c Color to get with a different alpha
+	 * @param newAlpha Alpha of the color
+	 * @return The color with the modified alpha
+	 */
+	public Color getDifferentAlphaColor(Color c, int newAlpha) {
+		
+		newAlpha = (newAlpha > 255)? 255 : newAlpha; //Clamp max
+		newAlpha = (newAlpha < 0)? 0 : newAlpha; //Clamp minimum
+		
+		return new Color(c.getRed(), c.getGreen(), c.getBlue(), newAlpha);
+		
+	}
+	
+	/**
+	 * Get a component by it's name
+	 * @param container Outer container that contains the component
+	 * @param name Name of the component to find
+	 * @return The component if it is found, null otherwise
+	 */
+	public Component getComponentByName(Container container, String name) {
+		
+		List<Component> list = getAllComponents(container); //Take all components from the container
+		
+		for(Component c: list) {
+			if(c.getName() != null && c.getName().contentEquals(name)) { //Component found
+				return c;
+			}
+		}
+		
+		return null;
+		
+	}
+	
+	/**
+	 * Get a list of the all the components contained in a specified container
+	 * @param container Container  that the  user wants the components of
+	 * @return List of the components contained in the passed container
+	 */
+	public List<Component> getAllComponents(Container container) {
+		
+	    Component[] components = container.getComponents(); //Take all the components from the outer container
+	    List<Component> listaComponents = new ArrayList<Component>();
+	    for (Component c: components) {
+	    	listaComponents.add(c); //Add component to the list
+	        if (c instanceof Container) //If the component is a container in itself, repeat
+	        	listaComponents.addAll(getAllComponents((Container) c)); //Recursive call
+	    }
+	    return listaComponents; //Return list
+	    
 	}
 	
 	//Setters and getters

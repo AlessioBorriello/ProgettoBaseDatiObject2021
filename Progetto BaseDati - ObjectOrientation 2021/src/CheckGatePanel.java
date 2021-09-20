@@ -36,7 +36,6 @@ import javax.swing.GroupLayout.Alignment;
 public class CheckGatePanel extends JPanel {
 	
 	private MainFrame mainFrame; //Main panel
-	private MainController mainController; //Main controller
 	
 	private ArrayList<Volo> flightList; //List of flights in this gate
 	
@@ -63,14 +62,12 @@ public class CheckGatePanel extends JPanel {
 	 * Panel containing informations on a given gate, like it's average use and flight list
 	 * @param bounds Bounds of the contentPanel that contains this panel
 	 * @param mf Link to the MainFrame
-	 * @param c Link to the MainController
 	 * @param flightList List containing the flights that use this gate
 	 * @param gateNumber The number identifying the gate
 	 */
-	public CheckGatePanel(Rectangle bounds, MainFrame mf, MainController c, ArrayList<Volo> flightList, int gateNumber) {
+	public CheckGatePanel(Rectangle bounds, MainFrame mf, ArrayList<Volo> flightList, int gateNumber) {
 		
 		mainFrame = mf; //Link main frame
-		mainController = c; //Link main controller
 		
 		this.flightList = flightList;
 		
@@ -213,7 +210,7 @@ public class CheckGatePanel extends JPanel {
 				}
 			}
 			
-			CustomButton buttonFlight = new CustomButton(v.getID(), null, mainController.getDifferentAlphaColor(borderColor, 48), 
+			CustomButton buttonFlight = new CustomButton(v.getID(), null, mainFrame.getDifferentAlphaColor(borderColor, 48), 
 					MainController.foregroundColorThree, 18, true, borderColor, 2); //Create button create flight
 			buttonFlight.setName("buttonFlight"); //Name component
 			buttonFlight.setBounds(0, 0 + ((height + vGap) * index), 228, height); //Set bounds
@@ -229,7 +226,7 @@ public class CheckGatePanel extends JPanel {
 			buttonFlight.addMouseListener(new MouseAdapter() {
 				//When mouse clicked
 				public void mouseClicked(MouseEvent e) {
-					mainFrame.changeContentPanel(new ViewFlightInfoPanel(new Rectangle(72, 2, 1124, 666), mainFrame, mainController, v), false, false); //Go to the view flight info panel, without asking for confirmation
+					mainFrame.changeContentPanel(new ViewFlightInfoPanel(new Rectangle(72, 2, 1124, 666), mainFrame, v), false, false); //Go to the view flight info panel, without asking for confirmation
 				}
 			});
 			flightListPanel.add(buttonFlight);

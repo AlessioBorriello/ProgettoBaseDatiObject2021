@@ -26,7 +26,6 @@ import java.io.IOException;
 public class EditFlightPanel extends JPanel {
 
 	private MainFrame mainFrame; //Main panel
-	private MainController mainController; //Main controller
 	private Volo v; //Flight being edited
 	private ArrayList<String> listaCode = new ArrayList<String>(); //List of the queues
 	
@@ -48,14 +47,12 @@ public class EditFlightPanel extends JPanel {
 	 * Panel where the user can edit a flight and update it into the database
 	 * @param bounds Bounds of the contentPanel that contains this panel (to give it the contentPanel's dimensions)
 	 * @param mf Link to the MainFrame
-	 * @param c Link to the MainController
 	 * @param v Flight to edit
 	 */
 	@SuppressWarnings("deprecation")
-	public EditFlightPanel(Rectangle bounds, MainFrame mf, MainController c, Volo v) {
+	public EditFlightPanel(Rectangle bounds, MainFrame mf, Volo v) {
 		
 		mainFrame = mf; //Link main frame
-		mainController = c; //Link main controller
 		this.v = v; //Flight to edit
 		
 		//Load company images
@@ -110,7 +107,7 @@ public class EditFlightPanel extends JPanel {
 		//Set the correct company in the combo box
 		cBoxCompany.setSelectedIndex(companyIndex);
 		
-		CustomSpinner spinnerTakeOffDate = new CustomSpinner(MainController.backgroundColorOne, mainController.getDifferentAlphaColor(MainController.foregroundColorThree, 64), 
+		CustomSpinner spinnerTakeOffDate = new CustomSpinner(MainController.backgroundColorOne, mainFrame.getDifferentAlphaColor(MainController.foregroundColorThree, 64), 
 				MainController.foregroundColorThree, 2, true, MainController.foregroundColorThree, 1); //Create spinner to declare the take off date
 		spinnerTakeOffDate.setModel(new SpinnerDateModel(new Date(1612134000000L), null, null, Calendar.DAY_OF_YEAR)); //Set spinner model
 		spinnerTakeOffDate.setValue(v.getOrarioDecollo());
@@ -121,7 +118,7 @@ public class EditFlightPanel extends JPanel {
 		spinnerTakeOffDate.setEditorFont(new Font(MainController.fontOne.getFontName(), Font.PLAIN, 12));
 		add(spinnerTakeOffDate); //Add to panel
 		
-		CustomSpinner spinnerGate = new CustomSpinner(MainController.backgroundColorOne, mainController.getDifferentAlphaColor(MainController.foregroundColorThree, 64), 
+		CustomSpinner spinnerGate = new CustomSpinner(MainController.backgroundColorOne, mainFrame.getDifferentAlphaColor(MainController.foregroundColorThree, 64), 
 				MainController.foregroundColorThree, 2, true, MainController.foregroundColorThree, 1); //Create spinner to declare the gate
 		spinnerGate.setName("spinnerGate"); //Name component
 		spinnerGate.setModel(new SpinnerNumberModel(new Integer(1), new Integer(1), new Integer(gatesNumber), new Integer(1))); //Set the type of spinner
@@ -132,7 +129,7 @@ public class EditFlightPanel extends JPanel {
 		spinnerGate.setEditorFont(new Font(MainController.fontOne.getFontName(), Font.PLAIN, 12));
 		add(spinnerGate); //Add to panel
 		
-		CustomButton buttonEditFlight = new CustomButton("Modifica volo!", null, mainController.getDifferentAlphaColor(MainController.foregroundColorThree, 64), 
+		CustomButton buttonEditFlight = new CustomButton("Modifica volo!", null, mainFrame.getDifferentAlphaColor(MainController.foregroundColorThree, 64), 
 				MainController.foregroundColorThree, 22, true, MainController.foregroundColorThree, 1); //Create button create flight
 		buttonEditFlight.setName("buttonEditFlight"); //Name component
 		buttonEditFlight.setBounds(349, 456, 300, 58); //Set bounds
@@ -147,7 +144,7 @@ public class EditFlightPanel extends JPanel {
 		});
 		add(buttonEditFlight); //Add to panel
 		
-		buttonAddQueue = (new CustomButton("", null, mainController.getDifferentAlphaColor(MainController.foregroundColorThree, 64), 
+		buttonAddQueue = (new CustomButton("", null, mainFrame.getDifferentAlphaColor(MainController.foregroundColorThree, 64), 
 													null, 0, true, MainController.foregroundColorThree, 1) {
 
 			public void paint(Graphics g) {
@@ -175,7 +172,24 @@ public class EditFlightPanel extends JPanel {
 		buttonAddQueue.addMouseListener(new MouseAdapter() {
 			//Mouse clicked
 			public void mouseClicked(MouseEvent e) {
-				createAddQueueFrame();
+				String choice = mainFrame.createAddQueueFrame(listaCode);
+				if(!choice.equals("undo")) { //If the user has not pressed the undo button
+					//Check if that type of queue has been added already
+					boolean queueAlreadyAdded = false;
+					for(String s : listaCode) {
+						if(s.equals(choice)) {
+							//If the queue has been added already (has been found in the ArrayList listaCode)
+							queueAlreadyAdded = true;
+							break;
+						}
+					}
+					//If the queue has not been added already
+					if(!queueAlreadyAdded) {
+						addQueue(choice); //Add a queue
+					}else { //If the queue has been added already
+						mainFrame.createNotificationFrame("Questa coda è già stata aggiunta!"); //Notify user
+					}
+				}
 			}
 		});
 		buttonAddQueue.addMouseListener(new MouseAdapter() {
@@ -226,7 +240,7 @@ public class EditFlightPanel extends JPanel {
 				
 				Thread queryThread = new Thread() {
 				      public void run() {
-				    	  editFlight(v, nomeCompagnia, data, gate, destinazione); //Update flight with the gathered data
+				    	  mainFrame.editFlight(v, nomeCompagnia, data, gate, destinazione, listaCode); //Update flight with the gathered data
 				      }
 				};
 			    queryThread.start();
@@ -235,35 +249,7 @@ public class EditFlightPanel extends JPanel {
 		});
 		
 	}
-	
-	/**
-	 * Create a frame prompting the user to choose a queue to add
-	 */
-	public void createAddQueueFrame() {
-		
-		AddQueueFrame frame = new AddQueueFrame(mainFrame, listaCode); //Create a pop up panel
-		frame.setVisible(true); //Make it visible
-		String choice = frame.getChoice(); //Get the choice taken from the frame
-		if(!choice.equals("undo")) { //If the user has not pressed the undo button
-			//Check if that type of queue has been added already
-			boolean queueAlreadyAdded = false;
-			for(String s : listaCode) {
-				if(s.equals(choice)) {
-					//If the queue has been added already (has been found in the ArrayList listaCode)
-					queueAlreadyAdded = true;
-					break;
-				}
-			}
-			//If the queue has not been added already
-			if(!queueAlreadyAdded) {
-				addQueue(choice); //Add a queue
-			}else { //If the queue has been added already
-				mainFrame.createNotificationFrame("Questa coda è già stata aggiunta!"); //Notify user
-			}
-		}
-		
-	}
-	
+
 	/**
 	 * Add a queue to the panelQueues
 	 * @param type Type of the queue to add to the queue list
@@ -279,7 +265,7 @@ public class EditFlightPanel extends JPanel {
 		Color bgColor = (listaCode.size()%2 == 0)? MainController.backgroundColorTwo : null; //If the array size is not even, set a different background color for the button (Once every 2 buttons)
 		
 		//Create button for that queue
-		CustomButton buttonAddedQueue = new CustomButton(type, bgColor, mainController.getDifferentAlphaColor(MainController.foregroundColorThree, 64), 
+		CustomButton buttonAddedQueue = new CustomButton(type, bgColor, mainFrame.getDifferentAlphaColor(MainController.foregroundColorThree, 64), 
 				MainController.foregroundColorThree, 22, true, MainController.foregroundColorThree, 1); //Create button create flight
 		buttonAddedQueue.setName("buttonAddedQueue" + (listaCode.size() - 1)); //Name component
 		buttonAddedQueue.setText(type); //So that the type can be found and removed from the listaCode array
@@ -331,9 +317,7 @@ public class EditFlightPanel extends JPanel {
 		
 		String notification = (queueLength > 0)? "Sei sicuro di voler rimuovere questa coda (Ci sono " + queueLength + " persone in questa coda)?" : "Sei sicuro di voler rimuovere questa coda?"; //If there were people in the queue being removed
 		
-		ConfirmationFrame frame = new ConfirmationFrame(notification, mainFrame); //Create confirmation frame
-		frame.setVisible(true); //Set confirmation frame visible
-		if(frame.getAnswer()) { //If the user has confirmed the action
+		if(mainFrame.createConfirmationFrame(notification)) { //If the user has confirmed the action
 			
 			int buttonNumber = listaCode.indexOf(queueButton.getText());
 			listaCode.remove(buttonNumber); //Remove the queue from the ArrayList listaCode
@@ -345,7 +329,7 @@ public class EditFlightPanel extends JPanel {
 			//Move added queues buttons after the removed one
 			for(int i = buttonNumber + 1; i <= listaCode.size(); i++) {
 				
-				CustomButton b = (CustomButton)mainController.getComponentByName(this, "buttonAddedQueue" + String.valueOf(i)); //Get named button
+				CustomButton b = (CustomButton)mainFrame.getComponentByName(this, "buttonAddedQueue" + String.valueOf(i)); //Get named button
 				
 				if(b != null) { //Button has been found
 					b.setBounds(b.getBounds().x, b.getBounds().y - queueButtonDistance, b.getBounds().width, b.getBounds().height); //Move it upwards
@@ -364,121 +348,6 @@ public class EditFlightPanel extends JPanel {
 			repaint(); //Repaint panelQueues
 		
 		}
-		
-	}
-	
-	/**
-	 * Update the passed flight in the database
-	 * @param v Old flight instance to update
-	 * @param nomeCompagnia Company name of the updated flight
-	 * @param data Take off date of the updated flight
-	 * @param gate Gate where the updated flight's embark takes place
-	 */
-	public void editFlight(Volo v, String nomeCompagnia, Date data, int gate, String destinazione) {
-		
-		//Get company class from it's name
-		CompagniaAerea compagnia = null;
-		for(CompagniaAerea c : mainFrame.getListaCompagnie()) {
-			if(c.getNome().equals(nomeCompagnia)) {
-				compagnia = c;
-				break;
-			}
-		}
-		
-		//Calculate the range of the slot
-		Calendar c = Calendar.getInstance(); //Create a calendar instance
-		c.setTime(data); //Set the calendar time to the passed date
-		
-		//Get lower range
-		c.add(Calendar.MINUTE, -5);
-		Date inizioTempoStimato = new Date();
-		inizioTempoStimato = c.getTime();
-		
-		//Get higher range
-		c.add(Calendar.MINUTE, 15);
-		Date fineTempoStimato = new Date();
-		fineTempoStimato = c.getTime();
-		
-		//Create queue list
-		ArrayList<Coda> newQueueList = new ArrayList<Coda>();
-		for(String s : listaCode) {
-			Coda coda = new Coda();
-			try {
-				coda.setTipo(s);
-			} catch (NonExistentQueueTypeException e) {
-				e.printStackTrace();
-			}
-			coda.setPersoneInCoda(0);
-			
-			//Get queues of the non updated flight
-			for(Coda oldCoda : v.getGate().getListaCode()) {
-				
-				if(coda.getTipo().equals(oldCoda.getTipo())) { //If one of the queues in the updated flight was already in the non updated one
-					coda.setPersoneInCoda(oldCoda.getPersoneInCoda()); //Set it's length (to not loose bookings)
-				}
-				
-			}
-			
-			newQueueList.add(coda);
-			
-		}
-		
-		//Check if there is at least one queue
-		if(newQueueList.size() == 0) {
-			mainFrame.createNotificationFrame("Seleziona almeno una coda!");
-			return;
-		}
-		
-		//Create gate
-		Gate g = new Gate();
-		g.setListaCode(newQueueList);
-		try {
-			g.setNumeroGate(gate);
-		} catch (NonExistentGateException e) {
-			e.printStackTrace();
-		}
-		
-		//Create slot
-		Slot s = new Slot();
-		s.setInizioTempoStimato(inizioTempoStimato);
-		s.setFineTempoStimato(fineTempoStimato);
-		
-		//Check if the gate at that slot is available
-		if(mainController.checkIfSlotIsTaken(s, gate, v)) {
-			mainFrame.createNotificationFrame("Il gate selezionato non e' disponibile a quell'ora!");
-			return;
-		}
-		
-		//Create edited flight
-		Volo editedVolo = new Volo();
-		editedVolo.setID(v.getID());
-		editedVolo.setCompagnia(compagnia);
-		editedVolo.setGate(g);
-		editedVolo.setDestinazione(destinazione);
-		editedVolo.setOrarioDecollo(data);
-		editedVolo.setPartito(false);
-		editedVolo.setSlot(s);
-		
-		editedVolo.printFlightInfo();
-		
-		//Calculate number of bookings
-		int sum = 0;
-		for(Coda coda : v.getGate().getListaCode()) {
-			sum += coda.getPersoneInCoda();
-		}
-		editedVolo.setNumeroPrenotazioni(sum);
-		
-		//Update in the database
-		VoloDAO dao = new VoloDAO();
-		dao.updateFlight(mainFrame, editedVolo);
-		
-		//Update company flight count
-		CompagniaAereaDAO daoCompany = new CompagniaAereaDAO();
-		daoCompany.decreaseCompagniaAereaFlightCount(mainFrame, v.getCompagnia().getNome()); //Decrease old company count
-		daoCompany.increaseCompagniaAereaFlightCount(mainFrame, editedVolo.getCompagnia().getNome()); //Increase new company count
-		
-		//Change panel to the ViewFlightPanel
-		mainFrame.changeContentPanel(new ViewFlightInfoPanel(new Rectangle(72, 2, 1124, 666), mainFrame, mainController, editedVolo), false, false);
 		
 	}
 

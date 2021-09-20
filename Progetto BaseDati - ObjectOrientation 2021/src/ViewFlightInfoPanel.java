@@ -27,7 +27,6 @@ import java.io.IOException;
 public class ViewFlightInfoPanel extends JPanel {
 
 	private MainFrame mainFrame; //Main panel
-	private MainController mainController; //Main controller
 	
 	//Flight instance to show its info
 	private Volo volo;
@@ -47,13 +46,12 @@ public class ViewFlightInfoPanel extends JPanel {
 	 * Panel that shows the info of a given flight in detail
 	 * @param bounds Bounds of the contentPanel that contains this panel (to give it the contentPanel's dimensions)
 	 * @param mf Link to the MainFrame
-	 * @param c Link to the MainController
 	 * @param v Flight to show the info of
 	 */
-	public ViewFlightInfoPanel(Rectangle bounds, MainFrame mf, MainController c, Volo v) {
+	public ViewFlightInfoPanel(Rectangle bounds, MainFrame mf, Volo v) {
 		
 		mainFrame = mf; //Link main frame
-		mainController = c; //Link main controller
+		//mainController = c; //Link main controller
 		volo = v; //Flight to show the info of
 		
 		setBounds(bounds); //Set bounds
@@ -79,7 +77,7 @@ public class ViewFlightInfoPanel extends JPanel {
 		//Scale company image
 		companyImage = companyImage.getScaledInstance(250, 250, Image.SCALE_SMOOTH);
 		
-		buttonFlightTakenOff = new CustomButton("Fai partire volo", null, mainController.getDifferentAlphaColor(MainController.foregroundColorThree, 64), 
+		buttonFlightTakenOff = new CustomButton("Fai partire volo", null, mainFrame.getDifferentAlphaColor(MainController.foregroundColorThree, 64), 
 				MainController.foregroundColorThree, 18, true, MainController.foregroundColorThree, 1); //Create button
 		buttonFlightTakenOff.setName("buttonFlightTakenOff"); //Set name
 		//Add action listener
@@ -102,7 +100,7 @@ public class ViewFlightInfoPanel extends JPanel {
 			add(buttonFlightTakenOff); //Add button
 		}
 		
-		buttonCancelFlight = new CustomButton("Cancella volo", null, mainController.getDifferentAlphaColor(MainController.foregroundColorThree, 64), 
+		buttonCancelFlight = new CustomButton("Cancella volo", null, mainFrame.getDifferentAlphaColor(MainController.foregroundColorThree, 64), 
 				MainController.foregroundColorThree, 18, true, MainController.foregroundColorThree, 1); //Create button
 		buttonCancelFlight.setName("buttonCancelFlight"); //Set name
 		//Add action listener
@@ -125,13 +123,13 @@ public class ViewFlightInfoPanel extends JPanel {
 			add(buttonCancelFlight); //Add button
 		}
 		
-		buttonEditFlight = new CustomButton("Modifica volo", null, mainController.getDifferentAlphaColor(MainController.foregroundColorThree, 64), 
+		buttonEditFlight = new CustomButton("Modifica volo", null, mainFrame.getDifferentAlphaColor(MainController.foregroundColorThree, 64), 
 				MainController.foregroundColorThree, 22, true, MainController.foregroundColorThree, 1); //Create button
 		buttonEditFlight.setName("buttonEditFlight"); //Set name
 		//Add action listener
 		buttonEditFlight.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				mainFrame.changeContentPanel(new EditFlightPanel(new Rectangle(72, 2, 1124, 666), mainFrame, mainController, volo), false, false);
+				mainFrame.changeContentPanel(new EditFlightPanel(new Rectangle(72, 2, 1124, 666), mainFrame, volo), false, false);
 			}
 		});
 		buttonEditFlight.setBounds(805, 548, 210, 74); //Set bound

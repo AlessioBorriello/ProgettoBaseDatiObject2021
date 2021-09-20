@@ -47,7 +47,6 @@ public class VoloDAO {
 				if(getFlightByID(mainFrame, id) != null) {
 					removeFlight(mainFrame, v);
 				}
-				mainFrame.createNotificationFrame("Qualcosa è andato storto!");
 				return false;
 			}
 			
@@ -58,7 +57,6 @@ public class VoloDAO {
 				if(getFlightByID(mainFrame, id) != null) {
 					removeFlight(mainFrame, v);
 				}
-				mainFrame.createNotificationFrame("Qualcosa è andato storto!");
 				return false;
 			}
 			
@@ -71,7 +69,7 @@ public class VoloDAO {
 		
 		}catch(Exception e) { //Error catching
 			System.out.println(e);
-			mainFrame.createNotificationFrame("Qualcosa è andato storto!");
+			mainFrame.createNotificationFrame("Qualcosa e' andato storto!: " + e + "");
 			return false; //Operation failed
 		}
 		
@@ -81,9 +79,10 @@ public class VoloDAO {
 	 * Update a flight into the database
 	 * @param mainFrame Link to the mainFrame
 	 * @param newFlight Instance of the updated flight
+	 * @param oldFlight Instance of the flight to update
 	 * @return If the update operation was successful
 	 */
-	public boolean updateFlight(MainFrame mainFrame, Volo newFlight) {
+	public boolean updateFlight(MainFrame mainFrame, Volo newFlight, Volo oldFlight) {
 		
 		String compagnia = newFlight.getCompagnia().getNome();
 		Date orarioDecollo = newFlight.getOrarioDecollo();
@@ -107,11 +106,23 @@ public class VoloDAO {
 			
 			//Update gate
 			GateDAO daoGate = new GateDAO();
-			daoGate.updateGate(mainFrame, newFlight.getGate(), id);
+			if(!daoGate.updateGate(mainFrame, newFlight.getGate(), id)) {
+				//Something went wrong when inserting the gate, therefore remove the flight just inserted (if found)
+				if(getFlightByID(mainFrame, id) != null) {
+					revertFlightValues(mainFrame, oldFlight);
+				}
+				return false;
+			}
 			
 			//Update slot
 			SlotDAO daoSlot = new SlotDAO();
-			daoSlot.updateSlot(mainFrame, newFlight.getSlot(), id);
+			if(!daoSlot.updateSlot(mainFrame, newFlight.getSlot(), id)) {
+				//Something went wrong when inserting the slot, therefore remove the flight just inserted (if found)
+				if(getFlightByID(mainFrame, id) != null) {
+					revertFlightValues(mainFrame, oldFlight);
+				}
+				return false;
+			}
 			
 			mainFrame.createNotificationFrame("Volo modificato!");
 			
@@ -119,7 +130,47 @@ public class VoloDAO {
 		
 		}catch(Exception e) { //Error catching
 			System.out.println(e);
-			mainFrame.createNotificationFrame("Qualcosa è andato storto!");
+			mainFrame.createNotificationFrame("Qualcosa e' andato storto!: " + e + "");
+			return false; //Operation failed
+		}
+		
+	}
+	
+	public boolean revertFlightValues(MainFrame mainFrame, Volo backupFlight) {
+		
+		String compagnia = backupFlight.getCompagnia().getNome();
+		Date orarioDecollo = backupFlight.getOrarioDecollo();
+		String id = backupFlight.getID();
+		String destinazione = backupFlight.getDestinazione();
+		
+		//Convert date format to a usable format in the database
+		String dataString = dateTimeFormat.format(orarioDecollo);
+		
+		try {
+			
+			String q = "UPDATE volo SET nomeCompagnia = '" + compagnia + "', dataPartenza = '" + dataString + "', destinazione = '" + destinazione + "' WHERE idvolo = '" + id + "'"; //Initialize query
+			String connectionURL = MainController.URL; //Connection URL
+	
+	        Connection con = DriverManager.getConnection(connectionURL, MainController.USER, MainController.PASSWORD);  //Create connection
+			Statement st = con.createStatement(); //Create statement
+			st.executeUpdate(q); //Execute query
+			
+			con.close(); //Close connection
+			st.close(); //Close statement
+			
+			//Update gate
+			GateDAO daoGate = new GateDAO();
+			daoGate.updateGate(mainFrame, backupFlight.getGate(), id);
+			
+			//Update slot
+			SlotDAO daoSlot = new SlotDAO();
+			daoSlot.updateSlot(mainFrame, backupFlight.getSlot(), id);
+			
+			return true; //Operation successful
+		
+		}catch(Exception e) { //Error catching
+			System.out.println(e);
+			mainFrame.createNotificationFrame("Qualcosa e' andato storto!: " + e + "");
 			return false; //Operation failed
 		}
 		
@@ -135,8 +186,7 @@ public class VoloDAO {
 		
 		try {
 			
-			String q = "DELETE FROM volo WHERE idvolo = " + v.getID(); //Initialize query
-			
+			String q = "DELETE FROM volo WHERE idvolo = '" + v.getID() + "'"; //Initialize query
 			String connectionURL = MainController.URL; //Connection URL
 	
 	        Connection con = DriverManager.getConnection(connectionURL, MainController.USER, MainController.PASSWORD); //Create connection

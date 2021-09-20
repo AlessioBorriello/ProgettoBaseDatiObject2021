@@ -16,7 +16,6 @@ import javax.swing.JPanel;
 public class StatisticsPanel extends JPanel {
 
 	private MainFrame mainFrame; //Main panel
-	private MainController mainController; //Main controller
 	
 	private int gatesNumber = 12; //How many gate there are in the airport
 	private int flightTotal = 0; //How many flights there are in the whole airport
@@ -61,12 +60,10 @@ public class StatisticsPanel extends JPanel {
 	 * amount of flights each of the 12 gates has, allowing the user to choose a gate to see more info about it into the CheckGatePanel
 	 * @param bounds Bounds of the contentPanel that contains this panel
 	 * @param mf Link to the MainFrame
-	 * @param c Link to the MainController
 	 */
-	public StatisticsPanel(Rectangle bounds, MainFrame mf, MainController c) {
+	public StatisticsPanel(Rectangle bounds, MainFrame mf) {
 		
 		mainFrame = mf; //Link main frame
-		mainController = c; //Link main controller
 		
 		//Get number of flights for each of the companies in the airport
 		companies = mainFrame.getListaCompagnie(); //Take companies from mainFrame
@@ -111,7 +108,7 @@ public class StatisticsPanel extends JPanel {
 			yPosition = i / columns;
 			
 			int gateIndex = i + 1;
-			GatePanel p = new GatePanel(mainController, mainFrame, gateIndex);
+			GatePanel p = new GatePanel(mainFrame, gateIndex);
 			//Position the new panel
 			p.setBounds(new Rectangle(xStartOffset + (width * xPosition) + (hgap * xPosition), yStartOffset + (height * yPosition) + (vgap * yPosition), width, height));
 			p.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
