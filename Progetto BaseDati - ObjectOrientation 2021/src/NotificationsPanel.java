@@ -40,7 +40,7 @@ public class NotificationsPanel extends JPanel{
 	 * @param mainFrame Link to the MainFrame
 	 * @param flightIDList List of the ID's of the flights in the database whose take off time is < than the current time
 	 */
-	public NotificationsPanel(MainController mainController, MainFrame mainFrame, ArrayList<String> flightIDList) {
+	public NotificationsPanel(MainFrame mainFrame, ArrayList<String> flightIDList) {
 		
 		this.mainFrame = mainFrame;
 		this.flightIDList = flightIDList;

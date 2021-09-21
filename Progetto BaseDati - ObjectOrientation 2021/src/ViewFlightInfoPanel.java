@@ -83,7 +83,7 @@ public class ViewFlightInfoPanel extends JPanel {
 		//Add action listener
 		buttonFlightTakenOff.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				setFlightAsTakenOff();
+				mainFrame.setFlightAsTakenOff(v);
 			}
 		});
 		buttonFlightTakenOff.setBounds(302, 420, 168, 60); //Set bounds
@@ -106,7 +106,7 @@ public class ViewFlightInfoPanel extends JPanel {
 		//Add action listener
 		buttonCancelFlight.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				setFlightAsCancelled();
+				mainFrame.setFlightAsCancelled(v);
 			}
 		});
 		buttonCancelFlight.setBounds(489, 420, 168, 60); //Set bound
@@ -150,99 +150,12 @@ public class ViewFlightInfoPanel extends JPanel {
 		
 	}
 	
-	/**
-	 * Set a flight as 'partito = 1' inside the database
-	 */
-	public void setFlightAsTakenOff() {
+	public void removeButtons() {
 		
-		SetTakeOffTimeFrame frame = new SetTakeOffTimeFrame(mainFrame, volo.getOrarioDecollo()); //Create a pop up panel
-		frame.setVisible(true); //Make it visible
-		Date data = frame.getDate(); //Get the date taken from the frame
-		
-		if(data != null) {
-			if(mainFrame.createConfirmationFrame("Sei sicuro di voler impostare questo volo come 'partito'?")) {
-				
-				//Get flight's slot
-				Slot s = (new SlotDAO().getSlotByID(volo.getID()));
-				
-				//If the flight took off in the estimated slot time
-				if(data.before(s.getFineTempoStimato())) {
-					
-					//Effective and estimated times coincide
-					s.setInizioTempoEffettivo(s.getInizioTempoStimato());
-					s.setFineTempoEffettivo(s.getFineTempoStimato());
-					
-				}else { //Otherwise
-					
-					//The flight took off later than the end of the estimated slot, therefore it did so in another slot time, calculate it
-					Calendar c = Calendar.getInstance(); //Create a calendar instance
-					c.setTime(data); //Set the calendar time to the passed date
-					
-					//Get lower range
-					c.add(Calendar.MINUTE, -5);
-					Date inizioTempoEffettivo = c.getTime();
-					s.setInizioTempoEffettivo(inizioTempoEffettivo);
-					
-					//Get higher range
-					c.add(Calendar.MINUTE, 15);
-					Date fineTempoEffettivo = c.getTime();
-					s.setFineTempoEffettivo(fineTempoEffettivo);
-					
-				}
-				
-				volo.setSlot(s);
-				
-				//Update slot in database
-				SlotDAO daoSlot = new SlotDAO();
-				if(!daoSlot.updateTempoEffettivo(mainFrame, s, volo.getID())) {
-					mainFrame.createNotificationFrame("Impossibile aggiornare lo slot!");
-					return;
-				}
-				
-				//Remove buttons
-				remove(buttonFlightTakenOff);
-				remove(buttonCancelFlight);
-				remove(buttonEditFlight);
-				
-				//Update flight in database
-				new VoloDAO().setFlightAsTakenOff(mainFrame, volo);
-				volo.setPartito(true);
-				
-				//Repaint and re validate panel
-				repaint();
-				revalidate();
-				mainFrame.createNotificationFrame("Volo impostato come 'partito'!");
-				mainFrame.setNotificationList(mainFrame.checkForNotifications()); //Update notification list
-				mainFrame.repaint();
-				
-			}
-		}
-		
-	}
-
-	/**
-	 * Set a flight as 'cancellato = 1' inside the database
-	 */
-	public void setFlightAsCancelled() {
-		
-		if(mainFrame.createConfirmationFrame("Sei sicuro di voler impostare questo volo come 'cancellato'?")) {
-			
-			//Remove buttons
-			remove(buttonFlightTakenOff);
-			remove(buttonCancelFlight);
-			remove(buttonEditFlight);
-			
-			//Update flight in database
-			new VoloDAO().setFlightAsCancelled(mainFrame, volo);
-			volo.setCancellato(true);
-			
-			//Repaint and re validate panel
-			repaint();
-			revalidate();
-			mainFrame.createNotificationFrame("Volo impostato come 'cancellato'!");
-			mainFrame.setNotificationList(mainFrame.checkForNotifications()); //Update notification list
-			
-		}
+		//Remove buttons
+		remove(buttonFlightTakenOff);
+		remove(buttonCancelFlight);
+		remove(buttonEditFlight);
 		
 	}
 

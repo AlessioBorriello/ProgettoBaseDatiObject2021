@@ -380,7 +380,7 @@ public class MainFrame extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				if(notificationPanel == null) {
 					
-					notificationPanel = new NotificationsPanel(mainController, mfLink, notificationsList);
+					notificationPanel = new NotificationsPanel(mfLink, notificationsList);
 					notificationPanel.setLocation(buttonOpenNotifications.getBounds().x - 215, 5);
 					//notificationPanel.setBounds(buttonOpenNotifications.getBounds().x - 215, 5, 240, 400);
 					centerPanel.add(notificationPanel);
@@ -1034,6 +1034,102 @@ public class MainFrame extends JFrame {
 		
 		//Change panel to the ViewFlightPanel
 		changeContentPanel(new ViewFlightInfoPanel(new Rectangle(72, 2, 1124, 666), this, editedVolo), false, false);
+		
+	}
+	
+	/**
+	 * Set a flight as 'partito = 1' inside the database
+	 * @param volo Flight to set as taken off
+	 */
+	public void setFlightAsTakenOff(Volo volo) {
+		
+		SetTakeOffTimeFrame frame = new SetTakeOffTimeFrame(this, volo.getOrarioDecollo()); //Create a pop up panel
+		frame.setVisible(true); //Make it visible
+		Date data = frame.getDate(); //Get the date taken from the frame
+		
+		if(data != null) {
+			if(createConfirmationFrame("Sei sicuro di voler impostare questo volo come 'partito'?")) {
+				
+				//Get flight's slot
+				Slot s = (new SlotDAO().getSlotByID(volo.getID()));
+				
+				//If the flight took off in the estimated slot time
+				if(data.before(s.getFineTempoStimato())) {
+					
+					//Effective and estimated times coincide
+					s.setInizioTempoEffettivo(s.getInizioTempoStimato());
+					s.setFineTempoEffettivo(s.getFineTempoStimato());
+					
+				}else { //Otherwise
+					
+					//The flight took off later than the end of the estimated slot, therefore it did so in another slot time, calculate it
+					Calendar c = Calendar.getInstance(); //Create a calendar instance
+					c.setTime(data); //Set the calendar time to the passed date
+					
+					//Get lower range
+					c.add(Calendar.MINUTE, -5);
+					Date inizioTempoEffettivo = c.getTime();
+					s.setInizioTempoEffettivo(inizioTempoEffettivo);
+					
+					//Get higher range
+					c.add(Calendar.MINUTE, 15);
+					Date fineTempoEffettivo = c.getTime();
+					s.setFineTempoEffettivo(fineTempoEffettivo);
+					
+				}
+				
+				volo.setSlot(s);
+				
+				//Update slot in database
+				SlotDAO daoSlot = new SlotDAO();
+				if(!daoSlot.updateTempoEffettivo(this, s, volo.getID())) {
+					createNotificationFrame("Impossibile aggiornare lo slot!");
+					return;
+				}
+				
+				//Remove buttons from the panel
+				ViewFlightInfoPanel panel = (ViewFlightInfoPanel)contentPanel;
+				panel.removeButtons();
+				
+				//Update flight in database
+				new VoloDAO().setFlightAsTakenOff(this, volo);
+				volo.setPartito(true);
+				
+				//Repaint and re validate panel
+				repaint();
+				revalidate();
+				createNotificationFrame("Volo impostato come 'partito'!");
+				setNotificationList(checkForNotifications()); //Update notification list
+				repaint();
+				
+			}
+		}
+		
+	}
+
+	/**
+	 * Set a flight as 'cancellato = 1' inside the database
+	 * @param volo Flight to set as cancelled
+	 */
+	public void setFlightAsCancelled(Volo volo) {
+		
+		if(createConfirmationFrame("Sei sicuro di voler impostare questo volo come 'cancellato'?")) {
+			
+			//Remove buttons from the panel
+			ViewFlightInfoPanel panel = (ViewFlightInfoPanel)contentPanel;
+			panel.removeButtons();
+			
+			//Update flight in database
+			new VoloDAO().setFlightAsCancelled(this, volo);
+			volo.setCancellato(true);
+			
+			//Repaint and re validate panel
+			repaint();
+			revalidate();
+			createNotificationFrame("Volo impostato come 'cancellato'!");
+			setNotificationList(checkForNotifications()); //Update notification list
+			
+		}
 		
 	}
 	
