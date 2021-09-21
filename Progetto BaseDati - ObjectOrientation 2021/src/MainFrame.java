@@ -53,7 +53,6 @@ import java.awt.event.ActionListener;
 @SuppressWarnings("serial")
 public class MainFrame extends JFrame {
 
-	private MainController mainController; //Linked controller
 	private Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize(); //Screen dimensions
 	private JPanel contentPanel = null; //Panel that changes the content displayed
 	private JLayeredPane centerPanel; //Panel containing content panel and dash board
@@ -86,8 +85,6 @@ public class MainFrame extends JFrame {
 	 * @param c Link to the mainController
 	 */
 	public MainFrame(MainController c) {
-		
-		mainController = c; //Link controller and frame
 		
 		//Get all the companies from the database
 		listaCompagnie = new CompagniaAereaDAO().getAllCompagniaAerea();
@@ -146,7 +143,7 @@ public class MainFrame extends JFrame {
 			    //Draw application name
 				g2d.setFont(new Font(MainController.fontOne.getFontName(), Font.BOLD, 23));
 				g2d.setColor(MainController.foregroundColorThree);
-				g2d.drawString("Nome applicazione", 4, (getHeight()/2) + (g2d.getFont().getSize()/2) - 2);
+				g2d.drawString("Airport Manager v.30L", 4, (getHeight()/2) + (g2d.getFont().getSize()/2) - 2);
 				
 				//Draw close button icon
 				g2d.setStroke(new BasicStroke(2, BasicStroke.CAP_ROUND, BasicStroke.JOIN_MITER));
@@ -648,7 +645,7 @@ public class MainFrame extends JFrame {
 		
 		CheckFlightsPanel flightPanel = (CheckFlightsPanel)getComponentByName(this, "checkFlightsPanel"); //Get panel
 		if(flightPanel != null) { //If it has been found
-			flightPanel.populateGrid(flightList, 4, 15, 15, 25, 95); //Populate grid with the mainFrame's flight list
+			flightPanel.populateGrid(4, 15, 15, 25, 95); //Populate grid with the mainFrame's flight list
 			repaint();
 			revalidate();
 		}

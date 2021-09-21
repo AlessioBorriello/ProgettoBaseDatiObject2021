@@ -20,7 +20,7 @@ public class StatisticsPanel extends JPanel {
 	private int gatesNumber = 12; //How many gate there are in the airport
 	private int flightTotal = 0; //How many flights there are in the whole airport
 	
-	private ArrayList<CompagniaAerea> companies; //ArrayList containing the companies
+	//private ArrayList<CompagniaAerea> companies; //ArrayList containing the companies
 	
 	private class PieSlice {
 		
@@ -66,10 +66,10 @@ public class StatisticsPanel extends JPanel {
 		mainFrame = mf; //Link main frame
 		
 		//Get number of flights for each of the companies in the airport
-		companies = mainFrame.getListaCompagnie(); //Take companies from mainFrame
+		//companies = mainFrame.getListaCompagnie(); //Take companies from mainFrame
 		for(int i = 0; i < 4; i++) {
-			if(companies != null) {
-				flightTotal += companies.get(i).getNumeroVoli();
+			if(mainFrame.getListaCompagnie() != null) {
+				flightTotal += mainFrame.getListaCompagnie().get(i).getNumeroVoli();
 			}
 		}
 		
@@ -353,11 +353,11 @@ public class StatisticsPanel extends JPanel {
 		ArrayList<PieSlice> companyDataPie = new ArrayList<PieSlice>();
 		
 		//Add slices to the pie
-		if(companies != null) {
-			companyDataPie.add(new PieSlice("AirFrance", companies.get(0).getNumeroVoli(), MainController.airfranceColor)); //Add AirFrance slice, with it's flight number and color
-			companyDataPie.add(new PieSlice("Alitalia", companies.get(1).getNumeroVoli(), MainController.alitaliaColor)); //Add Alitalia slice, with it's flight number and color
-			companyDataPie.add(new PieSlice("EasyJet", companies.get(2).getNumeroVoli(), MainController.easyjetColor)); //Add EasyJet slice, with it's flight number and color
-			companyDataPie.add(new PieSlice("RyanAir", companies.get(3).getNumeroVoli(), MainController.ryanairColor)); //Add RyanAir slice, with it's flight number and color
+		if(mainFrame.getListaCompagnie() != null) {
+			companyDataPie.add(new PieSlice("AirFrance", mainFrame.getListaCompagnie().get(0).getNumeroVoli(), MainController.airfranceColor)); //Add AirFrance slice, with it's flight number and color
+			companyDataPie.add(new PieSlice("Alitalia", mainFrame.getListaCompagnie().get(1).getNumeroVoli(), MainController.alitaliaColor)); //Add Alitalia slice, with it's flight number and color
+			companyDataPie.add(new PieSlice("EasyJet", mainFrame.getListaCompagnie().get(2).getNumeroVoli(), MainController.easyjetColor)); //Add EasyJet slice, with it's flight number and color
+			companyDataPie.add(new PieSlice("RyanAir", mainFrame.getListaCompagnie().get(3).getNumeroVoli(), MainController.ryanairColor)); //Add RyanAir slice, with it's flight number and color
 			
 			drawPieChart(g2d, 45, 840, 150, 200, 100, companyDataPie, true, true, 25, true, new Font(MainController.fontOne.getFontName(), Font.BOLD, 16)); //Draw pie
 		}

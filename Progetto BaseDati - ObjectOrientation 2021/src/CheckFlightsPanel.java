@@ -9,7 +9,6 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import javax.swing.JScrollPane;
@@ -122,21 +121,20 @@ public class CheckFlightsPanel extends JPanel {
 		gridPanel.setName("gridPanel"); //Name component
 		scrollPanel.setViewportView(gridPanel); //Make the scroll pane look at the grid panel and add it to the scroll pane
 		
-		populateGrid(mainFrame.getFlightList(), 4, 15, 15, 25, 95); //Create grid of flights info panel based on the listaVoli array
+		populateGrid(4, 15, 15, 25, 95); //Create grid of flights info panel based on the listaVoli array
 		
 	}
 	
 	/**
 	 * Populate the grid panel with flight info panels
 	 * @param gridPanel Reference to the grid panel
-	 * @param array The array containing the flights
 	 * @param columns How many panels per row
 	 * @param hgap Horizontal gap between each panel
 	 * @param vgap Vertical gap between each panel
 	 * @param xStartOffset Starting x offset of the first panel
 	 * @param yStartOffset Starting y offset of the first panel
 	 */
-	public void populateGrid(ArrayList<Volo> array, int columns, int hgap, int vgap, int xStartOffset, int yStartOffset) {
+	public void populateGrid(int columns, int hgap, int vgap, int xStartOffset, int yStartOffset) {
 		
 		//Clear grid
 		gridPanel.removeAll();
@@ -149,7 +147,7 @@ public class CheckFlightsPanel extends JPanel {
 		int width = 0;
 		int height = 0;
 		
-		int panelNumber = (array != null) ? array.size() : 0; //Get the number of panels to create
+		int panelNumber = (mainFrame.getFlightList() != null) ? mainFrame.getFlightList().size() : 0; //Get the number of panels to create
 		
 		for(int i = 0; i < panelNumber; i++) {
 			
@@ -159,7 +157,7 @@ public class CheckFlightsPanel extends JPanel {
 			
 			//Get correct company image
 			Image companyImage;
-			switch(array.get(i).getCompagnia().getNome()) {
+			switch(mainFrame.getFlightList().get(i).getCompagnia().getNome()) {
 				case "AirFrance": companyImage = airfranceLogoImage; break;
 				case "Alitalia": companyImage = alitaliaLogoImage; break;
 				case "EasyJet": companyImage = easyjetLogoImage; break;
@@ -168,7 +166,7 @@ public class CheckFlightsPanel extends JPanel {
 			}
 			
 			//Create panel
-			FlightPreviewPanel f = new FlightPreviewPanel(mainFrame, array.get(i), companyImage); //Create new panel
+			FlightPreviewPanel f = new FlightPreviewPanel(mainFrame, mainFrame.getFlightList().get(i), companyImage); //Create new panel
 			
 			//Get width and height of the panel
 			width = f.getWidth();

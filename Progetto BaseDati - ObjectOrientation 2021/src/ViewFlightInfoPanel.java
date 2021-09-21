@@ -3,9 +3,6 @@ import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-
 import javax.swing.JPanel;
 import java.awt.Font;
 import java.awt.Graphics;
@@ -150,6 +147,9 @@ public class ViewFlightInfoPanel extends JPanel {
 		
 	}
 	
+	/**
+	 * Removes the buttons allowing to alter a flight's status and the edit flight button
+	 */
 	public void removeButtons() {
 		
 		//Remove buttons
