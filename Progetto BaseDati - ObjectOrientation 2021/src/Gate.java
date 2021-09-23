@@ -3,6 +3,7 @@ import java.util.ArrayList;
 public class Gate {
 	
 	private int numeroGate; //Gate's number
+	private int numeroVoli; //Gate's number of flights
 	private ArrayList<Coda> listaCode = new ArrayList<Coda>(); //List of queues in the gate
 	
 	//Setters and getters
@@ -22,6 +23,12 @@ public class Gate {
 	}
 	public void setListaCode(ArrayList<Coda> listaCode) {
 		this.listaCode = listaCode;
+	}
+	public int getNumeroVoli() {
+		return numeroVoli;
+	}
+	public void setNumeroVoli(int numeroVoli) {
+		this.numeroVoli = numeroVoli;
 	}
 	
 }

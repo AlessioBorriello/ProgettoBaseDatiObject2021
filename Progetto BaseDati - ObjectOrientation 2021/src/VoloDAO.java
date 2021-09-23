@@ -1,6 +1,7 @@
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -23,14 +24,16 @@ public class VoloDAO {
 		Date orarioDecollo = v.getOrarioDecollo();
 		String id = v.getID();
 		String destinazione = v.getDestinazione();
+		int numeroGate = v.getGate().getNumeroGate();
+		int numeroPrenotazioni = v.getNumeroPrenotazioni();
 		
 		//Convert date format to a usable format in the database
 		String dataString = dateTimeFormat.format(orarioDecollo);
 		
 		try {
 			
-			String q = "INSERT INTO volo(idvolo, nomeCompagnia, dataPartenza, destinazione, partito, cancellato)\r\n" + 
-					"VALUES ('" + id + "','" + compagnia + "','"+ dataString + "', '" + destinazione + "','" +  0 + "','" + 0 + "');"; //Initialize query
+			String q = "INSERT INTO volo(idvolo, nomeCompagnia, dataPartenza, destinazione, partito, cancellato, numeroGate, numeroPrenotazioni)\r\n" + 
+					"VALUES ('" + id + "','" + compagnia + "','"+ dataString + "', '" + destinazione + "','" +  0 + "','" + 0 + "', '" + numeroGate + "', '" + numeroPrenotazioni + "');"; //Initialize query
 			String connectionURL = MainController.URL; //Connection URL
 	
 	        Connection con = DriverManager.getConnection(connectionURL, MainController.USER, MainController.PASSWORD);  //Create connection
@@ -40,18 +43,11 @@ public class VoloDAO {
 			con.close(); //Close connection
 			st.close(); //Close statement
 			
-			//Insert gate
-			GateDAO daoGate = new GateDAO();
-			if(!daoGate.insertGate(mainFrame, v.getGate(), id)) {
-				//Something went wrong when inserting the gate, therefore remove the flight just inserted (if found)
-				if(getFlightByID(mainFrame, id) != null) {
-					removeFlight(mainFrame, v);
-				}
-				return false;
-			}
-			
 			//Insert slot
 			SlotDAO daoSlot = new SlotDAO();
+			daoSlot.insertSlot(mainFrame, v.getSlot(), id);
+			
+			/*
 			if(!daoSlot.insertSlot(mainFrame, v.getSlot(), id)) {
 				//Something went wrong when inserting the slot, therefore remove the flight just inserted (if found)
 				if(getFlightByID(mainFrame, id) != null) {
@@ -59,16 +55,22 @@ public class VoloDAO {
 				}
 				return false;
 			}
+			*/
+			
+			//Update company and gate flight amounts in application
+			v.getCompagnia().setNumeroVoli(v.getCompagnia().getNumeroVoli() + 1);
+			v.getGate().setNumeroVoli(v.getGate().getNumeroVoli() + 1);
 			
 			mainFrame.createNotificationFrame("Volo inserito!");
 			
-			//Update flight count
-			new CompagniaAereaDAO().increaseCompagniaAereaFlightCount(mainFrame, v.getCompagnia().getNome());
-			
 			return true; //Operation successful
 		
-		}catch(Exception e) { //Error catching
+		}catch(SQLException e) { //Error catching
 			System.out.println(e);
+			if(e.getSQLState().toString().equals("42069")) {
+				mainFrame.createNotificationFrame("Un gate puo' avere solo un volo contemporaneamente!");
+				return false; //Operation failed
+			}
 			mainFrame.createNotificationFrame("Qualcosa e' andato storto!: " + e + "");
 			return false; //Operation failed
 		}
@@ -88,13 +90,14 @@ public class VoloDAO {
 		Date orarioDecollo = newFlight.getOrarioDecollo();
 		String id = newFlight.getID();
 		String destinazione = newFlight.getDestinazione();
+		int numeroGate = newFlight.getGate().getNumeroGate();
 		
 		//Convert date format to a usable format in the database
 		String dataString = dateTimeFormat.format(orarioDecollo);
 		
 		try {
 			
-			String q = "UPDATE volo SET nomeCompagnia = '" + compagnia + "', dataPartenza = '" + dataString + "', destinazione = '" + destinazione + "' WHERE idvolo = '" + id + "'"; //Initialize query
+			String q = "UPDATE volo SET nomeCompagnia = '" + compagnia + "', dataPartenza = '" + dataString + "', destinazione = '" + destinazione + "', numeroGate = '" + numeroGate + "' WHERE idvolo = '" + id + "'"; //Initialize query
 			String connectionURL = MainController.URL; //Connection URL
 	
 	        Connection con = DriverManager.getConnection(connectionURL, MainController.USER, MainController.PASSWORD);  //Create connection
@@ -104,18 +107,11 @@ public class VoloDAO {
 			con.close(); //Close connection
 			st.close(); //Close statement
 			
-			//Update gate
-			GateDAO daoGate = new GateDAO();
-			if(!daoGate.updateGate(mainFrame, newFlight.getGate(), id)) {
-				//Something went wrong when inserting the gate, therefore remove the flight just inserted (if found)
-				if(getFlightByID(mainFrame, id) != null) {
-					revertFlightValues(mainFrame, oldFlight);
-				}
-				return false;
-			}
-			
 			//Update slot
 			SlotDAO daoSlot = new SlotDAO();
+			daoSlot.updateSlot(mainFrame, newFlight.getSlot(), id);
+			
+			/*
 			if(!daoSlot.updateSlot(mainFrame, newFlight.getSlot(), id)) {
 				//Something went wrong when inserting the slot, therefore remove the flight just inserted (if found)
 				if(getFlightByID(mainFrame, id) != null) {
@@ -123,13 +119,28 @@ public class VoloDAO {
 				}
 				return false;
 			}
+			*/
+			
+			//Update company and gate flight amounts in application
+			if(!newFlight.getCompagnia().getNome().equals(oldFlight.getCompagnia().getNome())) { //If the company changed
+				newFlight.getCompagnia().setNumeroVoli(newFlight.getCompagnia().getNumeroVoli() + 1); //Increase new company count
+				oldFlight.getCompagnia().setNumeroVoli(oldFlight.getCompagnia().getNumeroVoli() - 1); //decrease old company count
+			}
+			if(newFlight.getGate().getNumeroGate() != oldFlight.getGate().getNumeroGate()) { //If the gate changed
+				newFlight.getGate().setNumeroVoli(newFlight.getGate().getNumeroVoli() + 1); //Increase new gate count
+				oldFlight.getGate().setNumeroVoli(oldFlight.getGate().getNumeroVoli() - 1); //decrease old gate count
+			}
 			
 			mainFrame.createNotificationFrame("Volo modificato!");
 			
 			return true; //Operation successful
 		
-		}catch(Exception e) { //Error catching
+		}catch(SQLException e) { //Error catching
 			System.out.println(e);
+			if(e.getSQLState().toString().equals("42069")) {
+				mainFrame.createNotificationFrame("Un gate puo' avere solo un volo contemporaneamente!");
+				return false; //Operation failed
+			}
 			mainFrame.createNotificationFrame("Qualcosa e' andato storto!: " + e + "");
 			return false; //Operation failed
 		}
@@ -148,13 +159,14 @@ public class VoloDAO {
 		Date orarioDecollo = backupFlight.getOrarioDecollo();
 		String id = backupFlight.getID();
 		String destinazione = backupFlight.getDestinazione();
+		int numeroGate = backupFlight.getGate().getNumeroGate();
 		
 		//Convert date format to a usable format in the database
 		String dataString = dateTimeFormat.format(orarioDecollo);
 		
 		try {
 			
-			String q = "UPDATE volo SET nomeCompagnia = '" + compagnia + "', dataPartenza = '" + dataString + "', destinazione = '" + destinazione + "' WHERE idvolo = '" + id + "'"; //Initialize query
+			String q = "UPDATE volo SET nomeCompagnia = '" + compagnia + "', dataPartenza = '" + dataString + "', destinazione = '" + destinazione + "', numeroGate = '" + numeroGate + "' WHERE idvolo = '" + id + "'"; //Initialize query
 			String connectionURL = MainController.URL; //Connection URL
 	
 	        Connection con = DriverManager.getConnection(connectionURL, MainController.USER, MainController.PASSWORD);  //Create connection
@@ -163,10 +175,6 @@ public class VoloDAO {
 			
 			con.close(); //Close connection
 			st.close(); //Close statement
-			
-			//Update gate
-			GateDAO daoGate = new GateDAO();
-			daoGate.updateGate(mainFrame, backupFlight.getGate(), id);
 			
 			//Update slot
 			SlotDAO daoSlot = new SlotDAO();
@@ -241,10 +249,18 @@ public class VoloDAO {
 						break;
 					}
 				}
-				
 				v.setCompagnia(compagnia); //Set company
 				
-				v.setGate(new GateDAO().getGateByID(con, ID)); //Get the gate by the ID
+				//Get gate from it's number
+				Gate gate = null;
+				for(Gate g : mainFrame.getListaGate()) {
+					if(g.getNumeroGate() == rs.getInt("numeroGate")) {
+						gate = g;
+						break;
+					}
+				}
+				
+				v.setGate(gate);
 				v.setID(ID);
 				v.setDestinazione(rs.getString("destinazione"));
 				v.setOrarioDecollo(rs.getTimestamp("dataPartenza"));
@@ -253,13 +269,7 @@ public class VoloDAO {
 				boolean cancellato = (rs.getInt("cancellato") != 0)? true : false; //Set cancellato to true if the database has a different value than 0, otherwise set it to false
 				v.setCancellato(cancellato);
 				v.setSlot(new SlotDAO().getSlotByID(ID)); //Get the slot by the ID
-				
-				//Calculate number of bookings
-				int sum = 0;
-				for(Coda c : v.getGate().getListaCode()) {
-					sum += c.getPersoneInCoda();
-				}
-				v.setNumeroPrenotazioni(sum);
+				v.setNumeroPrenotazioni(rs.getInt("numeroPrenotazioni"));
 				
 				return v;
 				
@@ -329,9 +339,6 @@ public class VoloDAO {
 			con.close(); //Close connection
 			st.close(); //Close statement
 			
-			//Update flight count
-			new CompagniaAereaDAO().decreaseCompagniaAereaFlightCount(mainFrame, v.getCompagnia().getNome());
-			
 			return true; //Operation successful
 			
 		}catch(Exception e) { //Error catching
@@ -340,7 +347,7 @@ public class VoloDAO {
 		}
 		
 	}
-	
+
 	/**
 	 * Gets a list of Flights from the database that pass the given query
 	 * @param query Query to make to the database
@@ -365,7 +372,7 @@ public class VoloDAO {
 			while(rs.next()) {
 				
 				Volo v = new Volo();
-				
+
 				//Get company class from it's name
 				CompagniaAerea compagnia = null;
 				for(CompagniaAerea c : mainFrame.getListaCompagnie()) {
@@ -375,26 +382,14 @@ public class VoloDAO {
 					}
 				}
 				
-				//Create gate
-				Gate g = new Gate();
-				g.setNumeroGate(rs.getInt("numeroGate"));
-				
-				//Create queue list
-				String currentID = rs.getString("idvolo");
-				ArrayList<Coda> queues = new ArrayList<Coda>();
-				
-				//Go through all the results where the id is the same
-				do {
-					Coda c = new Coda();
-					c.setTipo(rs.getString("tipo"));
-					c.setPersoneInCoda(rs.getInt("lunghezza"));
-					queues.add(c);
-				}while(rs.next() && rs.getString("idvolo").equals(currentID));
-				
-				rs.previous(); //Go back once on the result set, to go back to the last result where the id is the same
-				
-				//Set the queue list
-				g.setListaCode(queues);
+				//Get gate from it's number
+				Gate gate = null;
+				for(Gate g : mainFrame.getListaGate()) {
+					if(g.getNumeroGate() == rs.getInt("numeroGate")) {
+						gate = g;
+						break;
+					}
+				}
 				
 				//Create slot
 				Slot s = new Slot();
@@ -404,8 +399,8 @@ public class VoloDAO {
 				s.setFineTempoEffettivo(rs.getTimestamp("fineTempoEffettivo"));
 				
 				v.setCompagnia(compagnia); //Set company
-				v.setGate(g); //Set gate
-				v.setID(currentID);
+				v.setGate(gate); //Set gate
+				v.setID(rs.getString("idvolo"));
 				v.setDestinazione(rs.getString("destinazione"));
 				v.setOrarioDecollo(rs.getTimestamp("dataPartenza"));
 				boolean partito = (rs.getInt("partito") != 0)? true : false; //Set partito to true if the database has a different value than 0, otherwise set it to false
@@ -413,13 +408,7 @@ public class VoloDAO {
 				boolean cancellato = (rs.getInt("cancellato") != 0)? true : false; //Set cancellato to true if the database has a different value than 0, otherwise set it to false
 				v.setCancellato(cancellato);
 				v.setSlot(s); //Set slot
-				
-				//Calculate number of bookings
-				int sum = 0;
-				for(Coda c : v.getGate().getListaCode()) {
-					sum += c.getPersoneInCoda();
-				}
-				v.setNumeroPrenotazioni(sum);
+				v.setNumeroPrenotazioni(rs.getInt("numeroPrenotazioni"));
 				
 				list.add(v);
 				
@@ -449,7 +438,7 @@ public class VoloDAO {
 		
 		try {
 			
-			String q = "SELECT * FROM volo INNER JOIN gate ON volo.idvolo = gate.IDVolo WHERE numeroGate = " + gateNumber + " ORDER BY dataPartenza ASC"; //Initialize query
+			String q = "SELECT * FROM volo where numeroGate = " + gateNumber + " ORDER BY dataPartenza ASC"; //Initialize query
 			String connectionURL = MainController.URL; //Connection URL
 
 	        Connection con = DriverManager.getConnection(connectionURL, MainController.USER, MainController.PASSWORD); //Create connection
@@ -472,9 +461,17 @@ public class VoloDAO {
 					}
 				}
 				
-				v.setCompagnia(compagnia); //Set company
+				//Get gate from it's number
+				Gate gate = null;
+				for(Gate g : mainFrame.getListaGate()) {
+					if(g.getNumeroGate() == rs.getInt("numeroGate")) {
+						gate = g;
+						break;
+					}
+				}
 				
-				v.setGate(new GateDAO().getGateByID(con, rs.getString("idvolo"))); //Get the gate by the ID
+				v.setCompagnia(compagnia); //Set company
+				v.setGate(gate); //Set gate
 				v.setID(rs.getString("idvolo"));
 				v.setDestinazione(rs.getString("destinazione"));
 				v.setOrarioDecollo(rs.getTimestamp("dataPartenza"));
@@ -483,13 +480,7 @@ public class VoloDAO {
 				boolean cancellato = (rs.getInt("cancellato") != 0)? true : false; //Set cancellato to true if the database has a different value than 0, otherwise set it to false
 				v.setCancellato(cancellato);
 				v.setSlot(new SlotDAO().getSlotByID(rs.getString("idvolo"))); //Get the slot by the ID
-				
-				//Calculate number of bookings
-				int sum = 0;
-				for(Coda c : v.getGate().getListaCode()) {
-					sum += c.getPersoneInCoda();
-				}
-				v.setNumeroPrenotazioni(sum);
+				v.setNumeroPrenotazioni(rs.getInt("numeroPrenotazioni"));
 				
 				list.add(v);
 				
@@ -506,6 +497,42 @@ public class VoloDAO {
 		
 	}
 
+	/**
+	 * Get a list of the flight's ID with a specified gate number in it's linked gate
+	 * @param gateNumber The number of the gate
+	 * @return List of ID where a flight's linked gate has the gateNumber equal to the passed gateNumber argument
+	 */
+	public ArrayList<String> getFlightIdByGateNumber(int gateNumber){
+		
+		try {
+			
+			String q = "Select idVolo from volo where numeroGate = " + gateNumber + " AND partito = 0 and cancellato = 0"; //Initialize query
+			String connectionURL = MainController.URL; //Connection URL
+
+	        Connection con = DriverManager.getConnection(connectionURL, MainController.USER, MainController.PASSWORD); //Create connection
+			Statement st = con.createStatement(); //Create statement
+			ResultSet rs = st.executeQuery(q); //Execute query
+			
+			ArrayList<String> list = new ArrayList<String>(); //Initialize a list of id s
+			
+			//Get all the id s
+			while(rs.next()) {
+				
+				list.add(rs.getString("IDVolo"));
+				
+			}
+			
+			con.close(); //Close connection
+			st.close(); //Close statement
+			return list; //Return list
+			
+		}catch(Exception e) { //Error catching
+			System.out.println(e);
+			return null; //Return null
+		}
+		
+	}
+	
 	/**
 	 * Get a list of ID's of all the flights whose take off time happen before a given date
 	 * @param date The date that a flight needs to take off before of to be added in the return list

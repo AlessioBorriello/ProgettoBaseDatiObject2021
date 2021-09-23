@@ -70,7 +70,6 @@ public class CheckGatePanel extends JPanel {
 		mainFrame = mf; //Link main frame
 		
 		this.flightList = flightList;
-		
 		this.gateNumber = gateNumber;
 		
 		setBounds(bounds); //Set bounds
@@ -193,49 +192,54 @@ public class CheckGatePanel extends JPanel {
 		int index = 0;
 		int height = 30;
 		int vGap = 2;
-		for(Volo v : list) {
-			
-			Color borderColor;
-			if(v.isPartito()) {
-				if(v.checkIfFlightTookOffLate()) {
-					borderColor = MainController.flightTakenOffLateColor; //Taken off late
+		if(list != null) {
+			for(Volo v : list) {
+				
+				Color borderColor;
+				if(v.isPartito()) {
+					if(v.checkIfFlightTookOffLate()) {
+						borderColor = MainController.flightTakenOffLateColor; //Taken off late
+					}else {
+						borderColor = MainController.flightTakenOffColor; //Taken off
+					}
 				}else {
-					borderColor = MainController.flightTakenOffColor; //Taken off
+					if(v.isCancellato()) {
+						borderColor = MainController.flightCancelledColor; //Cancelled
+					}else {
+						borderColor = MainController.flightProgrammedColor; //Programmed
+					}
 				}
-			}else {
-				if(v.isCancellato()) {
-					borderColor = MainController.flightCancelledColor; //Cancelled
-				}else {
-					borderColor = MainController.flightProgrammedColor; //Programmed
-				}
+				
+				CustomButton buttonFlight = new CustomButton(v.getID(), null, mainFrame.getDifferentAlphaColor(borderColor, 48), 
+						MainController.foregroundColorThree, 18, true, borderColor, 2); //Create button create flight
+				buttonFlight.setName("buttonFlight"); //Name component
+				buttonFlight.setBounds(0, 0 + ((height + vGap) * index), 228, height); //Set bounds
+				buttonFlight.addMouseListener(new MouseAdapter() {
+					public void mouseEntered(MouseEvent e) {
+						buttonFlight.selectAnimation(8);
+					}
+	
+					public void mouseExited(MouseEvent e) {
+						buttonFlight.unselectAnimation(8);
+					}
+				});
+				buttonFlight.addMouseListener(new MouseAdapter() {
+					//When mouse clicked
+					public void mouseClicked(MouseEvent e) {
+						mainFrame.changeContentPanel(new ViewFlightInfoPanel(new Rectangle(72, 2, 1124, 666), mainFrame, v), false, false); //Go to the view flight info panel, without asking for confirmation
+					}
+				});
+				flightListPanel.add(buttonFlight);
+				
+				index++;
 			}
-			
-			CustomButton buttonFlight = new CustomButton(v.getID(), null, mainFrame.getDifferentAlphaColor(borderColor, 48), 
-					MainController.foregroundColorThree, 18, true, borderColor, 2); //Create button create flight
-			buttonFlight.setName("buttonFlight"); //Name component
-			buttonFlight.setBounds(0, 0 + ((height + vGap) * index), 228, height); //Set bounds
-			buttonFlight.addMouseListener(new MouseAdapter() {
-				public void mouseEntered(MouseEvent e) {
-					buttonFlight.selectAnimation(8);
-				}
-
-				public void mouseExited(MouseEvent e) {
-					buttonFlight.unselectAnimation(8);
-				}
-			});
-			buttonFlight.addMouseListener(new MouseAdapter() {
-				//When mouse clicked
-				public void mouseClicked(MouseEvent e) {
-					mainFrame.changeContentPanel(new ViewFlightInfoPanel(new Rectangle(72, 2, 1124, 666), mainFrame, v), false, false); //Go to the view flight info panel, without asking for confirmation
-				}
-			});
-			flightListPanel.add(buttonFlight);
-			
-			index++;
 		}
 		
 		//Calculate new height of the list panel (after the buttons have been added)
 		int newGridPanelHeight = ((height + vGap) * index) - vGap;
+		if(newGridPanelHeight < 0) {
+			newGridPanelHeight = 0;
+		}
 		
 		//Create group layout (and assign calculated height)
 		GroupLayout gl_gridPanel = new GroupLayout(flightListPanel);

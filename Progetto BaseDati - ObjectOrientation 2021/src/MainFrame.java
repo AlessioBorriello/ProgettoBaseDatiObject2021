@@ -57,6 +57,7 @@ public class MainFrame extends JFrame {
 	private JPanel contentPanel = null; //Panel that changes the content displayed
 	private JLayeredPane centerPanel; //Panel containing content panel and dash board
 	private ArrayList<CompagniaAerea> listaCompagnie = new ArrayList<CompagniaAerea>(); //Array containing the companies
+	private ArrayList<Gate> listaGate = new ArrayList<Gate>(); //Array containing the gates
 	private DashboardPanel dashboardPanel; //Dash board panel
 	
 	final private int backPanelsStackMaxSize = 4; //Max amount of stored panels
@@ -88,6 +89,9 @@ public class MainFrame extends JFrame {
 		
 		//Get all the companies from the database
 		listaCompagnie = new CompagniaAereaDAO().getAllCompagniaAerea();
+		
+		//Get all gates from the database
+		listaGate = new GateDAO().getAllGates();
 		
 		//Load notification bell image
 		try {
@@ -332,7 +336,7 @@ public class MainFrame extends JFrame {
 		contentPanel.setLayout(new BorderLayout(0, 0)); //Set content panel's layout
 		
 		//Generate random flights
-		//debugGenerateRandomFlights(10);
+		//debugGenerateRandomFlights(20);
 		
 		//Start a research to get all of the flights (as the panel starts not looking at the archive (setContentPanelToCheckFlightsPanel(false, false) on next line)) that have not taken off or have been cancelled
 		Thread queryThread = new Thread() {
@@ -575,7 +579,7 @@ public class MainFrame extends JFrame {
 		String dateStartString = (dateStart != null)? dateTimeFormat.format(dateStart) : null; //If the date is not null get it's string version, set the string as null otherwise
 		String dateEndString = (dateEnd != null)? dateTimeFormat.format(dateEnd) : null; //If the date is not null get it's string version, set the string as null otherwise
 		
-		String query = "SELECT * FROM volo INNER JOIN gate ON volo.idvolo = gate.IDVolo INNER JOIN slot ON volo.idvolo = slot.IDVolo INNER JOIN coda ON volo.idvolo = coda.IDVolo WHERE ("; //Initialize query string
+		String query = "SELECT * FROM volo INNER JOIN slot ON volo.idvolo = slot.IDVolo WHERE ("; //Initialize query string
 		
 		//ID field
 		String idQuery;
@@ -812,17 +816,25 @@ public class MainFrame extends JFrame {
 	 * Create a flight and add it to the database
 	 * @param nomeCompagnia Company name of the flight
 	 * @param data Take off date of the flight
-	 * @param gate Gate where the flight's embark takes place
+	 * @param gateNumber Gate where the flight's embark takes place
 	 * @param destinazione Destination of the flight
-	 * @param listaCode Flight's queue list
 	 */
-	public void createFlight(String nomeCompagnia, Date data, int gate, String destinazione, ArrayList<String> listaCode) {
+	public void createFlight(String nomeCompagnia, Date data, int gateNumber, String destinazione) {
 		
 		//Get company class from it's name
 		CompagniaAerea compagnia = null;
 		for(CompagniaAerea c : getListaCompagnie()) {
 			if(c.getNome().equals(nomeCompagnia)) {
 				compagnia = c;
+				break;
+			}
+		}
+		
+		//Get gate from it's number
+		Gate gate = null;
+		for(Gate g : getListaGate()) {
+			if(g.getNumeroGate() == gateNumber) {
+				gate = g;
 				break;
 			}
 		}
@@ -844,51 +856,25 @@ public class MainFrame extends JFrame {
 		Date fineTempoStimato = new Date();
 		fineTempoStimato = c.getTime();
 		
-		//Create queue list
-		ArrayList<Coda> list = new ArrayList<Coda>();
-		for(String s : listaCode) {
-			Coda coda = new Coda();
-			coda.setPersoneInCoda(0);
-			try {
-				coda.setTipo(s);
-			} catch (NonExistentQueueTypeException e) {
-				e.printStackTrace();
-			}
-			list.add(coda);
-		}
-		
-		//Check if there is at least one queue
-		if(list.size() == 0) {
-			createNotificationFrame("Seleziona almeno una coda!");
-			return;
-		}
-		
-		//Create gate
-		Gate g = new Gate();
-		g.setListaCode(list);
-		try {
-			g.setNumeroGate(gate);
-		} catch (NonExistentGateException e) {
-			e.printStackTrace();
-		}
-		
 		//Create slot
 		Slot s = new Slot();
 		s.setInizioTempoStimato(inizioTempoStimato);
 		s.setFineTempoStimato(fineTempoStimato);
 		
 		//Check if the gate at that slot is available
-		if(checkIfSlotIsTaken(s, gate, null)) {
-			createNotificationFrame("Il gate selezionato non e' disponibile a quell'ora!");
-			return;
+		boolean doubleCheck = false; //The next check is done in the database as well, if this boolean is true than the check is also done by the application
+		if(doubleCheck) {
+			if(checkIfSlotIsTaken(s, gateNumber, null)) {
+				createNotificationFrame("Il gate selezionato non e' disponibile a quell'ora!");
+				return;
+			}
 		}
 		
 		//Create flight
 		Volo v = new Volo();
 		v.setID(id);
 		v.setCompagnia(compagnia);
-		compagnia.setNumeroVoli(compagnia.getNumeroVoli() + 1);
-		v.setGate(g);
+		v.setGate(gate);
 		v.setDestinazione(destinazione);
 		v.setOrarioDecollo(data);
 		v.setPartito(false);
@@ -897,7 +883,9 @@ public class MainFrame extends JFrame {
 		
 		//Insert in the database
 		VoloDAO dao = new VoloDAO();
-		dao.insertFlight(this, v);
+		if(!dao.insertFlight(this, v)) {
+			return;
+		}
 		
 		//Go to checkFlightsPanel
 		if(changeContentPanel(new CheckFlightsPanel(new Rectangle(72, 2, 1124, 666), this, false), false, false)) { //If the panel successfully gets changed
@@ -921,16 +909,24 @@ public class MainFrame extends JFrame {
 	 * @param v Old flight instance to update
 	 * @param nomeCompagnia Company name of the updated flight
 	 * @param data Take off date of the updated flight
-	 * @param gate Gate where the updated flight's embark takes place
-	 * @param listaCode Flight's queue list
+	 * @param gateNumber Gate where the updated flight's embark takes place
 	 */
-	public void editFlight(Volo v, String nomeCompagnia, Date data, int gate, String destinazione, ArrayList<String> listaCode) {
+	public void editFlight(Volo v, String nomeCompagnia, Date data, int gateNumber, String destinazione) {
 		
 		//Get company class from it's name
 		CompagniaAerea compagnia = null;
 		for(CompagniaAerea c : getListaCompagnie()) {
 			if(c.getNome().equals(nomeCompagnia)) {
 				compagnia = c;
+				break;
+			}
+		}
+		
+		//Get gate from it's number
+		Gate gate = null;
+		for(Gate g : getListaGate()) {
+			if(g.getNumeroGate() == gateNumber) {
+				gate = g;
 				break;
 			}
 		}
@@ -949,85 +945,38 @@ public class MainFrame extends JFrame {
 		Date fineTempoStimato = new Date();
 		fineTempoStimato = c.getTime();
 		
-		//Create queue list
-		ArrayList<Coda> newQueueList = new ArrayList<Coda>();
-		for(String s : listaCode) {
-			Coda coda = new Coda();
-			try {
-				coda.setTipo(s);
-			} catch (NonExistentQueueTypeException e) {
-				e.printStackTrace();
-			}
-			coda.setPersoneInCoda(0);
-			
-			//Get queues of the non updated flight
-			for(Coda oldCoda : v.getGate().getListaCode()) {
-				
-				if(coda.getTipo().equals(oldCoda.getTipo())) { //If one of the queues in the updated flight was already in the non updated one
-					coda.setPersoneInCoda(oldCoda.getPersoneInCoda()); //Set it's length (to not loose bookings)
-				}
-				
-			}
-			
-			newQueueList.add(coda);
-			
-		}
-		
-		//Check if there is at least one queue
-		if(newQueueList.size() == 0) {
-			createNotificationFrame("Seleziona almeno una coda!");
-			return;
-		}
-		
-		//Create gate
-		Gate g = new Gate();
-		g.setListaCode(newQueueList);
-		try {
-			g.setNumeroGate(gate);
-		} catch (NonExistentGateException e) {
-			e.printStackTrace();
-		}
-		
 		//Create slot
 		Slot s = new Slot();
 		s.setInizioTempoStimato(inizioTempoStimato);
 		s.setFineTempoStimato(fineTempoStimato);
 		
 		//Check if the gate at that slot is available
-		if(checkIfSlotIsTaken(s, gate, v)) {
-			createNotificationFrame("Il gate selezionato non e' disponibile a quell'ora!");
-			return;
+		boolean doubleCheck = false; //The next check is done in the database as well, if this boolean is true than the check is also done by the application
+		if(doubleCheck) {
+			if(checkIfSlotIsTaken(s, gateNumber, v)) {
+				createNotificationFrame("Il gate selezionato non e' disponibile a quell'ora!");
+				return;
+			}
 		}
 		
 		//Create edited flight
 		Volo editedVolo = new Volo();
 		editedVolo.setID(v.getID());
 		editedVolo.setCompagnia(compagnia);
-		editedVolo.setGate(g);
+		editedVolo.setGate(gate);
 		editedVolo.setDestinazione(destinazione);
 		editedVolo.setOrarioDecollo(data);
 		editedVolo.setPartito(false);
 		editedVolo.setSlot(s);
+		editedVolo.setNumeroPrenotazioni(v.getNumeroPrenotazioni());
 		
 		editedVolo.printFlightInfo();
-		
-		//Calculate number of bookings
-		int sum = 0;
-		for(Coda coda : v.getGate().getListaCode()) {
-			sum += coda.getPersoneInCoda();
-		}
-		editedVolo.setNumeroPrenotazioni(sum);
 		
 		//Update in the database
 		VoloDAO dao = new VoloDAO();
 		if(!dao.updateFlight(this, editedVolo, v)) {
 			return;
 		}
-		
-		//Update company flight count
-		CompagniaAereaDAO daoCompany = new CompagniaAereaDAO();
-		daoCompany.decreaseCompagniaAereaFlightCount(this, v.getCompagnia().getNome()); //Decrease old company count
-		daoCompany.increaseCompagniaAereaFlightCount(this, editedVolo.getCompagnia().getNome()); //Increase new company count
 		
 		//Change panel to the ViewFlightPanel
 		changeContentPanel(new ViewFlightInfoPanel(new Rectangle(72, 2, 1124, 666), this, editedVolo), false, false);
@@ -1162,7 +1111,7 @@ public class MainFrame extends JFrame {
 	 */
 	public boolean checkIfSlotIsTaken(Slot s, int gateNumber, Volo volo) {
 		
-		ArrayList<String> idList = (new GateDAO().getFlightIdByGateNumber(gateNumber));
+		ArrayList<String> idList = (new VoloDAO().getFlightIdByGateNumber(gateNumber));
 		
 		//If an id has been passed then we are updating a flight, therefore remove it from the array of IDs (If the gate of the new flight (gateNumber) is the same as the old one (volo.getGate().getNumeroGate()))
 		if(volo != null && volo.getGate().getNumeroGate() == gateNumber) {
@@ -1238,7 +1187,7 @@ public class MainFrame extends JFrame {
 			Random r = new Random();
 			
 			//Gate
-			int gate = r.nextInt((MainController.gateAirportNumber + 1) - 1) + 1; //Range 1 to 12
+			int gateNumber = r.nextInt((MainController.gateAirportNumber + 1) - 1) + 1; //Range 1 to 12
 			
 			//Company
 			int nomeCompagniaInt = r.nextInt(4); //Range 0 to 3
@@ -1287,6 +1236,15 @@ public class MainFrame extends JFrame {
 				}
 			}
 			
+			//Get gate from it's number
+			Gate gate = null;
+			for(Gate g : getListaGate()) {
+				if(g.getNumeroGate() == gateNumber) {
+					gate = g;
+					break;
+				}
+			}
+			
 			//Generate ID
 			String id = generateIDString(8);
 			
@@ -1304,35 +1262,13 @@ public class MainFrame extends JFrame {
 			Date fineTempoStimato = new Date();
 			fineTempoStimato = c.getTime();
 			
-			//Create queue list
-			ArrayList<Coda> list = new ArrayList<Coda>();
-			for(String s : listaCode) {
-				Coda coda = new Coda();
-				coda.setPersoneInCoda(r.nextInt(101)); //Range 0 to 100
-				try {
-					coda.setTipo(s);
-				} catch (NonExistentQueueTypeException e) {
-					e.printStackTrace();
-				}
-				list.add(coda);
-			}
-			
-			//Create gate
-			Gate g = new Gate();
-			g.setListaCode(list);
-			try {
-				g.setNumeroGate(gate);
-			} catch (NonExistentGateException e) {
-				e.printStackTrace();
-			}
-			
 			//Create slot
 			Slot s = new Slot();
 			s.setInizioTempoStimato(inizioTempoStimato);
 			s.setFineTempoStimato(fineTempoStimato);
 			
 			//Check if the gate at that slot is available
-			if(checkIfSlotIsTaken(s, gate, null)) {
+			if(checkIfSlotIsTaken(s, gateNumber, null)) {
 				break;
 			}
 			
@@ -1340,13 +1276,17 @@ public class MainFrame extends JFrame {
 			Volo v = new Volo();
 			v.setID(id);
 			v.setCompagnia(compagnia);
-			compagnia.setNumeroVoli(compagnia.getNumeroVoli() + 1);
-			v.setGate(g);
+			v.setGate(gate);
 			v.setDestinazione(destinazione);
 			v.setOrarioDecollo(data);
 			v.setPartito(false);
 			v.setSlot(s);
-			v.setNumeroPrenotazioni(0);
+			
+			int maxPossibleBookings = 0;
+			for(Coda q : gate.getListaCode()) {
+				maxPossibleBookings += q.getLunghezzaMax();
+			}
+			v.setNumeroPrenotazioni(r.nextInt(maxPossibleBookings));
 			
 			//Insert in the database
 			VoloDAO dao = new VoloDAO();
@@ -1501,7 +1441,25 @@ public class MainFrame extends JFrame {
 	public ArrayList<CompagniaAerea> getListaCompagnie() {
 		return listaCompagnie;
 	}
-
+	public ArrayList<Gate> getListaGate() {
+		return listaGate;
+	}
+	/**
+	 * Get a gate from the gate list in the mainframe
+	 * @param gateNumber The number of the gate to retrieve
+	 * @return the gate specified if found, the first one otherwise
+	 */
+	public Gate getGateFromList(int gateNumber) {
+		
+		for(Gate g : listaGate) {
+			if(g.getNumeroGate() == gateNumber) {
+				return g;
+			}
+		}
+		
+		return listaGate.get(0);
+		
+	}
 	
 }
 

@@ -42,7 +42,7 @@ public class GatePanel extends JPanel{
 		this.mainFrame = mainFrame;
 		this.gateNumber = gateNumber;
 		
-		flightCount = (new GateDAO().getFlightAmountByGateNumber(gateNumber)); //Get number of flights in this gate
+		flightCount = mainFrame.getGateFromList(gateNumber).getNumeroVoli(); //Get number of flights in this gate
 		
 		//There are no flight with this gate
 		if(flightCount == 0) {
@@ -50,7 +50,7 @@ public class GatePanel extends JPanel{
 		}else {
 			borderColor = MainController.foregroundColorThree;
 		}
-		
+
 		addMouseListener(new MouseAdapter() {
 			//When mouse clicked
 			public void mouseClicked(MouseEvent e) {
@@ -58,6 +58,7 @@ public class GatePanel extends JPanel{
 					Thread queryThread = new Thread() {
 					      public void run() {
 					    	  ArrayList<Volo> flightList = new VoloDAO().getFlightsByGate(mainFrame, gateNumber); //Get flights for this gate
+					    	  
 					    	  mainFrame.changeContentPanel(new CheckGatePanel(new Rectangle(72, 2, 1124, 666), mainFrame, flightList, gateNumber), false, false);
 					    	  unselectAnimation(8);
 					      }

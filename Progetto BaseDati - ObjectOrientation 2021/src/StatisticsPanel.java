@@ -20,8 +20,6 @@ public class StatisticsPanel extends JPanel {
 	private int gatesNumber = 12; //How many gate there are in the airport
 	private int flightTotal = 0; //How many flights there are in the whole airport
 	
-	//private ArrayList<CompagniaAerea> companies; //ArrayList containing the companies
-	
 	private class PieSlice {
 		
 		private String name; //Name of the slice
@@ -66,7 +64,6 @@ public class StatisticsPanel extends JPanel {
 		mainFrame = mf; //Link main frame
 		
 		//Get number of flights for each of the companies in the airport
-		//companies = mainFrame.getListaCompagnie(); //Take companies from mainFrame
 		for(int i = 0; i < 4; i++) {
 			if(mainFrame.getListaCompagnie() != null) {
 				flightTotal += mainFrame.getListaCompagnie().get(i).getNumeroVoli();

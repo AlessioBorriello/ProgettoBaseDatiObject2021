@@ -7,12 +7,13 @@ import java.util.Date;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.awt.BasicStroke;
-import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 
 import javax.swing.SpinnerNumberModel;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.imageio.ImageIO;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
@@ -26,8 +27,6 @@ import java.io.IOException;
 public class EditFlightPanel extends JPanel {
 
 	private MainFrame mainFrame; //Main panel
-	private Volo v; //Flight being edited
-	private ArrayList<String> listaCode = new ArrayList<String>(); //List of the queues
 	
 	//Company images
 	private Image airfranceLogoImage;
@@ -39,9 +38,11 @@ public class EditFlightPanel extends JPanel {
 	
 	CustomButton buttonAddQueue; //Button used to add queues (Declared here so it can be accessed by the remove and add queues methods)
 	
-	private int queueButtonDistance = 59; //Distance between the added queue buttons
+	private int gatesNumber = MainController.gateAirportNumber; //How many gate there are in the airport
 	
-	private int gatesNumber = 12; //How many gate there are in the airport
+	private ArrayList<Coda> queues; // ArrayList containing the queues of a given gate
+	private int capacity; //The queues total capacity
+	private int bookingAmount; //How many booking there are on the flight
 	
 	/**
 	 * Panel where the user can edit a flight and update it into the database
@@ -53,7 +54,6 @@ public class EditFlightPanel extends JPanel {
 	public EditFlightPanel(Rectangle bounds, MainFrame mf, Volo v) {
 		
 		mainFrame = mf; //Link main frame
-		this.v = v; //Flight to edit
 		
 		//Load company images
 		try {                
@@ -127,7 +127,31 @@ public class EditFlightPanel extends JPanel {
 		spinnerGate.setEditorBackgroundColor(MainController.backgroundColorOne);
 		spinnerGate.setEditorForegroundColor(MainController.foregroundColorThree);
 		spinnerGate.setEditorFont(new Font(MainController.fontOne.getFontName(), Font.PLAIN, 12));
+		spinnerGate.addChangeListener(new ChangeListener() {
+			public void stateChanged(ChangeEvent e) {
+				queues = mainFrame.getGateFromList((int) spinnerGate.getValue()).getListaCode(); //Set the correct queues based on the gate being selected
+				//Get queue's capacity
+				capacity = 0;
+				for(Coda coda : queues) {
+					capacity += coda.getLunghezzaMax();
+				}
+				repaint();
+				revalidate();
+			}
+	});
 		add(spinnerGate); //Add to panel
+		
+		queues = mainFrame.getGateFromList((int) spinnerGate.getValue()).getListaCode(); //Set the correct queues based on the gate being selected
+		//Get queue's capacity
+		capacity = 0;
+		if(queues != null) {
+			for(Coda coda : queues) {
+				capacity += coda.getLunghezzaMax();
+			}
+		}
+		
+		//Get booking amount
+		bookingAmount = v.getNumeroPrenotazioni();
 		
 		CustomButton buttonEditFlight = new CustomButton("Modifica volo!", null, mainFrame.getDifferentAlphaColor(MainController.foregroundColorThree, 64), 
 				MainController.foregroundColorThree, 22, true, MainController.foregroundColorThree, 1); //Create button create flight
@@ -143,75 +167,6 @@ public class EditFlightPanel extends JPanel {
 			}
 		});
 		add(buttonEditFlight); //Add to panel
-		
-		buttonAddQueue = (new CustomButton("", null, mainFrame.getDifferentAlphaColor(MainController.foregroundColorThree, 64), 
-													null, 0, true, MainController.foregroundColorThree, 1) {
-
-			public void paint(Graphics g) {
-				
-				super.paint(g); //Paint the component normally first
-				
-				Graphics2D g2d = (Graphics2D)g;
-				
-				//AA
-				g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-				
-				//Text AA
-				g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-				
-				//Draw plus icon
-				g2d.setStroke(new BasicStroke(2, BasicStroke.CAP_ROUND, BasicStroke.JOIN_MITER));
-				g2d.drawLine(getWidth()/2, getHeight() - 4, getWidth()/2, 4);
-				g2d.drawLine(getWidth() - 4, getHeight()/2, 4, getHeight()/2);
-				
-				}
-
-		}); //Create button add queue
-		buttonAddQueue.setName("buttonAddQueue"); //Name component
-		buttonAddQueue.setBounds(720, 182, 25, 25); //Set bounds
-		buttonAddQueue.addMouseListener(new MouseAdapter() {
-			//Mouse clicked
-			public void mouseClicked(MouseEvent e) {
-				String choice = mainFrame.createAddQueueFrame(listaCode);
-				if(!choice.equals("undo")) { //If the user has not pressed the undo button
-					//Check if that type of queue has been added already
-					boolean queueAlreadyAdded = false;
-					for(String s : listaCode) {
-						if(s.equals(choice)) {
-							//If the queue has been added already (has been found in the ArrayList listaCode)
-							queueAlreadyAdded = true;
-							break;
-						}
-					}
-					//If the queue has not been added already
-					if(!queueAlreadyAdded) {
-						addQueue(choice); //Add a queue
-					}else { //If the queue has been added already
-						mainFrame.createNotificationFrame("Questa coda è già stata aggiunta!"); //Notify user
-					}
-				}
-			}
-		});
-		buttonAddQueue.addMouseListener(new MouseAdapter() {
-			public void mouseEntered(MouseEvent e) {
-				buttonAddQueue.selectAnimation(8);
-			}
-
-			public void mouseExited(MouseEvent e) {
-				buttonAddQueue.unselectAnimation(8);
-			}
-		});
-		add(buttonAddQueue); //Add to panel
-		
-		//Add queues of the flight being edited
-		for(Coda coda : (v.getGate().getListaCode())) {
-			addQueue(coda.getTipo());
-		}
-		
-		//Hide add queue button if all the queues have already been added
-		if(listaCode.size() >= 6) {
-			buttonAddQueue.show(false);
-		}
 		
 		CustomComboBox cBoxDestination = mainFrame.createCustomComboBox();
 		cBoxDestination.setName("cBoxDestination");
@@ -238,116 +193,22 @@ public class EditFlightPanel extends JPanel {
 				int gate = (int)spinnerGate.getValue();
 				String destinazione = (String)cBoxDestination.getSelectedItem();
 				
+				//If the booking amount is greater than the capacity of the gate, notify the user
+				if(bookingAmount > capacity) {
+					if(!mainFrame.createConfirmationFrame("Il numero di prenotazioni supera la capacita' del gate attuale, sei sicuro di voler procedere?")) {
+						return;
+					}
+				}
+				
 				Thread queryThread = new Thread() {
 				      public void run() {
-				    	  mainFrame.editFlight(v, nomeCompagnia, data, gate, destinazione, listaCode); //Update flight with the gathered data
+				    	  mainFrame.editFlight(v, nomeCompagnia, data, gate, destinazione); //Update flight with the gathered data
 				      }
 				};
 			    queryThread.start();
 			
 			}
 		});
-		
-	}
-
-	/**
-	 * Add a queue to the panelQueues
-	 * @param type Type of the queue to add to the queue list
-	 */
-	@SuppressWarnings("deprecation")
-	public void addQueue(String type) {
-		
-		int yOffset = queueButtonDistance * (listaCode.size());
-		
-		listaCode.add(type); //Add the queue to the ArrayList listaCode
-		
-		//Determine background color
-		Color bgColor = (listaCode.size()%2 == 0)? MainController.backgroundColorTwo : null; //If the array size is not even, set a different background color for the button (Once every 2 buttons)
-		
-		//Create button for that queue
-		CustomButton buttonAddedQueue = new CustomButton(type, bgColor, mainFrame.getDifferentAlphaColor(MainController.foregroundColorThree, 64), 
-				MainController.foregroundColorThree, 22, true, MainController.foregroundColorThree, 1); //Create button create flight
-		buttonAddedQueue.setName("buttonAddedQueue" + (listaCode.size() - 1)); //Name component
-		buttonAddedQueue.setText(type); //So that the type can be found and removed from the listaCode array
-		buttonAddedQueue.setBounds(760, 170 + yOffset, 300, 50); //Set bounds
-		buttonAddedQueue.addMouseListener(new MouseAdapter() {
-			public void mouseEntered(MouseEvent e) {
-				buttonAddedQueue.selectAnimation(8);
-			}
-
-			public void mouseExited(MouseEvent e) {
-				buttonAddedQueue.unselectAnimation(8);
-			}
-		});
-		buttonAddedQueue.addMouseListener(new MouseAdapter() {
-			//When mouse clicked
-			public void mouseClicked(MouseEvent e) {
-				removeQueue(buttonAddedQueue);
-			}
-		});
-		add(buttonAddedQueue);
-		
-		//Move add queue button down
-		buttonAddQueue.setBounds(buttonAddQueue.getBounds().x, buttonAddQueue.getBounds().y + queueButtonDistance, buttonAddQueue.getBounds().width, buttonAddQueue.getBounds().height);
-		
-		//Hide add queue button if all the queues have been added
-		if(listaCode.size() >= 6) {
-			buttonAddQueue.show(false);
-		}
-		
-		repaint();
-		
-	}
-	
-	/**
-	 * Remove a queue from the panelQueues containing the queues
-	 * @param queueButton What queue button to remove
-	 */
-	@SuppressWarnings("deprecation")
-	public void removeQueue(CustomButton queueButton) {
-		
-		String type = queueButton.getText(); //Type of the queue being removed
-		int queueLength = 0; //How many people were in that queue
-		//Get all the queues of the flight being edited
-		for(Coda c : v.getGate().getListaCode()) {
-			if(type.equals(c.getTipo())) { //If the type of the queue being removed is found in the queues of the flight being edited
-				queueLength = c.getPersoneInCoda();
-			}
-		}
-		
-		String notification = (queueLength > 0)? "Sei sicuro di voler rimuovere questa coda (Ci sono " + queueLength + " persone in questa coda)?" : "Sei sicuro di voler rimuovere questa coda?"; //If there were people in the queue being removed
-		
-		if(mainFrame.createConfirmationFrame(notification)) { //If the user has confirmed the action
-			
-			int buttonNumber = listaCode.indexOf(queueButton.getText());
-			listaCode.remove(buttonNumber); //Remove the queue from the ArrayList listaCode
-			remove(queueButton); //Remove label
-			
-			//Move add queue button
-			buttonAddQueue.setBounds(buttonAddQueue.getBounds().x, buttonAddQueue.getBounds().y - queueButtonDistance, buttonAddQueue.getBounds().width, buttonAddQueue.getBounds().height);
-			
-			//Move added queues buttons after the removed one
-			for(int i = buttonNumber + 1; i <= listaCode.size(); i++) {
-				
-				CustomButton b = (CustomButton)mainFrame.getComponentByName(this, "buttonAddedQueue" + String.valueOf(i)); //Get named button
-				
-				if(b != null) { //Button has been found
-					b.setBounds(b.getBounds().x, b.getBounds().y - queueButtonDistance, b.getBounds().width, b.getBounds().height); //Move it upwards
-					b.setName("buttonAddedQueue" + String.valueOf(i - 1)); //Change name
-					Color bgColor = (i%2 == 0)? MainController.backgroundColorTwo : null; //If the button position is not even, set a background color for the button
-					b.setButtonBackgroundColor(bgColor); //Update background color
-				}
-				
-			}
-			
-			//Show button if a queue can still be added
-			if(listaCode.size() < 6) {
-				buttonAddQueue.show(true);
-			}
-			
-			repaint(); //Repaint panelQueues
-		
-		}
 		
 	}
 
@@ -413,17 +274,45 @@ public class EditFlightPanel extends JPanel {
 	    g2d.setStroke(new BasicStroke(4, BasicStroke.CAP_ROUND, BasicStroke.JOIN_MITER));
 	    g2d.drawLine(700, 125, 700, 545);
 	    
-	    //Draw queue string
-	    g2d.setFont(new Font(MainController.fontOne.getFontName(), Font.BOLD, 30));
-	    g2d.drawString("Lista code", 823, 145);
-	    
-	    //Draw remove queue string
-	    if(listaCode.size() > 0) {
-	    	
-	    	g2d.setFont(new Font(MainController.fontOne.getFontName(), Font.BOLD, 14));
-		    g2d.drawString("Clicca su una per rimuovere", 854, 179 + (queueButtonDistance * listaCode.size()));
-	    	
-	    }
+	    // Draw queue string
+ 		g2d.setFont(new Font(MainController.fontOne.getFontName(), Font.BOLD, 28));
+ 		String queueString = "Lista code sul gate";
+ 		int queueStringLenght = g2d.getFontMetrics(g2d.getFont()).stringWidth(queueString);
+ 		g2d.drawString(queueString, 870 - (queueStringLenght/2), 120);
+ 		g2d.setFont(new Font(MainController.fontOne.getFontName(), Font.BOLD, 16));
+ 		g2d.drawString("(Capienza)", 1015, 120);
+ 		
+ 		g2d.setFont(new Font(MainController.fontOne.getFontName(), Font.BOLD, 28));
+ 		
+ 		int index = 0;
+ 		if(queues != null) {
+	 	    for(Coda coda : queues) {
+	 	    	
+	 	    	//Draw different colored rectangle on even queue's number (Once every 2 queues)
+	 	    	if(index%2 == 0) {
+	 	    		g2d.setColor(MainController.backgroundColorTwo);
+	 	    		g2d.fillRect(720, 146 + (index * 60), 390, 60);
+	 	    		
+	 	    	}
+	 	    	
+	 	    	//Draw queue string
+	 	    	g2d.setColor(MainController.foregroundColorThree);
+	 	    	String s = coda.getTipo() + " (" + coda.getLunghezzaMax() + ")";
+	 	    	queueStringLenght = g2d.getFontMetrics(g2d.getFont()).stringWidth(s);
+	 	    	g2d.drawString(s, 918 - (queueStringLenght/2), 184 + (index * 60));
+	 			
+	 			index++;
+	 		}
+ 		}
+ 	    
+ 	    //Draw total capacity
+ 	    g2d.setFont(new Font(MainController.fontOne.getFontName(), Font.BOLD, 21));
+ 		String capacityString = "Capacita' totale del gate: " + bookingAmount + "/" + capacity;
+ 		if(bookingAmount > capacity) {
+ 			g2d.setColor(MainController.flightCancelledColor);
+ 		}
+ 		int capacityStringLenght = g2d.getFontMetrics(g2d.getFont()).stringWidth(capacityString);
+ 		g2d.drawString(capacityString, 915 - (capacityStringLenght/2), 575);
 	    
 	}
 	

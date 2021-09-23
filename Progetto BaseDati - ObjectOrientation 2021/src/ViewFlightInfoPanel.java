@@ -38,6 +38,7 @@ public class ViewFlightInfoPanel extends JPanel {
 	private Image companyImage; //Company image
 	
 	private ArrayList<Coda> listaCode; //List of queues of the flight
+	private int capacity; //The queues total capacity
 
 	/**
 	 * Panel that shows the info of a given flight in detail
@@ -48,7 +49,6 @@ public class ViewFlightInfoPanel extends JPanel {
 	public ViewFlightInfoPanel(Rectangle bounds, MainFrame mf, Volo v) {
 		
 		mainFrame = mf; //Link main frame
-		//mainController = c; //Link main controller
 		volo = v; //Flight to show the info of
 		
 		setBounds(bounds); //Set bounds
@@ -144,6 +144,13 @@ public class ViewFlightInfoPanel extends JPanel {
 		}
 		
 		listaCode = volo.getGate().getListaCode(); //Get all of the flight's queues
+		//Get queue's capacity
+		capacity = 0;
+		if(listaCode != null) {
+			for(Coda coda : listaCode) {
+				capacity += coda.getLunghezzaMax();
+			}
+		}
 		
 	}
 	
@@ -222,7 +229,7 @@ public class ViewFlightInfoPanel extends JPanel {
 	    g2d.drawString("Orario: " + dateTimeFormat.format(volo.getOrarioDecollo()), 310, 255);
 	    g2d.drawString("Gate: " + volo.getGate().getNumeroGate(), 310, 290);
 	    g2d.drawString("Destinazione: " + volo.getDestinazione(), 310, 325);
-	    g2d.drawString("Numero prenotazioni: " + volo.getNumeroPrenotazioni(), 310, 360);
+	    g2d.drawString("Numero prenotazioni: " + volo.getNumeroPrenotazioni() + "/" + capacity, 310, 360);
 	    
 	    //Draw separator lines
 	    g2d.setStroke(new BasicStroke(4, BasicStroke.CAP_ROUND, BasicStroke.JOIN_MITER));
@@ -252,8 +259,8 @@ public class ViewFlightInfoPanel extends JPanel {
 	    int index = 0;
 	    for(Coda coda : listaCode) {
 	    	
-	    	//Draw different colored rectangle on uneven queue's number (Once every 2 queues)
-	    	if(index%2 == 1) {
+	    	//Draw different colored rectangle on even queue's number (Once every 2 queues)
+	    	if(index%2 == 0) {
 	    		g2d.setColor(MainController.backgroundColorTwo);
 	    		g2d.fillRect(720, 116 + (index * 60), 390, 60);
 	    		
@@ -261,7 +268,7 @@ public class ViewFlightInfoPanel extends JPanel {
 	    	
 	    	//Draw queue string
 	    	g2d.setColor(MainController.foregroundColorThree);
-	    	String s = coda.getTipo() + ", persone in coda: " + coda.getPersoneInCoda();
+	    	String s = coda.getTipo();
 	    	int queueStringLenght = g2d.getFontMetrics(g2d.getFont()).stringWidth(s);
 	    	g2d.drawString(s, 908 - (queueStringLenght/2), 152 + (index * 60));
 			

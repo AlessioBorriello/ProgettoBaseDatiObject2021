@@ -273,6 +273,24 @@ public class SearchPanel extends JPanel {
 		boolean delayed = chckbxDelayed.isSelected();
 		boolean inTime = chckbxInTime.isSelected();
 		
+		//Normalize string
+		/*
+		String firstDestStr;
+		String remDestStr;
+		if(destinationFieldString != null) {
+			firstDestStr = destinationFieldString.substring(0, 1); //First letter of the string
+	        remDestStr = destinationFieldString.substring(1); //Rest of the letter of the string
+	        
+	        //Convert the first letter of String to upper case
+			firstDestStr = firstDestStr.toUpperCase();
+	        //Convert the rest of String to lower case
+			remDestStr = remDestStr.toLowerCase();
+			
+			//Join normalized string
+	        destinationFieldString = firstDestStr + remDestStr;
+		}
+		*/
+		
 		//Update flight list in the main frame
 		mainFrame.setFlightList(mainFrame.searchFlights(idFieldString, destinationFieldString, gateNumber, dateStart, dateEnd, airFrance, alitalia, easyJet, ryanair, cancelled, delayed, inTime));
 		//Update the flight list panel

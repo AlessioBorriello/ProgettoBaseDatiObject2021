@@ -49,7 +49,7 @@ public class Volo {
 		
 		String q = "Code: ";
 		for(Coda queue : getGate().getListaCode()) {
-			q += queue.getTipo() + "(" + queue.getPersoneInCoda() + ") / ";
+			q += queue.getTipo() + " / ";
 		}
 		System.out.println(q);
 		

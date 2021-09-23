@@ -2,7 +2,8 @@
 public class Coda {
 
 	private String tipo; //Queue type
-	private int personeInCoda = 0; //People in this queue
+	private int gateNumber; //This queue's gate
+	private int lunghezzaMax = 0; //Max number of people in the queue
 	
 	//Setters and getters
 	public String getTipo() {
@@ -16,11 +17,17 @@ public class Coda {
 			this.tipo = tipo;
 		}
 	}
-	public int getPersoneInCoda() {
-		return personeInCoda;
+	public int getGateNumber() {
+		return gateNumber;
 	}
-	public void setPersoneInCoda(int personeInCoda) {
-		this.personeInCoda = personeInCoda;
+	public void setGateNumber(int gateNumber) {
+		this.gateNumber = gateNumber;
+	}
+	public int getLunghezzaMax() {
+		return lunghezzaMax;
+	}
+	public void setLunghezzaMax(int lunghezzaMax) {
+		this.lunghezzaMax = lunghezzaMax;
 	}
 	
 }
