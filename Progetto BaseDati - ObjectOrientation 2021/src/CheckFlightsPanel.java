@@ -167,7 +167,8 @@ public class CheckFlightsPanel extends JPanel {
 
 			// Get correct company image
 			Image companyImage;
-			switch (list.get(i).getCompagnia().getNome()) {
+			Volo v = list.get(i);
+			switch (v.getCompagnia().getNome()) {
 			case "AirFrance":
 				companyImage = airfranceLogoImage;
 				break;
@@ -185,7 +186,7 @@ public class CheckFlightsPanel extends JPanel {
 			}
 
 			// Create panel
-			FlightPreviewPanel f = new FlightPreviewPanel(mainFrame, mainFrame.getFlightList().get(i), companyImage); // Create new panel
+			FlightPreviewPanel f = new FlightPreviewPanel(mainFrame, v, companyImage); // Create new panel
 
 			// Get width and height of the panel
 			width = f.getWidth();
