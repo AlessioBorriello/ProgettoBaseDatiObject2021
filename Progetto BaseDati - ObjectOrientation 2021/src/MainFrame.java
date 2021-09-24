@@ -970,8 +970,6 @@ public class MainFrame extends JFrame {
 		editedVolo.setSlot(s);
 		editedVolo.setNumeroPrenotazioni(v.getNumeroPrenotazioni());
 		
-		editedVolo.printFlightInfo();
-		
 		//Update in the database
 		VoloDAO dao = new VoloDAO();
 		if(!dao.updateFlight(this, editedVolo, v)) {
@@ -1361,10 +1359,6 @@ public class MainFrame extends JFrame {
 				
 			}
 			
-			//Print flight info
-			v.printFlightInfo();
-			System.out.println("");
-			
 		}
 		
 	}
@@ -1444,6 +1438,7 @@ public class MainFrame extends JFrame {
 	public ArrayList<Gate> getListaGate() {
 		return listaGate;
 	}
+	
 	/**
 	 * Get a gate from the gate list in the mainframe
 	 * @param gateNumber The number of the gate to retrieve

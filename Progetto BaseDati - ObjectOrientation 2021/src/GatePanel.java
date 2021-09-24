@@ -8,7 +8,6 @@ import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -57,9 +56,7 @@ public class GatePanel extends JPanel{
 				if(flightCount > 0) {
 					Thread queryThread = new Thread() {
 					      public void run() {
-					    	  ArrayList<Volo> flightList = new VoloDAO().getFlightsByGate(mainFrame, gateNumber); //Get flights for this gate
-					    	  
-					    	  mainFrame.changeContentPanel(new CheckGatePanel(new Rectangle(72, 2, 1124, 666), mainFrame, flightList, gateNumber), false, false);
+					    	  mainFrame.changeContentPanel(new CheckGatePanel(new Rectangle(72, 2, 1124, 666), mainFrame, gateNumber), false, false);
 					    	  unselectAnimation(8);
 					      }
 					};

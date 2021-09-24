@@ -65,12 +65,12 @@ public class CheckGatePanel extends JPanel {
 	 * @param flightList List containing the flights that use this gate
 	 * @param gateNumber The number identifying the gate
 	 */
-	public CheckGatePanel(Rectangle bounds, MainFrame mf, ArrayList<Volo> flightList, int gateNumber) {
+	public CheckGatePanel(Rectangle bounds, MainFrame mf, int gateNumber) {
 		
 		mainFrame = mf; //Link main frame
-		
-		this.flightList = flightList;
 		this.gateNumber = gateNumber;
+		
+		flightList = new VoloDAO().getFlightsByGate(mainFrame, gateNumber); //Get flights for this gate
 		
 		setBounds(bounds); //Set bounds
 		setLayout(null);
