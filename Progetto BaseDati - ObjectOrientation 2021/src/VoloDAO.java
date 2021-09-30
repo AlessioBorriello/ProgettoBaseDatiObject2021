@@ -390,7 +390,7 @@ public class VoloDAO {
 						break;
 					}
 				}
-				
+
 				//Create slot
 				Slot s = new Slot();
 				s.setInizioTempoStimato(rs.getTimestamp("inizioTempoStimato"));
@@ -562,42 +562,6 @@ public class VoloDAO {
 			}
 			
 			return idList;
-			
-		}catch(Exception e) { //Error catching
-			System.out.println(e);
-			return null; //Return null
-		}
-		
-	}
-
-	/**
-	 * Get the minimum and maximum dates present in the database, non considering cancelled or flights that have taken off
-	 * @return Array of size 2 containing the minimum and maximum dates present in the database, non considering cancelled or flights that have taken off
-	 */
-	public Date[] getMinAndMaxTakeOffTime() {
-		
-		try {
-			
-			String q = "SELECT MIN(dataPartenza) AS minimo, MAX(dataPartenza) as massimo FROM volo" ; //Initialize query
-			
-			String connectionURL = MainController.URL; //Connection URL
-
-	        Connection con = DriverManager.getConnection(connectionURL, MainController.USER, MainController.PASSWORD); //Create connection
-			Statement st = con.createStatement(); //Create statement
-			ResultSet rs = st.executeQuery(q); //Execute query
-			
-			Date[] dates = new Date[2];
-			
-			if(rs.next()) {
-				
-				//Minimum
-				dates[0] = rs.getTimestamp("minimo");
-				//Max
-				dates[1] = rs.getTimestamp("massimo");
-				
-			}
-			
-			return dates;
 			
 		}catch(Exception e) { //Error catching
 			System.out.println(e);

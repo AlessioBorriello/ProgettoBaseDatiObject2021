@@ -274,10 +274,10 @@ public class SearchPanel extends JPanel {
 		boolean inTime = chckbxInTime.isSelected();
 		
 		//Normalize string
-		/*
 		String firstDestStr;
 		String remDestStr;
-		if(destinationFieldString != null) {
+		if(!destinationFieldString.equals("")) {
+			
 			firstDestStr = destinationFieldString.substring(0, 1); //First letter of the string
 	        remDestStr = destinationFieldString.substring(1); //Rest of the letter of the string
 	        
@@ -289,7 +289,6 @@ public class SearchPanel extends JPanel {
 			//Join normalized string
 	        destinationFieldString = firstDestStr + remDestStr;
 		}
-		*/
 		
 		//Update flight list in the main frame
 		mainFrame.setFlightList(mainFrame.searchFlights(idFieldString, destinationFieldString, gateNumber, dateStart, dateEnd, airFrance, alitalia, easyJet, ryanair, cancelled, delayed, inTime));

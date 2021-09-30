@@ -977,7 +977,7 @@ public class MainFrame extends JFrame {
 		}
 		
 		//Change panel to the ViewFlightPanel
-		changeContentPanel(new ViewFlightInfoPanel(new Rectangle(72, 2, 1124, 666), this, editedVolo), false, false);
+		changeContentPanel(new ViewFlightInfoPanel(new Rectangle(72, 2, 1124, 666), this, new VoloDAO().getFlightByID(this, editedVolo.getID())), false, false);
 		
 	}
 	

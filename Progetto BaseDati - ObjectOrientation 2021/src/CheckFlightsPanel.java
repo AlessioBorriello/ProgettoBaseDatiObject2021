@@ -155,9 +155,7 @@ public class CheckFlightsPanel extends JPanel {
 		int height = 0;
 
 		ArrayList<Volo> list = mainFrame.getFlightList();
-		int panelNumber = (list != null) ? list.size() : 0; // Get the number
-																										// of panels to
-																										// create
+		int panelNumber = (list != null) ? list.size() : 0; // Get the number of panels to create
 
 		for (int i = 0; i < panelNumber; i++) {
 
