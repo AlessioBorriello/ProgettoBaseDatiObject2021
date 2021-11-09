@@ -849,11 +849,13 @@ public class MainFrame extends JFrame {
 		//Get lower range
 		c.add(Calendar.MINUTE, -5);
 		Date inizioTempoStimato = new Date();
+		c.set(Calendar.SECOND, 0);
 		inizioTempoStimato = c.getTime();
 		
 		//Get higher range
 		c.add(Calendar.MINUTE, 15);
 		Date fineTempoStimato = new Date();
+		c.set(Calendar.SECOND, 0);
 		fineTempoStimato = c.getTime();
 		
 		//Create slot
