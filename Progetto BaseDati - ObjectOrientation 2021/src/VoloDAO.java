@@ -32,8 +32,8 @@ public class VoloDAO {
 		
 		try {
 			
-			String q = "INSERT INTO volo(idvolo, nomeCompagnia, dataPartenza, destinazione, partito, cancellato, numeroGate, numeroPrenotazioni)\r\n" + 
-					"VALUES ('" + id + "','" + compagnia + "','"+ dataString + "', '" + destinazione + "','" +  0 + "','" + 0 + "', '" + numeroGate + "', '" + numeroPrenotazioni + "');"; //Initialize query
+			String q = "INSERT INTO volo(idvolo, nomeCompagnia, dataPartenza, destinazione, numeroGate, numeroPrenotazioni)\r\n" + 
+					"VALUES ('" + id + "','" + compagnia + "','"+ dataString + "', '" + destinazione + "','" + numeroGate + "', '" + numeroPrenotazioni + "');"; //Initialize query
 			String connectionURL = MainController.URL; //Connection URL
 	
 	        Connection con = DriverManager.getConnection(connectionURL, MainController.USER, MainController.PASSWORD);  //Create connection
@@ -264,9 +264,9 @@ public class VoloDAO {
 				v.setID(ID);
 				v.setDestinazione(rs.getString("destinazione"));
 				v.setOrarioDecollo(rs.getTimestamp("dataPartenza"));
-				boolean partito = (rs.getInt("partito") != 0)? true : false; //Set partito to true if the database has a different value than 0, otherwise set it to false
+				boolean partito = rs.getBoolean("partito"); //Set partito to true if the database has a different value than 0, otherwise set it to false
 				v.setPartito(partito);
-				boolean cancellato = (rs.getInt("cancellato") != 0)? true : false; //Set cancellato to true if the database has a different value than 0, otherwise set it to false
+				boolean cancellato = rs.getBoolean("cancellato"); //Set cancellato to true if the database has a different value than 0, otherwise set it to false
 				v.setCancellato(cancellato);
 				v.setSlot(new SlotDAO().getSlotByID(ID)); //Get the slot by the ID
 				v.setNumeroPrenotazioni(rs.getInt("numeroPrenotazioni"));
@@ -403,9 +403,9 @@ public class VoloDAO {
 				v.setID(rs.getString("idvolo"));
 				v.setDestinazione(rs.getString("destinazione"));
 				v.setOrarioDecollo(rs.getTimestamp("dataPartenza"));
-				boolean partito = (rs.getInt("partito") != 0)? true : false; //Set partito to true if the database has a different value than 0, otherwise set it to false
+				boolean partito = rs.getBoolean("partito"); //Set partito to true if the database has a different value than 0, otherwise set it to false
 				v.setPartito(partito);
-				boolean cancellato = (rs.getInt("cancellato") != 0)? true : false; //Set cancellato to true if the database has a different value than 0, otherwise set it to false
+				boolean cancellato = rs.getBoolean("cancellato"); //Set cancellato to true if the database has a different value than 0, otherwise set it to false
 				v.setCancellato(cancellato);
 				v.setSlot(s); //Set slot
 				v.setNumeroPrenotazioni(rs.getInt("numeroPrenotazioni"));
@@ -475,9 +475,9 @@ public class VoloDAO {
 				v.setID(rs.getString("idvolo"));
 				v.setDestinazione(rs.getString("destinazione"));
 				v.setOrarioDecollo(rs.getTimestamp("dataPartenza"));
-				boolean partito = (rs.getInt("partito") != 0)? true : false; //Set partito to true if the database has a different value than 0, otherwise set it to false
+				boolean partito = rs.getBoolean("partito"); //Set partito to true if the database has a different value than 0, otherwise set it to false
 				v.setPartito(partito);
-				boolean cancellato = (rs.getInt("cancellato") != 0)? true : false; //Set cancellato to true if the database has a different value than 0, otherwise set it to false
+				boolean cancellato = rs.getBoolean("cancellato"); //Set cancellato to true if the database has a different value than 0, otherwise set it to false
 				v.setCancellato(cancellato);
 				v.setSlot(new SlotDAO().getSlotByID(rs.getString("idvolo"))); //Get the slot by the ID
 				v.setNumeroPrenotazioni(rs.getInt("numeroPrenotazioni"));
@@ -506,7 +506,7 @@ public class VoloDAO {
 		
 		try {
 			
-			String q = "Select idVolo from volo where numeroGate = " + gateNumber + " AND partito = 0 and cancellato = 0"; //Initialize query
+			String q = "Select idVolo from volo where numeroGate = " + gateNumber + " AND partito = '0' and cancellato = '0'"; //Initialize query
 			String connectionURL = MainController.URL; //Connection URL
 
 	        Connection con = DriverManager.getConnection(connectionURL, MainController.USER, MainController.PASSWORD); //Create connection
@@ -545,7 +545,7 @@ public class VoloDAO {
 		
 		try {
 			
-			String q = "Select idvolo from volo where partito = 0 AND cancellato = 0 AND dataPartenza <= '" + dateString + "' ORDER BY dataPartenza ASC" ; //Initialize query
+			String q = "Select idvolo from volo where partito = '0' AND cancellato = '0' AND dataPartenza <= '" + dateString + "' ORDER BY dataPartenza ASC" ; //Initialize query
 			
 			String connectionURL = MainController.URL; //Connection URL
 

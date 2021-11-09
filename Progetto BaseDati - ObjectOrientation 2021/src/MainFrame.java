@@ -611,21 +611,21 @@ public class MainFrame extends JFrame {
 		companyQuery += (!ryanair)? "(nomeCompagnia != 'Ryanair') AND " : "(1 = 1) AND "; //Exclude that company if the boolean is false, otherwise add (1 = 1) this is always true
 		companyQuery += (!easyJet)? "(nomeCompagnia != 'EasyJet')" : "(1 = 1)"; //Exclude that company if the boolean is false, otherwise add (1 = 1) this is always true
 		
-		String archiveOnlyQuery = "(partito = 0 AND cancellato = 0)"; //If not in archive
+		String archiveOnlyQuery = "(partito = '0' AND cancellato = '0')"; //If not in archive
 		if(inArchive) {
 
-			archiveOnlyQuery = "(partito = 1 OR cancellato = 1) AND "; //If in archive
-			archiveOnlyQuery += (!cancelled)? "(cancellato = 0) AND " : "(1 = 1) AND "; //Exclude the cancelled flights if the boolean is false, otherwise add (1 = 1) this is always true
-			archiveOnlyQuery += (!delayed && !inTime)? "(partito = 0)" : "(1 = 1)"; //Exclude the taken off flights if the both boolean are false, otherwise add (1 = 1) this is always true
+			archiveOnlyQuery = "(partito = '1' OR cancellato = '1') AND "; //If in archive
+			archiveOnlyQuery += (!cancelled)? "(cancellato = '0') AND " : "(1 = 1) AND "; //Exclude the cancelled flights if the boolean is false, otherwise add (1 = 1) this is always true
+			archiveOnlyQuery += (!delayed && !inTime)? "(partito = '0')" : "(1 = 1)"; //Exclude the taken off flights if the both boolean are false, otherwise add (1 = 1) this is always true
 		
 			//If in archive and either the delayed or the inTime check boxes are ticked (not both), then the flights where 'partito' = 1 are included in the query, discriminate between taken off in time and late
 			if((delayed || inTime) && !(delayed && inTime)) {
 				if(!delayed) { //Exclude delayed flights if delayed is false
 					archiveOnlyQuery += " AND ((slot.\"fineTempoStimato\" >= slot.\"fineTempoEffettivo\")"; //Only non delayed flights
-					archiveOnlyQuery += (cancelled)? " OR (cancellato = 1))" : ")"; //Add cancelled back if the cancelled boolean is true (since they get removed by the above condition) otherwise simply close brackets
+					archiveOnlyQuery += (cancelled)? " OR (cancellato = '1'))" : ")"; //Add cancelled back if the cancelled boolean is true (since they get removed by the above condition) otherwise simply close brackets
 				}else { //Exclude inTime flights if inTime is false
 					archiveOnlyQuery += " AND ((slot.\"fineTempoStimato\" < slot.\"fineTempoEffettivo\")"; //Only delayed flights
-					archiveOnlyQuery += (cancelled)? " OR (cancellato = 1))" : ")"; //Add cancelled back if the cancelled boolean is true (since they get removed by the above condition) otherwise simply close brackets
+					archiveOnlyQuery += (cancelled)? " OR (cancellato = '1'))" : ")"; //Add cancelled back if the cancelled boolean is true (since they get removed by the above condition) otherwise simply close brackets
 				}
 			}
 			

@@ -577,15 +577,28 @@ public class CheckGatePanel extends JPanel {
 	    //Draw table data
 	    //Estimated
 	    g2d.setFont(new Font(MainController.fontOne.getFontName(), Font.PLAIN, 20));
-	    s = estimatedAverages[0] + " Minuti";
-	    int sLength = g2d.getFontMetrics(g2d.getFont()).stringWidth(s);
-	    g2d.drawString(s, 613 - (sLength/2), 250);
-	    s = estimatedAverages[1] + " Minuti";
-	    sLength = g2d.getFontMetrics(g2d.getFont()).stringWidth(s);
-	    g2d.drawString(s, 820 - (sLength/2), 250);
-	    s = estimatedAverages[2] + " Minuti";
-	    sLength = g2d.getFontMetrics(g2d.getFont()).stringWidth(s);
-	    g2d.drawString(s, 994 - (sLength/2), 250);
+	    int sLength;
+	    if (estimatedAverages != null) {
+	    	s = estimatedAverages[0] + " Minuti";
+	 	    sLength = g2d.getFontMetrics(g2d.getFont()).stringWidth(s);
+	 	    g2d.drawString(s, 613 - (sLength/2), 250);
+	 	    s = estimatedAverages[1] + " Minuti";
+	 	    sLength = g2d.getFontMetrics(g2d.getFont()).stringWidth(s);
+	 	    g2d.drawString(s, 820 - (sLength/2), 250);
+	 	    s = estimatedAverages[2] + " Minuti";
+	 	    sLength = g2d.getFontMetrics(g2d.getFont()).stringWidth(s);
+	 	    g2d.drawString(s, 994 - (sLength/2), 250);
+	    }else {
+	    	s = "N/A";
+		    sLength = g2d.getFontMetrics(g2d.getFont()).stringWidth(s);
+		    g2d.drawString(s, 613 - (sLength/2), 250);
+		    s = "N/A";
+		    sLength = g2d.getFontMetrics(g2d.getFont()).stringWidth(s);
+		    g2d.drawString(s, 820 - (sLength/2), 250);
+		    s = "N/A";
+		    sLength = g2d.getFontMetrics(g2d.getFont()).stringWidth(s);
+		    g2d.drawString(s, 994 - (sLength/2), 250);
+	    }
 	    
 	    //Effective
 	    g2d.setFont(new Font(MainController.fontOne.getFontName(), Font.PLAIN, 20));
